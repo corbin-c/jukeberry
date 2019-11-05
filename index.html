@@ -13,17 +13,21 @@
     <main>
       <script type="module">
 import { Jukeberry } from "./main.js";
-(async () => {
-  let musicList = await Jukeberry.getTree();
+let displayBranch = async (path) => {
+  let musicList = await Jukeberry.getTree(path);
+  let main = document.querySelector("main");
+  main.innerHTML = "";
   let ul = document.createElement("ul");
-  document.querySelector("main").append(ul);
+  main.append(ul);
   musicList.map(e => {
     let li = document.createElement("li");
-    e.name = e.name.split("/");
-    li.innerText = e.name[e.name.length-1];
+    li.addEventListener("click",() => { displayBranch(e.name); });
+    let name = e.name.split("/");
+    li.innerText = name[name.length-1];
     ul.append(li);
   });
-})()
+}
+displayBranch("./");
       </script>
     </main>
     <footer></footer>

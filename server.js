@@ -12,10 +12,9 @@ let getFile = (path) => {
     });
   });
 }
-let failure = (response,error) => {
-  response.writeHead(400);
-  response.write("Bad request :(\n"+error);
-  response.end();
+let failure = (response,code,error) => {
+  response.writeHead(code);
+  response.write(error);
 };
 
 let commands = [
@@ -32,7 +31,6 @@ let servedFiles = [
 let Tree = {
   generateTrees: (response) => {
     response.writeHead(200);
-    response.end();
     let files = [];
     files.push({
       name:"tree.json",
@@ -50,6 +48,9 @@ let Tree = {
     let firstPath = path;
     path = path.split("/");
     tree = tree.find(e => e.name == backpath+path[0]).contents;
+    if (typeof tree === "undefined") {
+      throw new Error("no content found for query");
+    }
     if (path.length > 1) {
       path.shift();
       path = path.join("/");
@@ -64,19 +65,20 @@ let Tree = {
   },
   serveBranch: async (response,path) => {
     path = (path[path.length-1] == "/") ? path.slice(0,-1):path;
+    let tree;
     try {
-      let tree = await getFile("./tree.json");
+      tree = await getFile("./tree.json");
       tree = JSON.parse(tree);
-      response.writeHead(200, {"Content-Type": "application/json"});
-      tree = Tree.getBranch(tree,path);
-      tree = Tree.cleanBranch(tree);
-      response.write(JSON.stringify(tree));
-      response.end();
+    } catch {
+      throw {code:404,text:"No tree :(\nTree couldn't be found.\nIn order to generate tree:\n\n\tcd "+DIRECTORY+"\n\ttree -Jif --noreport > ./tree.json\n\ttree -Fif --noreport | grep -v '/$' > ./liste"};
     }
-        catch {
-      response.writeHead(404)
-      response.write("No tree :(\nTree couldn't be found.\nIn order to generate tree:\n\n\tcd "+DIRECTORY+"\n\ttree -Jif --noreport > ./tree.json\n\ttree -Fif --noreport | grep -v '/$' > ./liste");
-      response.end();
+    try {
+      tree = Tree.getBranch(tree,path);
+      tree = Tree.cleanBranch(tree);        
+      response.writeHead(200, {"Content-Type": "application/json"});
+      response.write(JSON.stringify(tree));
+    } catch(e) {
+      throw {code:400,text:"Bad request :\n"+e};
     }
   }
 }
@@ -91,20 +93,18 @@ let server = http.createServer(async function(req, res) {
     served = served.slice(1);
     served = await getFile(served);
     res.write(served);
-    res.end();
   } else if (page.pathname == "/api") {
     try {
       let cmd = commands
         .find(q => q.query == page.searchParams.get("action"))
         .func;
-      Tree[cmd](res,page.searchParams.get("options"));
+      await Tree[cmd](res,page.searchParams.get("options"));
     } catch(e) {
-      failure(res,e);
+      failure(res,e.code,e.text);
     }
   } else {
-    res.writeHead(404);
-    res.write("Not found :(");
-    res.end();
+    failure(res,404,"Not found :(");
   }
+  res.end();
 });
 server.listen(80);
