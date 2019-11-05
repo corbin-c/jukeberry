@@ -30,7 +30,9 @@ let servedFiles = [
 ];
 
 let Tree = {
-  generateTrees: () => {
+  generateTrees: (response) => {
+    response.writeHead(200);
+    response.end();
     let files = [];
     files.push({
       name:"tree.json",
@@ -43,7 +45,6 @@ let Tree = {
     for (i of files) {
       fs.writeFileSync(i.name,i.data);
     }
-    return JSON.stringify({done:true})
   },
   getBranch: (tree,path,backpath="") => {
     let firstPath = path;
@@ -61,13 +62,15 @@ let Tree = {
   cleanBranch: (tree) => {
     return tree.map(e => ({type:e.type,name:e.name}));
   },
-  serveBranch: async (path) => {
+  serveBranch: async (response,path) => {
+    response.writeHead(200, {"Content-Type": "application/json"});
     path = (path[path.length-1] == "/") ? path.slice(0,-1):path;
     let tree = await getFile("./tree.json");
     tree = JSON.parse(tree);
     tree = Tree.getBranch(tree,path);
     tree = Tree.cleanBranch(tree);
-    return JSON.stringify(tree);
+    response.write(JSON.stringify(tree));
+    response.end();
   }
 }
 
@@ -84,13 +87,10 @@ let server = http.createServer(async function(req, res) {
     res.end();
   } else if (page.pathname == "/api") {
     try {
-      res.writeHead(200, {"Content-Type": "application/json"});
       let cmd = commands
         .find(q => q.query == page.searchParams.get("query"))
         .func;
-      cmd = await Tree[cmd](page.searchParams.get("options"));
-      res.write(cmd);
-      res.end();
+      Tree[cmd](res,page.searchParams.get("options"));
     } catch(e) {
       failure(res,e);
     }
