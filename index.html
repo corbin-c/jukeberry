@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Jukeberry !</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Jukeberry !</h1>
+    </header>
+    <main>
+      <script type="module">
+import { Jukeberry } from "./main.js";
+(async () => {
+  let musicList = await Jukeberry.getTree();
+  let ul = document.createElement("ul");
+  document.querySelector("main").append(ul);
+  musicList.map(e => {
+    let li = document.createElement("li");
+    e.name = e.name.split("/");
+    li.innerText = e.name[e.name.length-1];
+    ul.append(li);
+  });
+})()
+      </script>
+    </main>
+    <footer></footer>
+  </body>
+</html>

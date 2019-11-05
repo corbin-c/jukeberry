@@ -20,7 +20,7 @@ let failure = (response,error) => {
 
 let commands = [
   {query:"getTree",func:"serveBranch"},
-  /*{query:"makeTree",func:"generateTrees"}*/
+  {query:"makeTree",func:"generateTrees"}
 ];
 let servedFiles = [
   {pathname:"/",mime:"text/html"},
