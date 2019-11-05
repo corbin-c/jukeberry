@@ -19,8 +19,8 @@ let failure = (response,error) => {
 };
 
 let commands = [
-  {query:"tree",func:"serveBranch"},
-  {query:"regenerate",func:"generateTrees"}
+  {query:"getTree",func:"serveBranch"},
+  /*{query:"makeTree",func:"generateTrees"}*/
 ];
 let servedFiles = [
   {pathname:"/",mime:"text/html"},
@@ -88,7 +88,7 @@ let server = http.createServer(async function(req, res) {
   } else if (page.pathname == "/api") {
     try {
       let cmd = commands
-        .find(q => q.query == page.searchParams.get("query"))
+        .find(q => q.query == page.searchParams.get("action"))
         .func;
       Tree[cmd](res,page.searchParams.get("options"));
     } catch(e) {
