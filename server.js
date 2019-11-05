@@ -63,14 +63,21 @@ let Tree = {
     return tree.map(e => ({type:e.type,name:e.name}));
   },
   serveBranch: async (response,path) => {
-    response.writeHead(200, {"Content-Type": "application/json"});
     path = (path[path.length-1] == "/") ? path.slice(0,-1):path;
-    let tree = await getFile("./tree.json");
-    tree = JSON.parse(tree);
-    tree = Tree.getBranch(tree,path);
-    tree = Tree.cleanBranch(tree);
-    response.write(JSON.stringify(tree));
-    response.end();
+    try {
+      let tree = await getFile("./tree.json");
+      tree = JSON.parse(tree);
+      response.writeHead(200, {"Content-Type": "application/json"});
+      tree = Tree.getBranch(tree,path);
+      tree = Tree.cleanBranch(tree);
+      response.write(JSON.stringify(tree));
+      response.end();
+    }
+        catch {
+      response.writeHead(404)
+      response.write("No tree :(\nTree couldn't be found.\nIn order to generate tree:\n\n\tcd "+DIRECTORY+"\n\ttree -Jif --noreport > ./tree.json\n\ttree -Fif --noreport | grep -v '/$' > ./liste");
+      response.end();
+    }
   }
 }
 
