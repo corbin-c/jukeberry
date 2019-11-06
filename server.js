@@ -1,9 +1,17 @@
 const fs = require("fs");
-const { execSync } = require("child_process");
+const { execSync, exec } = require("child_process");
 const http = require("http");
 
-const DIRECTORY = fs.readFileSync("config","utf8").split("\n")[0];
-
+const DIRECTORY = (() => {
+  let dir = fs.readFileSync("config","utf8").split("\n")[0];
+  dir = (dir[dir.length-1] == "/") ? dir:dir+"/";
+  return dir;
+})()
+let wait = (t) => {
+  return new Promise((resolve,reject) => {
+    setTimeout(() => { resolve(); },t)
+  })
+};
 let getFile = (path) => {
   return new Promise((resolve,reject) => {
     fs.readFile(path,"utf-8",(error,data) => {
@@ -16,10 +24,11 @@ let failure = (response,code,error) => {
   response.writeHead(code);
   response.write(error);
 };
-
 let commands = [
   {query:"getTree",func:"serveBranch"},
-  {query:"makeTree",func:"generateTrees"}
+  {query:"makeTree",func:"generateTrees"},
+  {query:"playFile",func:"prepareAndPlay"},
+  {query:"stop",func:"killPlayer"}
 ];
 let servedFiles = [
   {pathname:"/",mime:"text/html"},
@@ -44,7 +53,27 @@ let Tree = {
       fs.writeFileSync(i.name,i.data);
     }
   },
+  getTree: async () => {
+    try {
+      let tree = await getFile("./tree.json");
+      tree = JSON.parse(tree);
+      return tree;
+    } catch {
+      throw {code:404,text:"No tree :(\nTree couldn't be found.\nIn order to generate tree:\n\n\tcd "+DIRECTORY+"\n\ttree -Jif --noreport > ./tree.json\n\ttree -Fif --noreport | grep -v '/$' > ./liste"};
+    }
+  },
+  getParentFolder: (path) => {
+    path = path.split("/");
+    if (path.length > 1) {
+      path.pop();
+      path = path.join("/");
+      return path;
+    } else {
+      return false;
+    }
+  },
   getBranch: (tree,path,backpath="") => {
+    path = (path[path.length-1] == "/") ? path.slice(0,-1):path;
     let firstPath = path;
     path = path.split("/");
     tree = tree.find(e => e.name == backpath+path[0]).contents;
@@ -64,22 +93,63 @@ let Tree = {
     return tree.map(e => ({type:e.type,name:e.name}));
   },
   serveBranch: async (response,path) => {
-    path = (path[path.length-1] == "/") ? path.slice(0,-1):path;
-    let tree;
     try {
-      tree = await getFile("./tree.json");
-      tree = JSON.parse(tree);
-    } catch {
-      throw {code:404,text:"No tree :(\nTree couldn't be found.\nIn order to generate tree:\n\n\tcd "+DIRECTORY+"\n\ttree -Jif --noreport > ./tree.json\n\ttree -Fif --noreport | grep -v '/$' > ./liste"};
-    }
-    try {
-      tree = Tree.getBranch(tree,path);
-      tree = Tree.cleanBranch(tree);        
-      response.writeHead(200, {"Content-Type": "application/json"});
-      response.write(JSON.stringify(tree));
+      let tree = await Tree.getTree();
+      try {
+        tree = Tree.getBranch(tree,path);
+        tree = Tree.cleanBranch(tree);        
+        response.writeHead(200, {"Content-Type": "application/json"});
+        let parentpath = Tree.getParentFolder(path);
+        if (parentpath) {
+          tree.unshift({type:"parentdir",name:parentpath});
+        }
+        response.write(JSON.stringify(tree));
+      } catch(e) {
+        throw {code:400,text:"Bad request :\n"+e};
+      }
     } catch(e) {
-      throw {code:400,text:"Bad request :\n"+e};
+      throw e;
     }
+  },
+  killPlayer: () => {
+    try {
+      execSync("killall mplayer");
+    } catch {
+      console.log("nothing to stop");
+    }
+  },
+  playRandom: (path) => {
+    Tree.play(path,true);
+  },
+  play: async (path,random=false) => {
+    random = (random) ? "-shuffle ":"";
+    await Tree.killPlayer();
+    await wait(1000);
+    exec("mplayer -playlist "+random+path);
+  },
+  generatePlaylist: async (path) => { 
+    try {
+      let tree = await Tree.getTree();
+      let branch;
+      let playlist = "";
+      //Here we create a playlist on-the-fly so we can handle all cases with mplayer
+      try {
+        branch = Tree.getBranch(tree,path);
+      } catch {
+        branch = Tree.getBranch(tree,Tree.getParentFolder(path));
+        path = branch.indexOf(branch.find(e => (e.name == path)));
+        branch = branch.filter((e,i) => (i >= path));
+      }
+      branch.filter(e => e.type == "file")
+        .map(e => playlist += e.name.replace("./",DIRECTORY)+"\n");
+      fs.writeFileSync("playlist",playlist);
+    } catch(e) {
+      throw e;
+    }
+  },
+  prepareAndPlay: async (response,path) => {
+    await Tree.generatePlaylist(path);
+    Tree.play("./playlist");  
   }
 }
 
@@ -100,6 +170,7 @@ let server = http.createServer(async function(req, res) {
         .func;
       await Tree[cmd](res,page.searchParams.get("options"));
     } catch(e) {
+      console.log(e);
       failure(res,e.code,e.text);
     }
   } else {

@@ -21,7 +21,10 @@ let displayBranch = async (path) => {
   main.append(ul);
   musicList.map(e => {
     let li = document.createElement("li");
-    li.addEventListener("click",() => { displayBranch(e.name); });
+    li.addEventListener("click",() => {
+      displayBranch(e.name); });
+    li.addEventListener("contextmenu",() => {
+      Jukeberry.play(e.name); });
     let name = e.name.split("/");
     li.innerText = name[name.length-1];
     ul.append(li);
