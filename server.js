@@ -119,8 +119,9 @@ let Tree = {
       console.log("nothing to stop");
     }
   },
-  killJukeberry: () => {
+  killJukeberry: async () => {
     execSync("sudo umount /dev/sda1");
+    await wait(1000);
     execSync("sudo halt");
   },
   playRandom: (path) => {
