@@ -28,7 +28,8 @@ let commands = [
   {query:"getTree",func:"serveBranch"},
   {query:"makeTree",func:"generateTrees"},
   {query:"playFile",func:"prepareAndPlay"},
-  {query:"stop",func:"killPlayer"}
+  {query:"stop",func:"killPlayer"},
+  {query:"halt",func:"killJukeberry"}
 ];
 let servedFiles = [
   {pathname:"/",mime:"text/html"},
@@ -118,6 +119,10 @@ let Tree = {
       console.log("nothing to stop");
     }
   },
+  killJukeberry: () => {
+    execSync("sudo umount /dev/sda1");
+    execSync("sudo halt");
+  },
   playRandom: (path) => {
     Tree.play(path,true);
   },
@@ -125,7 +130,7 @@ let Tree = {
     random = (random) ? "-shuffle ":"";
     await Tree.killPlayer();
     await wait(1000);
-    exec("mplayer -playlist "+random+path);
+    exec("nohup mplayer -playlist "+random+path);
   },
   generatePlaylist: async (path) => { 
     try {
