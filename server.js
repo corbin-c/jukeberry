@@ -12,9 +12,9 @@ let wait = (t) => {
     setTimeout(() => { resolve(); },t)
   })
 };
-let getFile = (path) => {
+let getFile = (path,bin=false) => {
   return new Promise((resolve,reject) => {
-    fs.readFile(path,"utf-8",(error,data) => {
+    fs.readFile(path,(bin)?null:"utf8",(error,data) => {
       if (error) { reject(error); }
       resolve(data);
     });
@@ -190,10 +190,11 @@ let server = http.createServer(async function(req, res) {
   let served = servedFiles.filter(e => e.pathname == page.pathname)
   if (served.length > 0) {
     served = served[0];
-    res.writeHead(200, {"Content-Type": served.mime});
+    let type = served.mime;
+    res.writeHead(200, {"Content-Type": type});
     served = (page.pathname == "/") ? "/index.html":page.pathname;
     served = served.slice(1);
-    served = await getFile(served);
+    served = await getFile(served,(type.indexOf("image") >= 0));
     res.write(served);
   } else if (page.pathname == "/api") {
     try {
