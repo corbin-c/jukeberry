@@ -60,6 +60,7 @@ let Tree = {
     files.push({
       name:"liste",
       data:execSync("tree -Fif --noreport | grep -v '/$'", {cwd:DIRECTORY,encoding:"utf8"})
+        .replace(/\*\n/g,"\n")
         .split("\n")
         .map(e => e.replace("./",DIRECTORY))
         .join("\n")
