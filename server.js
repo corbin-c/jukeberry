@@ -46,6 +46,10 @@ let servedFiles = [
   {pathname:"/",mime:"text/html"},
   {pathname:"/index.html",mime:"text/html"},
   {pathname:"/main.js",mime:"application/javascript"},
+  {pathname:"/manifest.json",mime:"application/json"},
+  {pathname:"/icons/32.png",mime:"image/png"},
+  {pathname:"/icons/192.png",mime:"image/png"},
+  {pathname:"/icons/512.png",mime:"image/png"},
   {pathname:"/style.css",mime:"text/css"}
 ];
 
