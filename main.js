@@ -11,6 +11,15 @@ class Jukebox {
   stop() {
     fetch("./api?action=stop");
   }
+  halt() {
+    fetch("./api?action=halt");
+  }
+  async regenerate() {
+    await fetch("./api?action=makeTree");
+  }
+  allRandom() {
+    fetch("api?action=playAllRandom");
+  }
 }
 let Jukeberry = new Jukebox();
 export { Jukeberry };

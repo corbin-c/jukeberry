@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { execSync, exec } = require("child_process");
+const { execSync, spawn } = require("child_process");
 const http = require("http");
 
 const DIRECTORY = (() => {
@@ -20,6 +20,16 @@ let getFile = (path) => {
     });
   });
 }
+let exec = (command) => {
+  command = command.split(" ");
+  let out = fs.openSync("./out.log", "a");
+  let err = fs.openSync("./err.log", "a");
+  let subprocess = spawn(command[0], command.slice(1), {
+    detached: true,
+    stdio: [ "ignore", out, err ]
+  });
+  subprocess.unref();
+}
 let failure = (response,code,error) => {
   response.writeHead(code);
   response.write(error);
@@ -28,6 +38,7 @@ let commands = [
   {query:"getTree",func:"serveBranch"},
   {query:"makeTree",func:"generateTrees"},
   {query:"playFile",func:"prepareAndPlay"},
+  {query:"playAllRandom",func:"playAllRandom"},
   {query:"stop",func:"killPlayer"},
   {query:"halt",func:"killJukeberry"}
 ];
@@ -48,7 +59,10 @@ let Tree = {
     });
     files.push({
       name:"liste",
-      data:execSync("tree -Fif --noreport | grep -v '/$'", {cwd:DIRECTORY})
+      data:execSync("tree -Fif --noreport | grep -v '/$'", {cwd:DIRECTORY,encoding:"utf8"})
+        .split("\n")
+        .map(e => e.replace("./",DIRECTORY))
+        .join("\n")
     });
     for (i of files) {
       fs.writeFileSync(i.name,i.data);
@@ -114,12 +128,15 @@ let Tree = {
   },
   killPlayer: () => {
     try {
+      execSync("rm ./out.log ./err.log");
       execSync("killall mplayer");
     } catch {
       console.log("nothing to stop");
     }
   },
   killJukeberry: async () => {
+    res.writeHead(200);
+    res.end("Goodbye");
     execSync("sudo umount /dev/sda1");
     await wait(1000);
     execSync("sudo halt");
@@ -131,7 +148,7 @@ let Tree = {
     random = (random) ? "-shuffle ":"";
     await Tree.killPlayer();
     await wait(1000);
-    exec("nohup mplayer -playlist "+random+path);
+    exec("mplayer -msglevel all=4 "+random+"-playlist "+path);
   },
   generatePlaylist: async (path) => { 
     try {
@@ -156,6 +173,9 @@ let Tree = {
   prepareAndPlay: async (response,path) => {
     await Tree.generatePlaylist(path);
     Tree.play("./playlist");  
+  },
+  playAllRandom: async (response,path) => {
+    Tree.playRandom("./liste");
   }
 }
 

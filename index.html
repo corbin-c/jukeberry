@@ -9,6 +9,14 @@
   <body>
     <header>
       <h1>Jukeberry !</h1>
+      <nav>
+        <ul tabindex="1">
+          <li id="all_random">Aléatoire</li>
+          <li id="regenerate">Régénérer l'arbre</li>
+          <li id="stop">Stop</li>
+          <li id="halt">Arrêter tout</li>
+        </ul>
+      </nav>
     </header>
     <main>
       <script type="module">
@@ -31,6 +39,27 @@ let displayBranch = async (path) => {
   });
 }
 displayBranch("./");
+let menu = {
+  all_random: () => { Jukeberry.allRandom(); },
+  regenerate: async () => {
+    if (confirm(`Ceci va entièrement réanalyser le disque pour produire un nouvel arbre.
+    (cela peut prendre longtemps)
+Êtes-vous sûr ?`)) {
+        await Jukeberry.regenerate();
+        displayBranch("./");
+    }
+  },
+  stop: () => { Jukeberry.stop(); },
+  halt: () => {
+    if (confirm(`Ceci va éteindre le dispositif et couper la connexion.
+Êtes-vous sûr ?`)) {
+        Jukeberry.halt();
+    }
+  },
+}
+document.querySelector("nav ul").addEventListener("click",(e) => {
+  menu[e.target.id]();
+});
       </script>
     </main>
     <footer></footer>
