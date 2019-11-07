@@ -130,7 +130,7 @@ let Tree = {
   killPlayer: () => {
     try {
       execSync("rm ./out.log ./err.log");
-      execSync("killall mplayer");
+      execSync("killall -s SIGKILL mplayer");
     } catch {
       console.log("nothing to stop");
     }
@@ -138,6 +138,7 @@ let Tree = {
   killJukeberry: async (response) => {
     response.writeHead(200);
     response.end("Goodbye");
+    await Tree.killPlayer();
     execSync("sudo umount /dev/sda1");
     await wait(1000);
     execSync("sudo halt");
