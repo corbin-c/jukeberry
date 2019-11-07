@@ -135,9 +135,9 @@ let Tree = {
       console.log("nothing to stop");
     }
   },
-  killJukeberry: async () => {
-    res.writeHead(200);
-    res.end("Goodbye");
+  killJukeberry: async (response) => {
+    response.writeHead(200);
+    response.end("Goodbye");
     execSync("sudo umount /dev/sda1");
     await wait(1000);
     execSync("sudo halt");
