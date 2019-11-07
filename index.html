@@ -24,6 +24,14 @@
     <main>
       <script type="module">
 import { Jukeberry } from "./main.js";
+let button = (action,label,opts) => {
+  let b = document.createElement("button");
+  b.innerText = label;
+  b.addEventListener("click",() => {
+    Jukeberry[action](opts);
+  });
+  return b;
+}
 let displayBranch = async (path) => {
   let musicList = await Jukeberry.getTree(path);
   let main = document.querySelector("main");
@@ -32,16 +40,30 @@ let displayBranch = async (path) => {
   main.append(ul);
   musicList.map(e => {
     let li = document.createElement("li");
-    li.addEventListener("click",() => {
-      displayBranch(e.name); });
-    li.addEventListener("contextmenu",() => {
-      Jukeberry.play(e.name); });
     let name = e.name.split("/");
-    li.innerText = name[name.length-1];
+    name = name[name.length-1];
+    li.innerText = name;
+    if (e.type != "file") {
+      li.addEventListener("click",() => {
+        displayBranch(e.name); });
+      if (e.type == "parentdir") {
+        name = "../";
+        li.innerText = name;
+      } else {
+        li.addEventListener("contextmenu",(event) => {
+          event.preventDefault();
+          Jukeberry.playRandom(e.name);
+        });
+      }
+    } else {
+      li.addEventListener("click",() => {
+        Jukeberry.play(e.name); });
+    }
     ul.append(li);
   });
 }
 displayBranch("./");
+
 let menu = {
   all_random: () => { Jukeberry.allRandom(); },
   regenerate: async () => {

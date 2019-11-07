@@ -10,23 +10,39 @@ html {
 body {
   width: 100%;
   height: 100vh;
+  overflow-x: hidden;
 }
 main {
-  min-height: calc(100% - 210px);
-  padding-left: 2%;
-  padding-right: 2%;
+  min-height: calc(100% - 160px);
+  background: #dedff9;
 }
 header,footer {
-  background-color: #ececec;
+  background-color: #ffe5aa;
   height: 80px;
   width: 100%;
   position: relative;
   z-index:102;
   left: 0px;
 }
+main ul {
+  display: flex;
+  flex-flow: column;
+}
+main ul li {
+  list-style-type: none;
+  text-transform: uppercase;
+  display: block;
+  height: 3em;
+  line-height: 3em;
+  width: 100%;
+  text-align: center;
+  background: #dedff9;
+}
+main ul li:nth-child(2n) {
+  background: #dff9de;
+}
 header {
-  margin-bottom: 25px;
-  border-bottom: 6px solid #33AAFF;
+  border-bottom: 6px solid #d87fa1;
   top: 0px;
   display: flex;
   flex-flow: row;
@@ -34,8 +50,7 @@ header {
 }
 footer {
   padding: 10px;
-  margin-top: 25px;
-  border-top: 6px solid #33AAFF;
+  border-top: 6px solid #d87fa1;
   bottom: 0px;
   text-align: right;
 }
@@ -123,7 +138,7 @@ header ul li:last-child {
   }
   header nav:focus-within {
     width: auto;
-    background-color: none;
+    background: none;
     border-bottom: 0;
   }
   header ul li {
@@ -140,3 +155,4 @@ header ul li:last-child {
 a, a:visited {
   color: black;
 }
+gim

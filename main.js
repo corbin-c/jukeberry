@@ -8,6 +8,9 @@ class Jukebox {
   play(path="./") {
     fetch("./api?action=playFile&options="+path);
   }
+  playRandom(path="./") {
+    fetch("./api?action=playRandomFile&options="+path);
+  }
   stop() {
     fetch("./api?action=stop");
   }

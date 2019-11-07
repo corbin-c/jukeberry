@@ -38,6 +38,7 @@ let commands = [
   {query:"getTree",func:"serveBranch"},
   {query:"makeTree",func:"generateTrees"},
   {query:"playFile",func:"prepareAndPlay"},
+  {query:"playRandomFile",func:"suffleAndPlay"},
   {query:"playAllRandom",func:"playAllRandom"},
   {query:"stop",func:"killPlayer"},
   {query:"halt",func:"killJukeberry"}
@@ -142,7 +143,11 @@ let Tree = {
     response.writeHead(200);
     response.end("Goodbye");
     await Tree.killPlayer();
-    execSync("sudo umount /dev/sda1");
+    try {
+      execSync("sudo umount /dev/sda1");
+    } catch {
+      console.log("couldn't unmount device"); 
+    }
     await wait(1000);
     execSync("sudo halt");
   },
@@ -178,6 +183,10 @@ let Tree = {
   prepareAndPlay: async (response,path) => {
     await Tree.generatePlaylist(path);
     Tree.play("./playlist");  
+  },
+  suffleAndPlay: async (response,path) => {
+    await Tree.generatePlaylist(path);
+    Tree.playRandom("./playlist");  
   },
   playAllRandom: async (response,path) => {
     Tree.playRandom("./liste");
