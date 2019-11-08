@@ -9,7 +9,7 @@ class Jukebox {
     fetch("./api?action=playFile&options="+path);
   }
   playRandom(path="./") {
-    fetch("./api?action=playRandomFile&options="+path);
+    fetch("./api?action=playRandom&options="+path);
   }
   stop() {
     fetch("./api?action=stop");

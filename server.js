@@ -1,12 +1,33 @@
 const fs = require("fs");
 const { execSync, spawn } = require("child_process");
 const http = require("http");
-
 const DIRECTORY = (() => {
   let dir = fs.readFileSync("config","utf8").split("\n")[0];
   dir = (dir[dir.length-1] == "/") ? dir:dir+"/";
   return dir;
-})()
+})();
+//API queries to handle
+let commands = [
+  {query:"getTree",func:"serveBranch"},
+  {query:"makeTree",func:"generateTrees"},
+  {query:"playFile",func:"prepareAndPlay"},
+  {query:"playRandom",func:"suffleRecursiveDir"},
+  {query:"playAllRandom",func:"playAllRandom"},
+  {query:"getCurrentSong",func:"serveLog"},
+  {query:"stop",func:"killPlayer"},
+  {query:"halt",func:"killJukeberry"}
+];
+//Files to be served
+let servedFiles = [
+  {pathname:"/",mime:"text/html"},
+  {pathname:"/index.html",mime:"text/html"},
+  {pathname:"/main.js",mime:"application/javascript"},
+  {pathname:"/icons/32.png",mime:"image/png"},
+  {pathname:"/icons/192.png",mime:"image/png"},
+  {pathname:"/icons/512.png",mime:"image/png"},
+  {pathname:"/style.css",mime:"text/css"}
+];
+//Utilities functions
 let wait = (t) => {
   return new Promise((resolve,reject) => {
     setTimeout(() => { resolve(); },t)
@@ -22,11 +43,13 @@ let getFile = (path,bin=false) => {
 }
 let exec = (command) => {
   command = command.split(" ");
-  let out = fs.openSync("./out.log", "a");
-  let err = fs.openSync("./err.log", "a");
   let subprocess = spawn(command[0], command.slice(1), {
     detached: true,
-    stdio: [ "ignore", out, err ]
+    stdio: [ "ignore" ]
+  });
+  subprocess.stdout.setEncoding("utf8");
+  subprocess.stdout.on("data", (e) => {
+    parseLog(e);
   });
   subprocess.unref();
 }
@@ -34,25 +57,36 @@ let failure = (response,code,error) => {
   response.writeHead(code);
   response.write(error);
 };
-let commands = [
-  {query:"getTree",func:"serveBranch"},
-  {query:"makeTree",func:"generateTrees"},
-  {query:"playFile",func:"prepareAndPlay"},
-  {query:"playRandomFile",func:"suffleAndPlay"},
-  {query:"playAllRandom",func:"playAllRandom"},
-  {query:"stop",func:"killPlayer"},
-  {query:"halt",func:"killJukeberry"}
-];
-let servedFiles = [
-  {pathname:"/",mime:"text/html"},
-  {pathname:"/index.html",mime:"text/html"},
-  {pathname:"/main.js",mime:"application/javascript"},
-  {pathname:"/icons/32.png",mime:"image/png"},
-  {pathname:"/icons/192.png",mime:"image/png"},
-  {pathname:"/icons/512.png",mime:"image/png"},
-  {pathname:"/style.css",mime:"text/css"}
-];
-
+let parseLog = async (log) => {
+  let ret = false;
+  log = {raw:log};
+  if (log.raw.indexOf("Playing") >= 0) {
+    log.filename = log.raw.split("\n");
+    log.filename = log.filename.filter(e => e != "")[0].slice(0,-1);
+    log.filename = log.filename.split("/");
+    log.filename = log.filename[log.filename.length-1];
+    log.filename = log.filename.split(".")[0];
+    ret = true;
+    currentLog = log;
+  } else if (log.raw.indexOf("Clip info") >= 0) {
+    log.clip_info = log.raw.split("Clip info:\n");
+    log.clip_info = log.clip_info[log.clip_info.length-1];
+    log.clip_info = log.clip_info.split("Load subtitles in")[0];
+    log.clip_info = log.clip_info.split("\n");
+    log.clip_info.filter(e => e != "").map(e => {
+      e = e.split(": ")
+      e[1] = e[1].replace(/\s+/g," ");
+      e[0] = e[0].slice(1);
+      log[e[0]] = e[1];
+    });
+    ret = true;
+  }
+  if (ret) {
+    log = JSON.stringify(log);
+    fs.writeFileSync("current.log",log);
+  }
+}
+//Main object
 let Tree = {
   generateTrees: (response) => {
     response.writeHead(200);
@@ -117,7 +151,7 @@ let Tree = {
       let tree = await Tree.getTree();
       try {
         tree = Tree.getBranch(tree,path);
-        tree = Tree.cleanBranch(tree);        
+        tree = Tree.cleanBranch(tree);
         response.writeHead(200, {"Content-Type": "application/json"});
         let parentpath = Tree.getParentFolder(path);
         if (parentpath) {
@@ -133,7 +167,6 @@ let Tree = {
   },
   killPlayer: () => {
     try {
-      execSync("rm ./out.log ./err.log");
       execSync("killall -s SIGKILL mplayer");
     } catch {
       console.log("nothing to stop");
@@ -144,15 +177,12 @@ let Tree = {
     response.end("Goodbye");
     await Tree.killPlayer();
     try {
-      execSync("sudo umount /dev/sda1");
+      execSync("sudo umount "+DIRECTORY);
     } catch {
       console.log("couldn't unmount device"); 
     }
     await wait(1000);
     execSync("sudo halt");
-  },
-  playRandom: (path) => {
-    Tree.play(path,true);
   },
   play: async (path,random=false) => {
     random = (random) ? "-shuffle ":"";
@@ -165,7 +195,6 @@ let Tree = {
       let tree = await Tree.getTree();
       let branch;
       let playlist = "";
-      //Here we create a playlist on-the-fly so we can handle all cases with mplayer
       try {
         branch = Tree.getBranch(tree,path);
       } catch {
@@ -186,13 +215,34 @@ let Tree = {
   },
   suffleAndPlay: async (response,path) => {
     await Tree.generatePlaylist(path);
-    Tree.playRandom("./playlist");  
+    Tree.play("./playlist",true);  
+  },
+  suffleRecursiveDir: async (response,path) => {
+    path = path.replace("./",DIRECTORY);
+    let playlist = await getFile("./liste");
+    playlist = playlist.split("\n");
+    playlist = playlist.filter(e => e.indexOf(path) == 0);
+    playlist = playlist.join("\n");
+    fs.writeFileSync("playlist",playlist);
+    Tree.play("./playlist",true);
   },
   playAllRandom: async (response,path) => {
-    Tree.playRandom("./liste");
+    Tree.play("./liste",true);
+  },
+  serveLog: (response) => {
+    response.writeHead(200, {"Content-Type":"application/json"});
+    let currentLog = fs.readFileSync("current.log","utf8");
+    currentLog = JSON.parse(currentLog);
+    let log = {};
+    for (let v of Object.keys(currentLog)) {
+      if (["raw","clip_info"].indexOf(v) < 0) {
+        log[v] = currentLog[v];
+      }
+    }
+    response.write(JSON.stringify(log));
   }
 }
-
+//Exposed server
 let server = http.createServer(async function(req, res) {
   let page = new URL("http://dummy.com"+req.url);
   let served = servedFiles.filter(e => e.pathname == page.pathname)

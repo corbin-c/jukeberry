@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <header>
+    <header class="init">
       <h1>Jukeberry !</h1>
       <nav>
         <ul tabindex="1">
@@ -21,7 +21,7 @@
         </ul>
       </nav>
     </header>
-    <main>
+    <main class="init">
       <script type="module">
 import { Jukeberry } from "./main.js";
 let button = (action,label,opts) => {
@@ -32,20 +32,20 @@ let button = (action,label,opts) => {
   });
   return b;
 }
-let displayBranch = async (path) => {
+let displayBranch = async (path,delay) => {
   let musicList = await Jukeberry.getTree(path);
   let main = document.querySelector("main");
   main.innerHTML = "";
   let ul = document.createElement("ul");
   main.append(ul);
-  musicList.map(e => {
+  for (let e of musicList) {
     let li = document.createElement("li");
     let name = e.name.split("/");
     name = name[name.length-1];
     li.innerText = name;
     if (e.type != "file") {
       li.addEventListener("click",() => {
-        displayBranch(e.name); });
+        displayBranch(e.name,10); });
       if (e.type == "parentdir") {
         name = "../";
         li.innerText = name;
@@ -59,10 +59,12 @@ let displayBranch = async (path) => {
       li.addEventListener("click",() => {
         Jukeberry.play(e.name); });
     }
+    if (delay) {
+      await wait(delay);
+    }
     ul.append(li);
-  });
+  };
 }
-displayBranch("./");
 
 let menu = {
   all_random: () => { Jukeberry.allRandom(); },
@@ -85,8 +87,22 @@ let menu = {
 document.querySelector("nav ul").addEventListener("click",(e) => {
   menu[e.target.id]();
 });
+
+let wait = (t) => {
+  return new Promise((resolve,reject) => {
+    setTimeout(() => { resolve(); },t)
+  })
+};
+(async () => {
+  await wait(500);
+  document.querySelector("main").setAttribute("class","");
+  document.querySelector("footer").setAttribute("class","");
+  document.querySelector("header").setAttribute("class","");
+  await wait(500);
+  displayBranch(".",20);
+})();
       </script>
     </main>
-    <footer></footer>
+    <footer class="init"></footer>
   </body>
 </html>
