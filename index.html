@@ -40,8 +40,10 @@ let displayBranch = async (path,delay) => {
   main.append(ul);
   for (let e of musicList) {
     let li = document.createElement("li");
-    let name = e.name.split("/");
-    name = name[name.length-1];
+    let name = e.name.split("/").pop();
+    name = name.replace(/_/g," ");
+    name = name.split(".");
+    name.pop();
     li.innerText = name;
     if (e.type != "file") {
       li.addEventListener("click",() => {
@@ -116,7 +118,7 @@ let wait = (t) => {
         display += song.title;
       }
     if ((display == "") && (typeof song.filename !== "undefined")) {
-      display = song.filename;
+      display = song.filename.replace(/_/g," ");
     }
     current.innerText = display;
   });
