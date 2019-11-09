@@ -172,7 +172,7 @@ header nav:focus-within {
   width: 100vw;
   background-image: url("icons/192.png");
   background-repeat: no-repeat;
-  background-position: 50% -67px;
+  background-position: 50% -66px;
   background-color: var(--header-bg-color);
   border-bottom: 6px solid var(--contrast-color);
 }
