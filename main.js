@@ -5,6 +5,11 @@ class Jukebox {
     tree = await tree.json();
     return tree;
   }
+  async currentSong() {
+    let song = await fetch("./api?action=getCurrentSong");
+    song = await song.json();
+    return song;
+  }
   play(path="./") {
     fetch("./api?action=playFile&options="+path);
   }

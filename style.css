@@ -240,3 +240,19 @@ header ul li:last-child {
 a, a:visited, * {
   color: var(--main-color);
 }
+footer * {
+  padding-left: 10px;
+}
+footer button {
+  border: 0px;
+  border-style: solid;
+  background: none;
+  font-size: 2em;
+}
+footer button:active {
+  outline: 0px;
+  border: 0px;
+}
+footer button, footer p {
+  display: inline;
+}

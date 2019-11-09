@@ -64,19 +64,21 @@ let parseLog = async (log) => {
     log.filename = log.raw.split("\n");
     log.filename = log.filename.filter(e => e != "")[0].slice(0,-1);
     log.filename = log.filename.split("/");
-    log.filename = log.filename[log.filename.length-1];
-    log.filename = log.filename.split(".")[0];
+    log.filename = log.filename.pop();
+    log.filename = log.filename.split(".");
+    log.filename.pop();
+    log.filename = log.filename.join(" ");
     ret = true;
     currentLog = log;
   } else if (log.raw.indexOf("Clip info") >= 0) {
     log.clip_info = log.raw.split("Clip info:\n");
-    log.clip_info = log.clip_info[log.clip_info.length-1];
+    log.clip_info = log.clip_info.pop();
     log.clip_info = log.clip_info.split("Load subtitles in")[0];
     log.clip_info = log.clip_info.split("\n");
     log.clip_info.filter(e => e != "").map(e => {
       e = e.split(": ")
       e[1] = e[1].replace(/\s+/g," ");
-      e[0] = e[0].slice(1);
+      e[0] = e[0].slice(1).toLowerCase();
       log[e[0]] = e[1];
     });
     ret = true;

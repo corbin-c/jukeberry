@@ -95,11 +95,32 @@ let wait = (t) => {
 };
 (async () => {
   await wait(500);
+  let footer = document.querySelector("footer");
   document.querySelector("main").setAttribute("class","");
-  document.querySelector("footer").setAttribute("class","");
+  footer.setAttribute("class","");
   document.querySelector("header").setAttribute("class","");
   await wait(500);
   displayBranch(".",20);
+  let current = document.createElement("p");
+  current.setAttribute("id","currentSong");
+  footer.append(current);
+  let btn = document.createElement("button");
+  btn.innerText = "💡";
+  btn.addEventListener("click",async () => {
+    let display = "";
+    let song = await Jukeberry.currentSong();
+      if ((typeof song.artist !== "undefined") && (song.artist !== "")) {
+        display += song.artist+" - ";
+      }
+      if ((typeof song.title !== "undefined") && (song.title !== "")) {
+        display += song.title;
+      }
+    if ((display == "") && (typeof song.filename !== "undefined")) {
+      display = song.filename;
+    }
+    current.innerText = display;
+  });
+  footer.append(btn);
 })();
       </script>
     </main>
