@@ -42,10 +42,12 @@ let displayBranch = async (path,delay) => {
     let li = document.createElement("li");
     let name = e.name.split("/").pop();
     name = name.replace(/_/g," ");
-    name = name.split(".");
-    if (name.length > 1) {
-      name.pop();
-      name = name.join(" ");
+    if (e.type == "file") {
+      name = name.split(".");
+      if (name.length > 1) {
+        name.pop();
+        name = name.join(" ");
+      }
     }
     li.innerText = name;
     if (e.type != "file") {
