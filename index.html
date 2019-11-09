@@ -41,9 +41,7 @@ let displayBranch = async (path,delay) => {
   for (let e of musicList) {
     let li = document.createElement("li");
     let name = e.name.split("/").pop();
-    console.log(name);
     name = name.replace(/_/g," ");
-    console.log(name);
     name = name.split(".");
     if (name.length > 1) {
       name.pop();
