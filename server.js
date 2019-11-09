@@ -70,7 +70,8 @@ let parseLog = async (log) => {
     log.filename = log.filename.join(" ");
     ret = true;
     currentLog = log;
-  } else if (log.raw.indexOf("Clip info") >= 0) {
+  } 
+  if (log.raw.indexOf("Clip info") >= 0) {
     log.clip_info = log.raw.split("Clip info:\n");
     log.clip_info = log.clip_info.pop();
     log.clip_info = log.clip_info.split("Load subtitles in")[0];
