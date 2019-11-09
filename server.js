@@ -59,6 +59,11 @@ let failure = (response,code,error) => {
 };
 let parseLog = async (log) => {
   let ret = false;
+  if (log.indexOf("Playing") >= 0) {
+    fs.writeFileSync("raw.log","");
+  }
+  log = fs.readFileSync("raw.log","utf8")+log;
+  fs.writeFileSync("raw.log",log);
   log = {raw:log};
   if (log.raw.indexOf("Playing") >= 0) {
     log.filename = log.raw.split("\n");
