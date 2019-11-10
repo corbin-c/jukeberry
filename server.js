@@ -7,6 +7,8 @@ const DIRECTORY = (() => {
   return dir;
 })();
 const LOG = true;
+const similarity = require("./similarity.js").similarity;
+let globalList = [];
 //API queries to handle
 let commands = [
   {query:"getTree",func:"serveBranch"},
@@ -15,6 +17,7 @@ let commands = [
   {query:"playRandom",func:"suffleRecursiveDir"},
   {query:"playAllRandom",func:"playAllRandom"},
   {query:"getCurrentSong",func:"serveLog"},
+  {query:"search",func:"search"},
   {query:"stop",func:"killPlayer"},
   {query:"halt",func:"killJukeberry"}
 ];
@@ -102,6 +105,21 @@ let parseLog = async (log) => {
     fs.writeFileSync("current.log",log);
   }
 }
+let getGlobalList = (update=false) => {
+  if (update || globalList.length == 0) {
+    logger("log","making globalList");
+    globalList = fs.readFileSync("liste","utf8")
+      .split("\n")
+      .filter(e => ((e != "") && (e != ".")));
+  }
+  return globalList;
+}
+let search = (str) => {
+  let list = getGlobalList();
+  list = list.map(e => ({string:e,score:similarity(e.replace(DIRECTORY,""),str)}));
+  list = list.sort((a,b) => b.score-a.score);
+  return list.slice(0,10);
+}
 //Main object
 let Tree = {
   generateTrees: (response) => {
@@ -124,6 +142,7 @@ let Tree = {
     for (i of files) {
       fs.writeFileSync(i.name,i.data);
     }
+    getGlobalList(true);
     logger("log","tree files written");
   },
   getTree: async () => {
@@ -184,6 +203,10 @@ let Tree = {
       throw e;
     }
   },
+  search: (response,str) => {
+    response.writeHead(200, {"Content-Type": "application/json"});
+    response.write(JSON.stringify(search(str)));
+  },
   killPlayer: () => {
     try {
       execSync("killall -s SIGKILL mplayer");
@@ -239,8 +262,7 @@ let Tree = {
   },
   suffleRecursiveDir: async (response,path) => {
     path = path.replace("./",DIRECTORY);
-    let playlist = await getFile("./liste");
-    playlist = playlist.split("\n");
+    let playlist = getGlobalList();
     playlist = playlist.filter(e => e.indexOf(path) == 0);
     playlist = playlist.join("\n");
     fs.writeFileSync("playlist",playlist);
