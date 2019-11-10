@@ -14,6 +14,7 @@
       <h1>Jukeberry !</h1>
       <nav>
         <ul tabindex="1">
+          <li id="search">Recherche</li>
           <li id="all_random">Aléatoire</li>
           <li id="regenerate">Régénérer l'arbre</li>
           <li id="stop">Stop</li>
@@ -32,23 +33,31 @@ let button = (action,label,opts) => {
   });
   return b;
 }
-let displayBranch = async (path,delay) => {
-  let musicList = await Jukeberry.getTree(path);
+let newMainList = () => {
   let main = document.querySelector("main");
   main.innerHTML = "";
   let ul = document.createElement("ul");
   main.append(ul);
+  return ul;
+}
+let cleanName = (name,type="file") => {
+  name = name.split("/").pop();
+  name = name.replace(/_/g," ");
+  if (type == "file") {
+    name = name.split(".");
+    if (name.length > 1) {
+      name.pop();
+      name = name.join(" ");
+    }
+  }
+  return name
+}
+let displayBranch = async (path,delay) => {
+  let musicList = await Jukeberry.getTree(path);
+  let ul = newMainList();
   for (let e of musicList) {
     let li = document.createElement("li");
-    let name = e.name.split("/").pop();
-    name = name.replace(/_/g," ");
-    if (e.type == "file") {
-      name = name.split(".");
-      if (name.length > 1) {
-        name.pop();
-        name = name.join(" ");
-      }
-    }
+    let name = cleanName(e.name,e.type);
     li.innerText = name;
     if (e.type != "file") {
       li.addEventListener("click",() => {
@@ -74,6 +83,29 @@ let displayBranch = async (path,delay) => {
 }
 
 let menu = {
+  search: (query="",results=[]) => {
+    let ul = newMainList();
+    let form = document.createElement("li");
+    let input = document.createElement("input");
+    input.setAttribute("type","text");
+    input.value = query;
+    input.addEventListener("change",async () => { 
+      let r = await Jukeberry.search(input.value);
+      menu.search(input.value,r);
+    });
+    form.append(input);
+    ul.append(form);
+    results.map(e => {
+      let li = document.createElement("li");
+      li.innerText = cleanName(e);
+      li.addEventListener("click",() => {
+        let path = e.split("/");
+        path.pop();
+        displayBranch(path.join("/"))
+      });
+      ul.append(li);
+    });
+  },
   all_random: () => { Jukeberry.allRandom(); },
   regenerate: async () => {
     if (confirm(`Ceci va entièrement réanalyser le disque pour produire un nouvel arbre.

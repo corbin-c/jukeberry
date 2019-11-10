@@ -122,7 +122,8 @@ let normalize = (str) => { return str
 let search = (str) => {
   let list = getGlobalList();
   str = normalize(str);
-  return list.filter(e => normalize(e).indexOf(str) >= 0).slice(0,10);
+  list = list.filter(e => normalize(e).indexOf(str) >= 0).slice(0,10);
+  return list.map(e => e.replace(DIRECTORY,"./"));
 }
 //Main object
 let Tree = {
