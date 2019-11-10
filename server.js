@@ -6,6 +6,7 @@ const DIRECTORY = (() => {
   dir = (dir[dir.length-1] == "/") ? dir:dir+"/";
   return dir;
 })();
+const LOG = true;
 //API queries to handle
 let commands = [
   {query:"getTree",func:"serveBranch"},
@@ -40,8 +41,14 @@ let getFile = (path,bin=false) => {
       resolve(data);
     });
   });
-}
+};
+let logger = (level,message) => {
+  if (LOG) {
+    console[level]((new Date()).toISOString()+" | "+message);
+  }
+};
 let exec = (command) => {
+  logger("info","detached subprocess: "+command);
   command = command.split(" ");
   let subprocess = spawn(command[0], command.slice(1), {
     detached: true,
@@ -54,6 +61,7 @@ let exec = (command) => {
   subprocess.unref();
 }
 let failure = (response,code,error) => {
+  logger("error",code+" "+error);
   response.writeHead(code);
   response.write(error);
 };
@@ -103,6 +111,7 @@ let Tree = {
       name:"tree.json",
       data:execSync("tree -Jif --noreport", {cwd:DIRECTORY})
     });
+    logger("log","json tree successfully built");
     files.push({
       name:"liste",
       data:execSync("tree -Fif --noreport | grep -v '/$'", {cwd:DIRECTORY,encoding:"utf8"})
@@ -111,9 +120,11 @@ let Tree = {
         .map(e => e.replace("./",DIRECTORY))
         .join("\n")
     });
+    logger("log","raw list successfully built");
     for (i of files) {
       fs.writeFileSync(i.name,i.data);
     }
+    logger("log","tree files written");
   },
   getTree: async () => {
     try {
@@ -177,20 +188,21 @@ let Tree = {
     try {
       execSync("killall -s SIGKILL mplayer");
     } catch {
-      console.log("nothing to stop");
+      logger("log","killall: nothing to stop");
     }
   },
   killJukeberry: async (response) => {
     response.writeHead(200);
     response.end("Goodbye");
     await Tree.killPlayer();
-    try {
+    /*try { //this should be handled by OS on shutdown
       execSync("sudo umount "+DIRECTORY);
     } catch {
       console.log("couldn't unmount device"); 
-    }
+    }*/
+    logger("warn","shutdown triggered");
     await wait(1000);
-    execSync("sudo halt");
+    execSync("sudo shutdown -h now");
   },
   play: async (path,random=false) => {
     random = (random) ? "-shuffle ":"";
@@ -239,15 +251,19 @@ let Tree = {
   },
   serveLog: (response) => {
     response.writeHead(200, {"Content-Type":"application/json"});
-    let currentLog = fs.readFileSync("current.log","utf8");
-    currentLog = JSON.parse(currentLog);
-    let log = {};
-    for (let v of Object.keys(currentLog)) {
-      if (["raw","clip_info"].indexOf(v) < 0) {
-        log[v] = currentLog[v];
+    try {
+      let currentLog = fs.readFileSync("current.log","utf8");
+      currentLog = JSON.parse(currentLog);
+      let log = {};
+      for (let v of Object.keys(currentLog)) {
+        if (["raw","clip_info"].indexOf(v) < 0) {
+          log[v] = currentLog[v];
+        }
       }
+      response.write(JSON.stringify(log));
+    } catch {
+      failure(response,404,"no current log");
     }
-    response.write(JSON.stringify(log));
   }
 }
 //Exposed server
@@ -256,6 +272,7 @@ let server = http.createServer(async function(req, res) {
   let served = servedFiles.filter(e => e.pathname == page.pathname)
   if (served.length > 0) {
     served = served[0];
+    logger("log","File served:\t["+served.mime+"]\t"+served.pathname);
     let type = served.mime;
     res.writeHead(200, {"Content-Type": type});
     served = (page.pathname == "/") ? "/index.html":page.pathname;
@@ -277,4 +294,14 @@ let server = http.createServer(async function(req, res) {
   }
   res.end();
 });
-server.listen(3000);
+let startServer = async () => {
+  logger("log","starting server...");
+  try {
+    server.listen(3000);
+    logger("log","server listening");
+  } catch (e) {
+    logger("error",e);
+    await wait(5000);
+  }
+}
+startServer();
