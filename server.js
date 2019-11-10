@@ -7,7 +7,6 @@ const DIRECTORY = (() => {
   return dir;
 })();
 const LOG = true;
-const similarity = require("./similarity.js").similarity;
 let globalList = [];
 //API queries to handle
 let commands = [
@@ -114,11 +113,16 @@ let getGlobalList = (update=false) => {
   }
   return globalList;
 }
+let normalize = (str) => { return str
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/_/g," ")
+  .toLowerCase();
+};
 let search = (str) => {
   let list = getGlobalList();
-  list = list.map(e => ({string:e,score:similarity(e.replace(DIRECTORY,""),str)}));
-  list = list.sort((a,b) => b.score-a.score);
-  return list.slice(0,10);
+  str = normalize(str);
+  return list.filter(e => normalize(e).indexOf(str) >= 0).slice(0,10);
 }
 //Main object
 let Tree = {
