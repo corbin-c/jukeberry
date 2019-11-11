@@ -75,16 +75,15 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
       li.addEventListener("click",() => {
         Jukeberry.play(e.name); });
     }
+    if (target) {
+      if (e.name == target) {
+        scroll({top:li.offsetTop+window.innerHeight/2,left:0,behavior:"smooth"});
+        await wait(300);
+        li.setAttribute("class","target");
+      }
+    }
     await wait(DELAY);
     parent.append(li);
-  }
-  if (target) {
-    target = [...document.querySelectorAll("main ul li")]
-      .find(e => (JSON.parse(e.data).name == target));
-    scroll({top:target.offsetTop+window.innerHeight/2,left:0,behavior:"smooth"});
-    await wait(600);
-    target.setAttribute("class","target");
-    console.log(target);
   }
 }
 let displayBranch = async (path,target=false) => {
