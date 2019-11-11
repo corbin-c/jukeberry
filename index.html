@@ -53,11 +53,11 @@ let cleanName = (name,type="file") => {
   }
   return name
 }
-let scrollTo = async () => {
+let scrollTo = async (element) => {
   await wait(500);
-  scroll({top:li.offsetTop-window.innerHeight/2,left:0,behavior:"smooth"});
+  scroll({top:element.offsetTop-window.innerHeight/2,left:0,behavior:"smooth"});
   await wait(300);
-  li.setAttribute("class","target");
+  element.setAttribute("class","target");
 };
 let mainDisplay = async (parent,list,currentPath,target=false) => {
   for (let e of list) {
