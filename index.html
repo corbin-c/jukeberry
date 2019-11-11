@@ -53,6 +53,12 @@ let cleanName = (name,type="file") => {
   }
   return name
 }
+let scrollTo = async () => {
+  await wait(500);
+  scroll({top:li.offsetTop-window.innerHeight/2,left:0,behavior:"smooth"});
+  await wait(300);
+  li.setAttribute("class","target");
+};
 let mainDisplay = async (parent,list,currentPath,target=false) => {
   for (let e of list) {
     let li = document.createElement("li");
@@ -77,9 +83,7 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
     }
     if (target) {
       if (e.name == target) {
-        scroll({top:li.offsetTop-window.innerHeight/2,left:0,behavior:"smooth"});
-        await wait(300);
-        li.setAttribute("class","target");
+       scrollTo(li);
       }
     }
     await wait(DELAY);
