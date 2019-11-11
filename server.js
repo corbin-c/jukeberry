@@ -142,6 +142,7 @@ let search = (str) => {
     })
     .filter((e,i,a) =>
     (a.lastIndexOf([...a].reverse().find(f => f.name == e.name)) == i))
+    .sort(() => Math.random() - 0.5)
     .slice(0,20);
 }
 //Main object
