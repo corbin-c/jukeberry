@@ -81,30 +81,40 @@ let displayBranch = async (path,delay) => {
     ul.append(li);
   };
 }
-
+let displaySearch = async (delay,results) => {
+  let ul = document.querySelector("main ul");
+  [...ul.children].map(e => {
+    if (e.id != "li_input") {
+      e.remove();
+    }
+  });
+  for (let e of results) {
+    let li = document.createElement("li");
+    li.innerText = cleanName(e);
+    li.addEventListener("click",() => {
+      let path = e.split("/");
+      path.pop();
+      displayBranch(path.join("/"))
+    });
+    ul.append(li);
+    await wait(delay);
+  }
+}
 let menu = {
-  search: (query="",results=[]) => {
+  search: () => {
     let ul = newMainList();
     let form = document.createElement("li");
+    form.setAttribute("id","li_input");
     let input = document.createElement("input");
     input.setAttribute("type","text");
-    input.value = query;
-    input.addEventListener("change",async () => { 
+    input.value = "";
+    input.addEventListener("keypress",async () => {
       let r = await Jukeberry.search(input.value);
-      menu.search(input.value,r);
+      displaySearch(10,r);
     });
     form.append(input);
     ul.append(form);
-    results.map(e => {
-      let li = document.createElement("li");
-      li.innerText = cleanName(e);
-      li.addEventListener("click",() => {
-        let path = e.split("/");
-        path.pop();
-        displayBranch(path.join("/"))
-      });
-      ul.append(li);
-    });
+    input.focus();
   },
   all_random: () => { Jukeberry.allRandom(); },
   regenerate: async () => {
