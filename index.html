@@ -57,6 +57,7 @@ let mainDisplay = async (parent,list,delay=10) => {
     let li = document.createElement("li");
     let name = cleanName(e.name,e.type);
     li.innerText = name;
+    li.data = JSON.stringify(e);
     if (e.type != "file") {
       li.addEventListener("click",() => {
         displayBranch(e.name,10); });
@@ -85,9 +86,21 @@ let displayBranch = async (path,delay=10) => {
 }
 let displaySearch = async (delay,results) => {
   let ul = document.querySelector("main ul");
+  console.log(results);
   [...ul.children].map(e => {
     if (e.id != "li_input") {
-      e.remove();
+      if (e.getAttribute("class") == "toremove") {
+        e.remove();
+      } else {
+        let data = JSON.parse(e.data);
+        let in_results = results.indexOf(results.find(f => f.name == data.name));
+        if (in_results >= 0) {
+          results.splice(in_results,1);
+        } else {
+          e.setAttribute("class","toremove");
+          e.addEventListener("transitionend", () => { e.remove() });
+        }
+      }
     }
   });
   mainDisplay(ul,results);
@@ -101,8 +114,10 @@ let menu = {
     input.setAttribute("type","text");
     input.value = "";
     input.addEventListener("keyup",async () => {
-      let r = await Jukeberry.search(input.value);
-      displaySearch(10,r);
+      if (input.value != "") {
+        let r = await Jukeberry.search(input.value);
+        displaySearch(10,r);
+      }
     });
     form.append(input);
     ul.append(form);

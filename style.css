@@ -20,6 +20,7 @@
   --contrast-color: #84dcc6;
   --alternate-bg-color: #a0ced9;
   --header-bg-color: #f87060;
+  --delay: 0.4s;
 }
 * {
   margin: 0;
@@ -85,6 +86,10 @@ main ul {
     transform: translateX(0);
   }
 }
+li.toremove {
+  opacity: 0;
+  height: 0;
+}
 main ul li {
   list-style-type: none;
   text-transform: uppercase;
@@ -94,7 +99,8 @@ main ul li {
   width: 100%;
   text-align: center;
   background: var(--main-bg-color);
-  animation: slide-left 0.4s ease;
+  transition: opacity var(--delay), height var(--delay), background-color var(--delay);
+  animation: slide-left var(--delay) ease;
   text-shadow:  var(--alternate-bg-color) 1px 1px 0px,
                 var(--alternate-bg-color) 1px -1px 0px,
                 var(--alternate-bg-color) -1px 1px 0px,
