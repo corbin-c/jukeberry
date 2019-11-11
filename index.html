@@ -52,10 +52,8 @@ let cleanName = (name,type="file") => {
   }
   return name
 }
-let displayBranch = async (path,delay) => {
-  let musicList = await Jukeberry.getTree(path);
-  let ul = newMainList();
-  for (let e of musicList) {
+let mainDisplay = async (parent,list,delay=10) => {
+  for (let e of list) {
     let li = document.createElement("li");
     let name = cleanName(e.name,e.type);
     li.innerText = name;
@@ -78,8 +76,12 @@ let displayBranch = async (path,delay) => {
     if (delay) {
       await wait(delay);
     }
-    ul.append(li);
-  };
+    parent.append(li);
+  }
+}
+let displayBranch = async (path,delay=10) => {
+  let musicList = await Jukeberry.getTree(path);
+  mainDisplay(newMainList(),musicList,delay);
 }
 let displaySearch = async (delay,results) => {
   let ul = document.querySelector("main ul");
@@ -88,17 +90,7 @@ let displaySearch = async (delay,results) => {
       e.remove();
     }
   });
-  for (let e of results) {
-    let li = document.createElement("li");
-    li.innerText = cleanName(e);
-    li.addEventListener("click",() => {
-      let path = e.split("/");
-      path.pop();
-      displayBranch(path.join("/"))
-    });
-    ul.append(li);
-    await wait(delay);
-  }
+  mainDisplay(ul,results);
 }
 let menu = {
   search: () => {
@@ -108,7 +100,7 @@ let menu = {
     let input = document.createElement("input");
     input.setAttribute("type","text");
     input.value = "";
-    input.addEventListener("keypress",async () => {
+    input.addEventListener("keyup",async () => {
       let r = await Jukeberry.search(input.value);
       displaySearch(10,r);
     });

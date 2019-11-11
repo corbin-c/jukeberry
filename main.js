@@ -23,17 +23,18 @@ let makeRequestFunc = (request) => {
 class Jukebox {
   constructor() {
     this.requests = [
-      {name:"search",json:true,action:"search",defaultValue:""},
-      {name:"getTree",json:true,action:"getTree",defaultValue:"./"},
+      {name:"search",json:true,defaultValue:""},
+      {name:"getTree",json:true,defaultValue:"./"},
       {name:"currentSong",json:true,action:"getCurrentSong"},
       {name:"play",action:"playFile",defaultValue:"./"},
       {name:"playRandom",action:"playRandom",defaultValue:"./"},
-      {name:"stop",action:"stop"},
-      {name:"halt",action:"halt"},
+      {name:"stop"},
+      {name:"halt"},
       {name:"allRandom",action:"playAllRandom"},
       {name:"regenerate",action:"makeTree",await:true},
     ];
     this.requests.map(e => {
+      e.action = (typeof e.action === "undefined")?e.name:e.action;
       this[e.name] = makeRequestFunc(e);
     });
   }

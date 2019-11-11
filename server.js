@@ -7,7 +7,6 @@ const DIRECTORY = (() => {
   return dir;
 })();
 const LOG = true;
-let globalList = [];
 //API queries to handle
 let commands = [
   {query:"getTree",func:"serveBranch"},
@@ -104,14 +103,19 @@ let parseLog = async (log) => {
     fs.writeFileSync("current.log",log);
   }
 }
-let getGlobalList = (update=false) => {
-  if (update || globalList.length == 0) {
-    logger("log","making globalList");
-    globalList = fs.readFileSync("liste","utf8")
-      .split("\n")
-      .filter(e => ((e != "") && (e != ".")));
-  }
-  return globalList;
+let updateGlobalList = (file,update=false) => {
+  logger("log","making globalList");
+  list = (update) ? update:fs.readFileSync(file,"utf8");
+  list = (file == "liste") ? list.split("\n"):JSON.parse(list);
+  return list;
+}
+let makeGlobalLists = () => {
+  let files = ["tree.json","liste"];
+  let output = {};
+  files.map(e => {
+    output[e.slice(0,4)] = updateGlobalList(e);
+  });
+  return output;
 }
 let normalize = (str) => { return str
   .normalize("NFD")
@@ -120,10 +124,25 @@ let normalize = (str) => { return str
   .toLowerCase();
 };
 let search = (str) => {
-  let list = getGlobalList();
+  let list = globalList.list;
   str = normalize(str);
-  list = list.filter(e => normalize(e).indexOf(str) >= 0).slice(0,10);
-  return list.map(e => e.replace(DIRECTORY,"./"));
+  output = [];
+  return list.filter(e => normalize(e).indexOf(str) >= 0)
+    .map(e => e.replace(DIRECTORY,"./"))
+    .filter(e => normalize(e).indexOf(str) >= 0)
+    .map(e => {
+      e = {name:e,type:"file"};
+      let norm = normalize(e.name).split("/");
+      let rank = norm.indexOf(norm.find(f => (f.indexOf(str) >= 0)));
+      if (rank != norm.length-1) {
+        e.type = "directory";
+        e.name = e.name.split("/").slice(0,rank+1).join("/");
+      }
+      return e;
+    })
+    .filter((e,i,a) =>
+    (a.lastIndexOf([...a].reverse().find(f => f.name == e.name)) == i))
+    .slice(0,20);
 }
 //Main object
 let Tree = {
@@ -140,24 +159,19 @@ let Tree = {
       data:execSync("tree -Fif --noreport | grep -v '/$'", {cwd:DIRECTORY,encoding:"utf8"})
         .replace(/\*\n/g,"\n")
         .split("\n")
+        .filter(e => ((e != "") && (e != ".")))
         .map(e => e.replace("./",DIRECTORY))
         .join("\n")
     });
     logger("log","raw list successfully built");
     for (i of files) {
       fs.writeFileSync(i.name,i.data);
+      updateGlobalList(i.name,i.data);
     }
-    getGlobalList(true);
     logger("log","tree files written");
   },
-  getTree: async () => {
-    try {
-      let tree = await getFile("./tree.json");
-      tree = JSON.parse(tree);
-      return tree;
-    } catch {
-      throw {code:404,text:"No tree :(\nTree couldn't be found.\nIn order to generate tree:\n\n\tcd "+DIRECTORY+"\n\ttree -Jif --noreport > ./tree.json\n\ttree -Fif --noreport | grep -v '/$' > ./liste"};
-    }
+  getTree: () => {
+    return globalList.tree;
   },
   getParentFolder: (path) => {
     path = path.split("/");
@@ -189,9 +203,9 @@ let Tree = {
   cleanBranch: (tree) => {
     return tree.map(e => ({type:e.type,name:e.name}));
   },
-  serveBranch: async (response,path) => {
+  serveBranch: (response,path) => {
     try {
-      let tree = await Tree.getTree();
+      let tree = Tree.getTree();
       try {
         tree = Tree.getBranch(tree,path);
         tree = Tree.cleanBranch(tree);
@@ -265,15 +279,15 @@ let Tree = {
     await Tree.generatePlaylist(path);
     Tree.play("./playlist",true);  
   },
-  suffleRecursiveDir: async (response,path) => {
+  suffleRecursiveDir: (response,path) => {
     path = path.replace("./",DIRECTORY);
-    let playlist = getGlobalList();
+    let playlist = globalList.list;
     playlist = playlist.filter(e => e.indexOf(path) == 0);
     playlist = playlist.join("\n");
     fs.writeFileSync("playlist",playlist);
     Tree.play("./playlist",true);
   },
-  playAllRandom: async (response,path) => {
+  playAllRandom: (response,path) => {
     Tree.play("./liste",true);
   },
   serveLog: (response) => {
@@ -331,4 +345,5 @@ let startServer = async () => {
     await wait(5000);
   }
 }
+let globalList = makeGlobalLists();
 startServer();
