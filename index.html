@@ -24,6 +24,7 @@
     </header>
     <main class="init">
       <script type="module">
+const DELAY = 10;
 import { Jukeberry } from "./main.js";
 let button = (action,label,opts) => {
   let b = document.createElement("button");
@@ -52,7 +53,7 @@ let cleanName = (name,type="file") => {
   }
   return name
 }
-let mainDisplay = async (parent,list,delay=10) => {
+let mainDisplay = async (parent,list,currentPath,target=false) => {
   for (let e of list) {
     let li = document.createElement("li");
     let name = cleanName(e.name,e.type);
@@ -60,7 +61,7 @@ let mainDisplay = async (parent,list,delay=10) => {
     li.data = JSON.stringify(e);
     if (e.type != "file") {
       li.addEventListener("click",() => {
-        displayBranch(e.name,10); });
+        displayBranch(e.name,(e.type == "parentdir")?currentPath:false); });
       if (e.type == "parentdir") {
         name = "../";
         li.innerText = name;
@@ -74,15 +75,21 @@ let mainDisplay = async (parent,list,delay=10) => {
       li.addEventListener("click",() => {
         Jukeberry.play(e.name); });
     }
-    if (delay) {
-      await wait(delay);
-    }
+    await wait(DELAY);
     parent.append(li);
   }
+  if (target) {
+    target = [...document.querySelectorAll("main ul li")]
+      .find(e => (JSON.parse(e.data).name == target));
+    scroll({top:target.offsetTop+window.innerHeight/2,left:0,behavior:"smooth"});
+    await wait(600);
+    target.setAttribute("class","target");
+    console.log(target);
+  }
 }
-let displayBranch = async (path,delay=10) => {
+let displayBranch = async (path,target=false) => {
   let musicList = await Jukeberry.getTree(path);
-  mainDisplay(newMainList(),musicList,delay);
+  mainDisplay(newMainList(),musicList,path,target);
 }
 let displaySearch = async (delay,results) => {
   let ul = document.querySelector("main ul");
@@ -157,7 +164,7 @@ let wait = (t) => {
   footer.setAttribute("class","");
   document.querySelector("header").setAttribute("class","");
   await wait(500);
-  displayBranch(".",20);
+  displayBranch(".");
   let current = document.createElement("p");
   current.setAttribute("id","currentSong");
   footer.append(current);

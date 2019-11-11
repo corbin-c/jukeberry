@@ -113,6 +113,9 @@ main ul li:nth-child(2n) {
                 var(--main-bg-color) -1px 1px 0px,
                 var(--main-bg-color) -1px -1px 0px;
 }
+li.target {
+  background-color: #d87fa1 !important;
+}
 header {
   background-image: url("icons/192.png");
   background-repeat: no-repeat;
