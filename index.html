@@ -114,8 +114,9 @@ let menu = {
     input.setAttribute("type","text");
     input.value = "";
     input.addEventListener("keyup",async () => {
-      if (input.value != "") {
+      if ((input.value != "") && (input.value != input.lastValue)) {
         let r = await Jukeberry.search(input.value);
+        input.lastValue = input.value;
         displaySearch(10,r);
       }
     });
