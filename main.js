@@ -38,6 +38,9 @@ class Jukebox {
       this[e.name] = makeRequestFunc(e);
     });
   }
+  async upload(files) {
+    await fetch("./api", {method: "POST", body: files});
+  }
 }
 let Jukeberry = new Jukebox();
 export { Jukeberry };

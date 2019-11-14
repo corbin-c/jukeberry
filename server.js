@@ -1,12 +1,14 @@
 const fs = require("fs");
 const { execSync, spawn } = require("child_process");
 const http = require("http");
+const formidable = require("formidable");
 const DIRECTORY = (() => {
   let dir = fs.readFileSync("config","utf8").split("\n")[0];
   dir = (dir[dir.length-1] == "/") ? dir:dir+"/";
   return dir;
 })();
 const LOG = true;
+let globalList;
 //API queries to handle
 let commands = [
   {query:"getTree",func:"serveBranch"},
@@ -15,6 +17,7 @@ let commands = [
   {query:"playRandom",func:"suffleRecursiveDir"},
   {query:"playAllRandom",func:"playAllRandom"},
   {query:"getCurrentSong",func:"serveLog"},
+  {query:"upload",func:"importFiles"},
   {query:"search",func:"search"},
   {query:"stop",func:"killPlayer"},
   {query:"halt",func:"killJukeberry"}
@@ -24,6 +27,7 @@ let servedFiles = [
   {pathname:"/",mime:"text/html"},
   {pathname:"/index.html",mime:"text/html"},
   {pathname:"/main.js",mime:"application/javascript"},
+  {pathname:"/utils.js",mime:"application/javascript"},
   {pathname:"/icons/32.png",mime:"image/png"},
   {pathname:"/icons/192.png",mime:"image/png"},
   {pathname:"/icons/512.png",mime:"image/png"},
@@ -34,6 +38,12 @@ let wait = (t) => {
   return new Promise((resolve,reject) => {
     setTimeout(() => { resolve(); },t)
   })
+};
+let normalize = (str) => { return str
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/_/g," ")
+  .toLowerCase();
 };
 let getFile = (path,bin=false) => {
   return new Promise((resolve,reject) => {
@@ -48,6 +58,11 @@ let logger = (level,message) => {
     console[level]((new Date()).toISOString()+" | "+message);
   }
 };
+let failure = (response,code,error) => {
+  logger("error",code+" "+error);
+  response.writeHead(code);
+  response.write(error);
+};
 let exec = (command) => {
   logger("info","detached subprocess: "+command);
   command = command.split(" ");
@@ -60,11 +75,6 @@ let exec = (command) => {
     parseLog(e);
   });
   subprocess.unref();
-}
-let failure = (response,code,error) => {
-  logger("error",code+" "+error);
-  response.writeHead(code);
-  response.write(error);
 };
 let parseLog = async (log) => {
   let ret = false;
@@ -117,12 +127,6 @@ let makeGlobalLists = () => {
   });
   return output;
 }
-let normalize = (str) => { return str
-  .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .replace(/_/g," ")
-  .toLowerCase();
-};
 let search = (str) => {
   let list = globalList.list;
   str = normalize(str);
@@ -147,8 +151,7 @@ let search = (str) => {
 }
 //Main object
 let Tree = {
-  generateTrees: (response) => {
-    response.writeHead(200);
+  generateTrees: () => {
     let files = [];
     files.push({
       name:"tree.json",
@@ -167,8 +170,8 @@ let Tree = {
     logger("log","raw list successfully built");
     for (i of files) {
       fs.writeFileSync(i.name,i.data);
-      updateGlobalList(i.name,i.data);
     }
+    globalList = makeGlobalLists();
     logger("log","tree files written");
   },
   getTree: () => {
@@ -205,23 +208,22 @@ let Tree = {
     return tree.map(e => ({type:e.type,name:e.name}));
   },
   serveBranch: (response,path) => {
+    let tree = Tree.getTree();
     try {
-      let tree = Tree.getTree();
-      try {
-        tree = Tree.getBranch(tree,path);
-        tree = Tree.cleanBranch(tree);
-        response.writeHead(200, {"Content-Type": "application/json"});
-        let parentpath = Tree.getParentFolder(path);
-        if (parentpath) {
-          tree.unshift({type:"parentdir",name:parentpath});
-        }
-        response.write(JSON.stringify(tree));
-      } catch(e) {
-        throw {code:400,text:"Bad request :\n"+e};
+      tree = Tree.getBranch(tree,path);
+      tree = Tree.cleanBranch(tree);
+      response.writeHead(200, {"Content-Type": "application/json"});
+      let parentpath = Tree.getParentFolder(path);
+      if (parentpath) {
+        tree.unshift({type:"parentdir",name:parentpath});
       }
+      response.write(JSON.stringify(tree));
     } catch(e) {
-      throw e;
+      throw {code:400,text:"Bad request :\n"+e};
     }
+  },
+  importFiles: (response) => {
+    
   },
   search: (response,str) => {
     response.writeHead(200, {"Content-Type": "application/json"});
@@ -322,14 +324,32 @@ let server = http.createServer(async function(req, res) {
     served = await getFile(served,(type.indexOf("image") >= 0));
     res.write(served);
   } else if (page.pathname == "/api") {
-    try {
-      let cmd = commands
-        .find(q => q.query == page.searchParams.get("action"))
-        .func;
-      await Tree[cmd](res,page.searchParams.get("options"));
-    } catch(e) {
-      console.log(e);
-      failure(res,e.code,e.text);
+    if (req.method == "POST") {
+      let form = new formidable.IncomingForm();
+      form.uploadDir = DIRECTORY;
+      form.keepExtensions = true;
+      form.multiples = true;
+      form.parse(req, (err, fields, files) => {
+        destination = fields.destination;
+        destination += (destination[destination.length-1] == "/")
+          ? ""
+          : "/";
+        destination = destination.replace("./",DIRECTORY);
+        for (let file of Object.values(files)) {
+          logger("log","Uploaded file: destination+file.name");
+          fs.rename(file.path, destination+file.name, (err) => {});
+        }
+      });
+    } else {
+      try {
+        let cmd = commands
+          .find(q => q.query == page.searchParams.get("action"))
+          .func;
+        await Tree[cmd](res,page.searchParams.get("options"));
+      } catch(e) {
+        console.log(e);
+        failure(res,e.code,e.text);
+      }
     }
   } else {
     failure(res,404,"Not found :(");
@@ -337,6 +357,11 @@ let server = http.createServer(async function(req, res) {
   res.end();
 });
 let startServer = async () => {
+  try {
+    globalList = makeGlobalLists();
+  } catch {
+    Tree.generateTrees();
+  }
   logger("log","starting server...");
   try {
     server.listen(3000);
@@ -344,7 +369,7 @@ let startServer = async () => {
   } catch (e) {
     logger("error",e);
     await wait(5000);
+    startServer();
   }
 }
-let globalList = makeGlobalLists();
 startServer();

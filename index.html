@@ -15,6 +15,7 @@
       <nav>
         <ul tabindex="1">
           <li id="search">Recherche</li>
+          <li id="add_files">Ajouter</li>
           <li id="all_random">Aléatoire</li>
           <li id="regenerate">Régénérer l'arbre</li>
           <li id="stop">Stop</li>
@@ -26,43 +27,55 @@
       <script type="module">
 const DELAY = 10;
 import { Jukeberry } from "./main.js";
-let button = (action,label,opts) => {
-  let b = document.createElement("button");
-  b.innerText = label;
-  b.addEventListener("click",() => {
-    Jukeberry[action](opts);
-  });
-  return b;
-}
-let newMainList = () => {
-  let main = document.querySelector("main");
-  main.innerHTML = "";
-  let ul = document.createElement("ul");
-  main.append(ul);
-  return ul;
-}
-let cleanName = (name,type="file") => {
-  name = name.split("/").pop();
-  name = name.replace(/_/g," ");
-  if (type == "file") {
-    name = name.split(".");
-    if (name.length > 1) {
-      name.pop();
-      name = name.join(" ");
+import { Utils } from "./utils.js";
+let folderSelect = async (parent,path) => {
+  let list = await Jukeberry.getTree(path);
+  list = list.filter(e => e.type != "file");
+  let choices = [{name:path},{name:"newfolder"}];
+  list = (list[0].type == "parentdir")
+    ? [list[0],...choices,...list.slice(1)]
+    : [...choices,...list];
+  parent.innerHTML = "";
+  return new Promise(async (resolve,reject) => {
+    for (let e of list) {
+      let li = document.createElement("li");
+      let name = Utils.cleanName(e.name,e.type);
+      li.innerText = (e.name == path)
+        ? "Choisir ce dossier"
+        : (e.name == "newfolder")
+          ? "Créer un dossier ici" : name;
+      li.data = JSON.stringify(e);
+      let onLiClick = async () => {
+        if (e.name == path) {
+          resolve(e.name);
+        } else if (e.name == "newfolder") {
+          li.innerHTML = "<input type='text' placeholder='Nom du dossier à créer'>";
+          li.removeEventListener("click",onLiClick);
+          li.children[0].addEventListener("change", (event) => {
+            resolve(path + "/" + event.target.value);
+          });
+        } else {
+          resolve(await folderSelect(parent,e.name));
+        }
+      }
+      li.addEventListener("click",onLiClick);
+      li.addEventListener("contextmenu",(event) => {
+        event.preventDefault();
+        resolve(e.name);
+      });
+      if (e.type == "parentdir") {
+        name = "../";
+        li.innerText = name;
+      }
+      await Utils.wait(DELAY);
+      parent.append(li);
     }
-  }
-  return name
+  });
 }
-let scrollTo = async (element) => {
-  await wait(500);
-  scroll({top:element.offsetTop-window.innerHeight/2,left:0,behavior:"smooth"});
-  await wait(300);
-  element.setAttribute("class","target");
-};
 let mainDisplay = async (parent,list,currentPath,target=false) => {
   for (let e of list) {
     let li = document.createElement("li");
-    let name = cleanName(e.name,e.type);
+    let name = Utils.cleanName(e.name,e.type);
     li.innerText = name;
     li.data = JSON.stringify(e);
     if (e.type != "file") {
@@ -83,16 +96,16 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
     }
     if (target) {
       if (e.name == target) {
-       scrollTo(li);
+       Utils.scrollTo(li);
       }
     }
-    await wait(DELAY);
+    await Utils.wait(DELAY);
     parent.append(li);
   }
 }
 let displayBranch = async (path,target=false) => {
   let musicList = await Jukeberry.getTree(path);
-  mainDisplay(newMainList(),musicList,path,target);
+  mainDisplay(Utils.newMainList(),musicList,path,target);
 }
 let displaySearch = async (delay,results) => {
   let ul = document.querySelector("main ul");
@@ -107,8 +120,7 @@ let displaySearch = async (delay,results) => {
         if (in_results >= 0) {
           results.splice(in_results,1);
         } else {
-          e.setAttribute("class","toremove");
-          e.addEventListener("transitionend", () => { e.remove() });
+          Utils.remove(e);
         }
       }
     }
@@ -117,7 +129,7 @@ let displaySearch = async (delay,results) => {
 }
 let menu = {
   search: () => {
-    let ul = newMainList();
+    let ul = Utils.newMainList();
     let form = document.createElement("li");
     form.setAttribute("id","li_input");
     let input = document.createElement("input");
@@ -133,6 +145,15 @@ let menu = {
     form.append(input);
     ul.append(form);
     input.focus();
+  },
+  add_files: async () => {
+    let files = await Utils.setFileInput();
+    let formData = new FormData();
+    let destination_form = Utils.makeFolderChoice();
+    let destination = await folderSelect(destination_form.querySelector("ul"),".");
+    formData.append("destination",destination);
+    files.map(async e => formData.append(e.name, e));
+    Jukeberry.upload(formData);
   },
   all_random: () => { Jukeberry.allRandom(); },
   regenerate: async () => {
@@ -150,23 +171,20 @@ let menu = {
         Jukeberry.halt();
     }
   },
-}
-document.querySelector("nav ul").addEventListener("click",(e) => {
-  menu[e.target.id]();
-});
-
-let wait = (t) => {
-  return new Promise((resolve,reject) => {
-    setTimeout(() => { resolve(); },t)
-  })
 };
 (async () => {
-  await wait(500);
+  document.querySelector("nav ul").addEventListener("click",(e) => {
+    menu[e.target.id]();
+  });
+  document.querySelector("h1").addEventListener("click",() => {
+    displayBranch(".");
+  });
+  await Utils.wait(500);
   let footer = document.querySelector("footer");
   document.querySelector("main").setAttribute("class","");
   footer.setAttribute("class","");
   document.querySelector("header").setAttribute("class","");
-  await wait(500);
+  await Utils.wait(500);
   displayBranch(".");
   let current = document.createElement("p");
   current.setAttribute("id","currentSong");
@@ -189,9 +207,6 @@ let wait = (t) => {
   });
   footer.append(btn);
 })();
-document.querySelector("h1").addEventListener("click",() => {
-  displayBranch(".");
-});
       </script>
     </main>
     <footer class="init"></footer>
