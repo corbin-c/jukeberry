@@ -145,6 +145,14 @@ header h1 {
                 var(--contrast-color) -2px 2px 0px,
                 var(--contrast-color) -2px -2px 0px;
 }
+h2 {
+  padding: 10px;
+  text-shadow:  var(--main-bg-color) 2px 2px 0px,
+                var(--main-bg-color) 2px -2px 0px,
+                var(--main-bg-color) -2px 2px 0px,
+                var(--main-bg-color) -2px -2px 0px;
+
+}
 header nav {
   padding-right: 10px;
   display:flex;
