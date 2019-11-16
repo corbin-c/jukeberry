@@ -216,6 +216,7 @@ let Tree = {
     let newTree = tree.find(e => e.name==localPath);
     let index = tree.indexOf(newTree);
     output += "["+index+"].contents";
+    console.log(output);
     if (output.split("contents").length == path.split("/").length+1) {
       return output;
     } else {
