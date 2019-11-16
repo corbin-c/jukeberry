@@ -277,7 +277,7 @@ let Tree = {
     }*/
     logger("warn","shutdown triggered");
     await wait(1000);
-    execSync("sudo shutdown -h now");
+    execSync("sudo shutdown now");
   },
   play: async (path,random=false) => {
     random = (random) ? "-shuffle ":"";
