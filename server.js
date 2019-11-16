@@ -119,11 +119,13 @@ let updateGlobalList = (file,update=false) => {
   list = (file == "liste") ? list.split("\n"):JSON.parse(list);
   return list;
 }
-let makeGlobalLists = () => {
+let makeGlobalLists = (update=false) => {
   let files = ["tree.json","liste"];
   let output = {};
   files.map(e => {
-    output[e.slice(0,4)] = updateGlobalList(e);
+    output[e.slice(0,4)] = (update)
+      ? updateGlobalList(e,update.find(f => f.name == e).data)
+      : updateGlobalList(e);
   });
   return output;
 }
@@ -151,28 +153,30 @@ let search = (str) => {
 }
 //Main object
 let Tree = {
-  generateTrees: () => {
-    let files = [];
-    files.push({
-      name:"tree.json",
-      data:execSync("tree -Jif --noreport", {cwd:DIRECTORY})
-    });
-    logger("log","json tree successfully built");
-    files.push({
-      name:"liste",
-      data:execSync("tree -Fif --noreport | grep -v '/$'",
-        {cwd:DIRECTORY,encoding:"utf8"})
-        .replace(/\*\n/g,"\n")
-        .split("\n")
-        .filter(e => ((e != "") && (e != ".")))
-        .map(e => e.replace("./",DIRECTORY))
-        .join("\n")
-    });
-    logger("log","raw list successfully built");
+  generateTrees: (response,data=false) => {
+    let files = (data) ? data : [];
+    if (!data) {
+      files.push({
+        name:"tree.json",
+        data:execSync("tree -Jif --noreport", {cwd:DIRECTORY})
+      });
+      logger("log","json tree successfully built");
+      files.push({
+        name:"liste",
+        data:execSync("tree -Fif --noreport | grep -v '/$'",
+          {cwd:DIRECTORY,encoding:"utf8"})
+          .replace(/\*\n/g,"\n")
+          .split("\n")
+          .filter(e => ((e != "") && (e != ".")))
+          .map(e => e.replace("./",DIRECTORY))
+          .join("\n")
+      });
+      logger("log","raw list successfully built");
+    }
     for (i of files) {
       fs.writeFileSync(i.name,i.data);
     }
-    globalList = makeGlobalLists();
+    globalList = makeGlobalLists(files);
     logger("log","tree files written");
   },
   getTree: () => {
@@ -205,6 +209,19 @@ let Tree = {
       return tree;
     }
   },
+  getPath: (tree,path,output="") => {
+    let localPath = path.split("/");
+    localPath = localPath.slice(0,output.length/3+1);
+    localPath = localPath.join("/");
+    let newTree = tree.find(e => e.name==localPath);
+    let index = tree.indexOf(newTree);
+    output += "["+index+"].contents";
+    if (output.split("contents").length == path.split("/").length+1) {
+      return output;
+    } else {
+      return Tree.getPath(newTree.contents,path,output);
+    }
+  },
   cleanBranch: (tree) => {
     return tree.map(e => ({type:e.type,name:e.name}));
   },
@@ -223,8 +240,20 @@ let Tree = {
       throw {code:400,text:"Bad request :\n"+e};
     }
   },
-  importFiles: (response) => {
-    
+  importFiles: (branch,list) => {
+    list = [...globalList.list,...list];
+    let tree = Tree.getTree();
+    let jsonpath = "tree";
+    let path = branch[0].name.split("/");
+    path.pop();
+    jsonpath += Tree.getPath(tree,path.join("/"));
+    jsonpath += ".push("+JSON.stringify(...branch)+")";
+    eval(jsonpath);
+    Tree.generateTrees(false,[
+      {name:"tree.json",data:JSON.stringify(tree)},
+      {name:"liste",data:list.join("\n")}
+    ]);
+    return path;
   },
   search: (response,str) => {
     response.writeHead(200, {"Content-Type": "application/json"});
@@ -327,22 +356,31 @@ let server = http.createServer(async function(req, res) {
   } else if (page.pathname == "/api") {
     if (req.method == "POST") {
       let form = new formidable.IncomingForm();
+      let branch = [];
+      let target = branch;
+      let list = [];
       form.uploadDir = DIRECTORY;
       form.keepExtensions = true;
       form.multiples = true;
       form.parse(req, (err, fields, files) => {
-        destination = fields.destination;
+        let destination = fields.destination;
         destination += (destination[destination.length-1] == "/")
           ? ""
           : "/";
-        destination = destination.replace("./",DIRECTORY);
-        if (!fs.existsSync(destination)) {
-          fs.mkdirSync(destination);
+        let fsdestination = destination.replace("./",DIRECTORY);
+        if (!fs.existsSync(fsdestination)) {
+          fs.mkdirSync(fsdestination);
+          branch.push({type:"directory",name:destination.slice(0,-1)
+            ,contents:[]});
+          target = branch[0].contents;
         }
         for (let file of Object.values(files)) {
-          logger("log","Uploaded file: "+destination+file.name);
-          fs.rename(file.path, destination+file.name, (err) => {});
+          logger("log","Uploaded file: "+fsdestination+file.name);
+          target.push({type:"file",name:destination+file.name});
+          list.push(fsdestination+file.name);
+          fs.rename(file.path, fsdestination+file.name, (err) => {});
         }
+        Tree.importFiles(branch,list);
       });
     } else {
       try {
@@ -351,7 +389,6 @@ let server = http.createServer(async function(req, res) {
           .func;
         await Tree[cmd](res,page.searchParams.get("options"));
       } catch(e) {
-        console.log(e);
         failure(res,e.code,e.text);
       }
     }
@@ -364,7 +401,7 @@ let startServer = async () => {
   try {
     globalList = makeGlobalLists();
   } catch {
-    Tree.generateTrees();
+    Tree.generateTrees(false);
   }
   logger("log","starting server...");
   try {

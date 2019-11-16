@@ -154,7 +154,7 @@ let menu = {
     let destination = await folderSelect(destination_form.querySelector("ul"),".");
     formData.append("destination",destination);
     files.map(async e => formData.append(e.name, e));
-    Jukeberry.upload(formData);
+    await Jukeberry.upload(formData);
     destination_form.removeAll();
   },
   all_random: () => { Jukeberry.allRandom(); },
@@ -163,7 +163,7 @@ let menu = {
     (cela peut prendre longtemps)
 Êtes-vous sûr ?`)) {
         await Jukeberry.regenerate();
-        displayBranch("./");
+        displayBranch(".");
     }
   },
   stop: () => { Jukeberry.stop(); },
