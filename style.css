@@ -293,8 +293,9 @@ li input {
   z-index: 119;
   animation: popin var(--delay) ease;
   background-color: rgba(0,0,0,0.33);
+  transition: opacity var(--delay);
 }
-section.toremove {
+section.toremove, #hider.toremove {
   transform: scale(10);
   opacity: 0;
 }

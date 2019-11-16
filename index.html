@@ -51,6 +51,7 @@ let folderSelect = async (parent,path) => {
         } else if (e.name == "newfolder") {
           li.innerHTML = "<input type='text' placeholder='Nom du dossier à créer'>";
           li.removeEventListener("click",onLiClick);
+          li.children[0].focus();
           li.children[0].addEventListener("change", (event) => {
             resolve(path + "/" + event.target.value);
           });
@@ -154,6 +155,7 @@ let menu = {
     formData.append("destination",destination);
     files.map(async e => formData.append(e.name, e));
     Jukeberry.upload(formData);
+    destination_form.removeAll();
   },
   all_random: () => { Jukeberry.allRandom(); },
   regenerate: async () => {

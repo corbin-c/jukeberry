@@ -160,7 +160,8 @@ let Tree = {
     logger("log","json tree successfully built");
     files.push({
       name:"liste",
-      data:execSync("tree -Fif --noreport | grep -v '/$'", {cwd:DIRECTORY,encoding:"utf8"})
+      data:execSync("tree -Fif --noreport | grep -v '/$'",
+        {cwd:DIRECTORY,encoding:"utf8"})
         .replace(/\*\n/g,"\n")
         .split("\n")
         .filter(e => ((e != "") && (e != ".")))
@@ -335,8 +336,11 @@ let server = http.createServer(async function(req, res) {
           ? ""
           : "/";
         destination = destination.replace("./",DIRECTORY);
+        if (!fs.existsSync(destination)) {
+          fs.mkdirSync(destination);
+        }
         for (let file of Object.values(files)) {
-          logger("log","Uploaded file: destination+file.name");
+          logger("log","Uploaded file: "+destination+file.name);
           fs.rename(file.path, destination+file.name, (err) => {});
         }
       });

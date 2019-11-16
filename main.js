@@ -13,7 +13,9 @@ let makeRequestFunc = (request) => {
     }
   } else {
     if (request.await) {
-      reqFunc = async (param) => { await fetch(makeRequestURL(request.action,param)); };
+      reqFunc = async (param) => {
+        await fetch(makeRequestURL(request.action,param));
+      };
     } else {
       reqFunc = (param) => { fetch(makeRequestURL(request.action,param)); };
     }
