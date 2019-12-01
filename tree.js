@@ -24,6 +24,7 @@ let TreeMaker = (path) => {
     });
     return dir;
   }; 
-  return {tree:makeTree(path),list:masterList};
+  return {tree:[{"type":"directory","name": ".","contents":makeTree(path)}],
+    list:masterList};
 }
-export { TreeMaker };
+exports.TreeMaker = TreeMaker;

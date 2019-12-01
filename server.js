@@ -2,6 +2,7 @@ const fs = require("fs");
 const { execSync, spawn } = require("child_process");
 const http = require("http");
 const formidable = require("formidable");
+const TreeMaker = require("./tree.js").TreeMaker;
 const DIRECTORY = (() => {
   let dir = fs.readFileSync("config","utf8").split("\n")[0];
   dir = (dir[dir.length-1] == "/") ? dir:dir+"/";
@@ -156,19 +157,15 @@ let Tree = {
   generateTrees: (response,data=false) => {
     let files = (data) ? data : [];
     if (!data) {
+      let tree = TreeMaker(DIRECTORY);
       files.push({
         name:"tree.json",
-        data:execSync("tree -Jif --noreport", {cwd:DIRECTORY})
+        data:JSON.stringify(tree.tree)
       });
       logger("log","json tree successfully built");
       files.push({
         name:"liste",
-        data:execSync("tree -Fif --noreport | grep -v '/$'",
-          {cwd:DIRECTORY,encoding:"utf8"})
-          .replace(/\*\n/g,"\n")
-          .split("\n")
-          .filter(e => ((e != "") && (e != ".")))
-          .map(e => e.replace("./",DIRECTORY))
+        data:tree.list.map(e => e.replace("./",DIRECTORY))
           .join("\n")
       });
       logger("log","raw list successfully built");
