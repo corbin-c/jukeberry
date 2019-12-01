@@ -27,6 +27,8 @@ class Jukebox {
     this.requests = [
       {name:"search",json:true,defaultValue:""},
       {name:"getTree",json:true,defaultValue:"./"},
+      {name:"getRadios",json:true},
+      {name:"playLive"},
       {name:"currentSong",json:true,action:"getCurrentSong"},
       {name:"play",action:"playFile",defaultValue:"./"},
       {name:"playRandom",action:"playRandom",defaultValue:"./"},

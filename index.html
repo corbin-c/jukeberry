@@ -17,6 +17,7 @@
           <li id="search">Recherche</li>
           <li id="add_files">Ajouter</li>
           <li id="all_random">Aléatoire</li>
+          <li id="radio">Radio</li>
           <li id="regenerate">Régénérer l'arbre</li>
           <li id="stop">Stop</li>
           <li id="halt">Arrêter tout</li>
@@ -150,7 +151,7 @@ let menu = {
   add_files: async () => {
     let files = await Utils.setFileInput();
     let formData = new FormData();
-    let destination_form = Utils.makeFolderChoice();
+    let destination_form = Utils.makeFolderChoice("Emplacement de destination");
     let destination = await folderSelect(destination_form.querySelector("ul"),".");
     formData.append("destination",destination);
     files.map(async e => formData.append(e.name, e));
@@ -165,6 +166,19 @@ let menu = {
         await Jukeberry.regenerate();
         displayBranch(".");
     }
+  },
+  radio: async () => {
+    let radio_choice = Utils.makeFolderChoice("Choisir une radio");
+    let radio_list = await Jukeberry.getRadios();
+    radio_list.map(e => {
+      let li = document.createElement("li");
+      li.innerText = e;
+      radio_choice.querySelector("ul").append(li);
+      li.addEventListener("click", () => {
+        Jukeberry.playLive(e);
+        radio_choice.removeAll();
+      });
+    });
   },
   stop: () => { Jukeberry.stop(); },
   halt: () => {

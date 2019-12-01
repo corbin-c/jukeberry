@@ -54,7 +54,7 @@ let Utils = {
       event.target.remove()
     });
   },
-  makeFolderChoice: () => {
+  makeFolderChoice: (title) => {
     let hider = document.createElement("div");
     let section = document.createElement("section");
     let h2 = document.createElement("h2");
@@ -68,7 +68,7 @@ let Utils = {
       to_blur.map(e => document.querySelector(e).setAttribute("class",""));
     };
     hider.addEventListener("click",section.removeAll);
-    h2.innerText = "Emplacement de destination";
+    h2.innerText = title;
     document.querySelector("main").append(section);
     document.querySelector("main").append(hider);
     section.append(h2);

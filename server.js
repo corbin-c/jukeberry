@@ -13,10 +13,12 @@ let globalList;
 //API queries to handle
 let commands = [
   {query:"getTree",func:"serveBranch"},
+  {query:"getRadios",func:"serveStreams"},
   {query:"makeTree",func:"generateTrees"},
   {query:"playFile",func:"prepareAndPlay"},
   {query:"playRandom",func:"suffleRecursiveDir"},
   {query:"playAllRandom",func:"playAllRandom"},
+  {query:"playLive",func:"stream"},
   {query:"getCurrentSong",func:"serveLog"},
   {query:"upload",func:"importFiles"},
   {query:"search",func:"search"},
@@ -33,6 +35,14 @@ let servedFiles = [
   {pathname:"/icons/192.png",mime:"image/png"},
   {pathname:"/icons/512.png",mime:"image/png"},
   {pathname:"/style.css",mime:"text/css"}
+];
+let streams = [
+  {name:"Zinzine",url:"http://91.121.65.189:8000/zinzine-aix"},
+  {name:"Grenouille",url:"http://live.radiogrenouille.com/live"},
+  {name:"France Info",url:"http://icecast.radiofrance.fr/franceinfo-midfi.mp3"},
+  {name:"FIP",url:"http://icecast.radiofrance.fr/fip-midfi.mp3"},
+  {name:"France Inter",url:"http://icecast.radiofrance.fr/franceinter-midfi.mp3"},
+  {name:"France Culture",url:"http://icecast.radiofrance.fr/franceculture-midfi.mp3"}
 ];
 //Utilities functions
 let wait = (t) => {
@@ -237,6 +247,10 @@ let Tree = {
       throw {code:400,text:"Bad request :\n"+e};
     }
   },
+  serveStreams: (response) => {
+    response.writeHead(200, {"Content-Type": "application/json"});
+    response.write(JSON.stringify(streams.map(e => e.name)));
+  },
   importFiles: (branch,list) => {
     list = [...globalList.list,...list];
     let tree = Tree.getTree();
@@ -275,6 +289,14 @@ let Tree = {
     logger("warn","shutdown triggered");
     await wait(1000);
     execSync("sudo shutdown now");
+  },
+  stream: async (response,stream_name) => {
+    let radio = streams.find(e => e.name == stream_name);
+    if (typeof radio !== "undefined") {
+      await Tree.killPlayer();
+      await wait(1000);
+      exec("mplayer -msglevel all=4 "+radio.url);
+    }
   },
   play: async (path,random=false) => {
     random = (random) ? "-shuffle ":"";
