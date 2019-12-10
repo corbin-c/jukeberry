@@ -85,6 +85,12 @@ let exec = (command) => {
   subprocess.stdout.on("data", (e) => {
     parseLog(e);
   });
+  subprocess.stderr.on("data", (e) => {
+    console.error("player error "+e);
+  });
+  subprocess.on("close", (code) => {
+    console.log("process exited with code "+code); 
+  });
   subprocess.unref();
 };
 let parseLog = async (log) => {
