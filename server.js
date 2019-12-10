@@ -86,7 +86,7 @@ let exec = (command) => {
     parseLog(e);
   });
   subprocess.stderr.on("data", (e) => {
-    console.error("player error "+e);
+    //console.error("player error "+e);
   });
   subprocess.on("close", (code) => {
     console.log("process exited with code "+code); 
