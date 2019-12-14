@@ -176,6 +176,7 @@ let search = (str) => {
 //Main object
 let Tree = {
   youtubeSearch: async (response,searchString) => {
+    logger("log","Searching youtube for: "+searchString);
     return new Promise((resolve,reject) => {
       youTube.search(searchString, 15, (error, result) => {
       if (error) {
@@ -195,6 +196,7 @@ let Tree = {
     });
   },
   youtubePlay: (response,youtubeId) => {
+    logger("log","Playing youtube video ID #"+youtubeId);
     exec("ytdl https://www.youtube.com/watch?v="+youtubeId+" | mplayer -");
   },
   generateTrees: (response,data=false) => {
