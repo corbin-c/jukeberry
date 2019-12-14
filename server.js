@@ -177,7 +177,7 @@ let search = (str) => {
 let Tree = {
   youtubeSearch: async (response,searchString) => {
     return new Promise((resolve,reject) => {
-      youTube.search(searchString, 2, (error, result) => {
+      youTube.search(searchString, 15, (error, result) => {
       if (error) {
         logger("error",error);
         reject(error);
@@ -188,7 +188,7 @@ let Tree = {
           channel:e.snippet.channelTitle,
           title:e.snippet.title,
           description:e.snippet.description
-        }))));
+        })).filter(e => typeof e.id !== "undefined")));
         resolve(true);
       }
     })

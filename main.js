@@ -29,6 +29,8 @@ class Jukebox {
       {name:"getTree",json:true,defaultValue:"./"},
       {name:"getRadios",json:true},
       {name:"playLive"},
+      {name:"ytp"},
+      {name:"yts",json:true},
       {name:"currentSong",json:true,action:"getCurrentSong"},
       {name:"play",action:"playFile",defaultValue:"./"},
       {name:"playRandom",action:"playRandom",defaultValue:"./"},

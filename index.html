@@ -15,6 +15,7 @@
       <nav>
         <ul tabindex="1">
           <li id="search">Recherche</li>
+          <li id="youtubeSearch">Youtube</li>
           <li id="add_files">Ajouter</li>
           <li id="all_random">Aléatoire</li>
           <li id="radio">Radio</li>
@@ -130,20 +131,36 @@ let displaySearch = async (delay,results) => {
   mainDisplay(ul,results);
 }
 let menu = {
-  search: () => {
+  youtubeSearch: () => { menu.search(true); },
+  search: (youtube=false) => {
     let ul = Utils.newMainList();
     let form = document.createElement("li");
     form.setAttribute("id","li_input");
     let input = document.createElement("input");
     input.setAttribute("type","text");
     input.value = "";
-    input.addEventListener("keyup",async () => {
-      if ((input.value.length >= 3) && (input.value != input.lastValue)) {
-        let r = await Jukeberry.search(input.value);
-        input.lastValue = input.value;
-        displaySearch(10,r);
-      }
-    });
+    if (youtube) {
+      input.addEventListener("change",async () => {
+        let r = await Jukeberry.yts(input.value);
+        [...ul.children].map(e => {
+          if (e.id !== "li_input") { e.remove(); }
+        });
+        r.map(e => {
+          let li = document.createElement("li");
+          li.innerHTML = e.title + " - " + e.channel;
+          li.addEventListener("click",() => { Jukeberry.ytp(e.id) });
+          ul.append(li);
+        });
+      });
+    } else {
+      input.addEventListener("keyup",async () => {
+        if ((input.value.length >= 3) && (input.value != input.lastValue)) {
+          let r = await Jukeberry.search(input.value);
+          input.lastValue = input.value;
+          displaySearch(10,r);
+        }
+      });
+    }
     form.append(input);
     ul.append(form);
     input.focus();
