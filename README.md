@@ -3,7 +3,9 @@
 Jukeberry is a node-js app offering a web interface to remotely control media 
 playback. It is intended to be used on a Raspberry Pi.
 
-Supported features :
+**Supported features :**
+* browse, search & listen audio files
+* random
 * remotely adding files
 * search and playback from Youtube
     (requires `ytdl` dependency and a youtube api key)
