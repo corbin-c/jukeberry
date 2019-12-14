@@ -383,13 +383,13 @@ let server = http.createServer(async function(req, res) {
     if (req.method == "POST") {
       let form = new formidable.IncomingForm();
       form.on("progress", function(bytesReceived, bytesExpected) {
-        logger("upload processing: "+bytesReceived+" / "+bytesExpected);
+        logger("log","upload processing: "+bytesReceived+" / "+bytesExpected);
       });
       form.on("fileBegin", function(name, file) {
-        logger("begin file upload: "+name+" "+file);
+        logger("log","begin file upload: "+name+" "+file);
       });
       form.on("file", function(name, file) {
-        logger("file upload end: "+name+" "+file);
+        logger("log","file upload end: "+name+" "+file);
       });
       //let branch = [];
       //let target = branch;
