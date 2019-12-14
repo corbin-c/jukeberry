@@ -160,12 +160,8 @@ let menu = {
   },
   all_random: () => { Jukeberry.allRandom(); },
   regenerate: async () => {
-    if (confirm(`Ceci va entièrement réanalyser le disque pour produire un nouvel arbre.
-    (cela peut prendre longtemps)
-Êtes-vous sûr ?`)) {
-        await Jukeberry.regenerate();
-        displayBranch(".");
-    }
+    await Jukeberry.regenerate();
+    displayBranch(".");
   },
   radio: async () => {
     let radio_choice = Utils.makeFolderChoice("Choisir une radio");
