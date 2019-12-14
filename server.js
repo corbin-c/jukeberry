@@ -382,7 +382,7 @@ let server = http.createServer(async function(req, res) {
   } else if (page.pathname == "/api") {
     if (req.method == "POST") {
       let form = new formidable.IncomingForm();
-      form.on("progress", function(bytesReceived, bytesExpected) {
+      /*form.on("progress", function(bytesReceived, bytesExpected) {
         logger("log","upload processing: "+bytesReceived+" / "+bytesExpected);
       });
       form.on("fileBegin", function(name, file) {
@@ -390,10 +390,7 @@ let server = http.createServer(async function(req, res) {
       });
       form.on("file", function(name, file) {
         logger("log","file upload end: "+name+" "+file);
-      });
-      //let branch = [];
-      //let target = branch;
-      //let list = [];
+      });*/
       form.uploadDir = DIRECTORY;
       form.keepExtensions = true;
       form.multiples = true;
@@ -405,15 +402,9 @@ let server = http.createServer(async function(req, res) {
         let fsdestination = destination.replace("./",DIRECTORY);
         if (!fs.existsSync(fsdestination)) {
           fs.mkdirSync(fsdestination);
-        }
-        //branch.push({type:"directory",name:destination.slice(0,-1)
-        //,contents:[]});
-        //target = branch[0].contents;
-        for (let file of Object.values(files)) {
+        }for (let file of Object.values(files)) {
           logger("log","Uploading file: "+fsdestination+file.name);
-          //target.push({type:"file",name:destination+file.name});
-          //list.push(fsdestination+file.name);
-          fs.rename(file.path, fsdestination+file.name, (err) => { console.log("upload failure:",err); });
+          fs.rename(file.path, fsdestination+file.name, (err) => {  });
         }
         Tree.generateTrees();
       });
