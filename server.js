@@ -1,7 +1,8 @@
 const fs = require("fs");
-const { execSync, spawn } = require("child_process");
+const { exec, execSync, spawn } = require("child_process");
 const http = require("http");
 const formidable = require("formidable");
+const YouTube = require("youtube-node");
 const TreeMaker = require("./tree.js").TreeMaker;
 const DIRECTORY = (() => {
   let dir = fs.readFileSync("config","utf8").split("\n")[0];
@@ -10,8 +11,12 @@ const DIRECTORY = (() => {
 })();
 const LOG = true;
 let globalList;
+const youTube = new YouTube();
+youTube.setKey(fs.readFileSync("youtube-api-key","utf8").split("\n")[0]);
 //API queries to handle
 let commands = [
+  {query:"ytp",func:"youtubePlay"},
+  {query:"yts",func:"youtubeSearch"},
   {query:"getTree",func:"serveBranch"},
   {query:"getRadios",func:"serveStreams"},
   {query:"makeTree",func:"generateTrees"},
@@ -74,7 +79,7 @@ let failure = (response,code,error) => {
   response.writeHead(code);
   response.write(error);
 };
-let exec = (command) => {
+let spawnAndDetach = (command) => {
   logger("info","detached subprocess: "+command);
   command = command.split(" ");
   let subprocess = spawn(command[0], command.slice(1), {
@@ -170,6 +175,28 @@ let search = (str) => {
 }
 //Main object
 let Tree = {
+  youtubeSearch: async (response,searchString) => {
+    return new Promise((resolve,reject) => {
+      youTube.search(searchString, 2, (error, result) => {
+      if (error) {
+        logger("error",error);
+        reject(error);
+      } else {
+        response.writeHead(200, {"Content-Type": "application/json"});
+        response.write(JSON.stringify(result.items.map(e => ({
+          id:e.id.videoId,
+          channel:e.snippet.channelTitle,
+          title:e.snippet.title,
+          description:e.snippet.description
+        }))));
+        resolve(true);
+      }
+    })
+    });
+  },
+  youtubePlay: (response,youtubeId) => {
+    exec("ytdl https://www.youtube.com/watch?v="+youtubeId+" | mplayer -");
+  },
   generateTrees: (response,data=false) => {
     let files = (data) ? data : [];
     if (!data) {
@@ -302,14 +329,14 @@ let Tree = {
     if (typeof radio !== "undefined") {
       await Tree.killPlayer();
       await wait(1000);
-      exec("mplayer -msglevel all=4 "+radio.url);
+      spawnAndDetach("mplayer -msglevel all=4 "+radio.url);
     }
   },
   play: async (path,random=false) => {
     random = (random) ? "-shuffle ":"";
     await Tree.killPlayer();
     await wait(1000);
-    exec("mplayer -msglevel all=4 "+random+"-playlist "+path);
+    spawnAndDetach("mplayer -msglevel all=4 "+random+"-playlist "+path);
   },
   generatePlaylist: async (path) => { 
     try {
