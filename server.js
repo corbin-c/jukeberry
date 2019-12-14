@@ -224,7 +224,7 @@ let Tree = {
   },
   getPath: (tree,path,output="") => {
     let localPath = path.split("/");
-    localPath = localPath.slice(0,output.length/3+1);
+    localPath = localPath.slice(0,output.split("contents").length);
     localPath = localPath.join("/");
     let newTree = tree.find(e => e.name==localPath);
     let index = tree.indexOf(newTree);
@@ -257,10 +257,11 @@ let Tree = {
     response.writeHead(200, {"Content-Type": "application/json"});
     response.write(JSON.stringify(streams.map(e => e.name)));
   },
-  importFiles: (branch,list) => {
+/*  importFiles: (branch,list) => {
     list = [...globalList.list,...list];
     let tree = Tree.getTree();
     let jsonpath = "tree";
+//console.log(branch);
     let path = branch[0].name.split("/");
     path.pop();
     jsonpath += Tree.getPath(tree,path.join("/"));
@@ -271,7 +272,7 @@ let Tree = {
       {name:"liste",data:list.join("\n")}
     ]);
     return path;
-  },
+  },*/
   search: (response,str) => {
     response.writeHead(200, {"Content-Type": "application/json"});
     response.write(JSON.stringify(search(str)));
@@ -381,9 +382,10 @@ let server = http.createServer(async function(req, res) {
   } else if (page.pathname == "/api") {
     if (req.method == "POST") {
       let form = new formidable.IncomingForm();
-      let branch = [];
-      let target = branch;
-      let list = [];
+      console.log("INCOMING FORM");
+      //let branch = [];
+      //let target = branch;
+      //let list = [];
       form.uploadDir = DIRECTORY;
       form.keepExtensions = true;
       form.multiples = true;
@@ -395,17 +397,17 @@ let server = http.createServer(async function(req, res) {
         let fsdestination = destination.replace("./",DIRECTORY);
         if (!fs.existsSync(fsdestination)) {
           fs.mkdirSync(fsdestination);
-          branch.push({type:"directory",name:destination.slice(0,-1)
-            ,contents:[]});
-          target = branch[0].contents;
         }
+        //branch.push({type:"directory",name:destination.slice(0,-1)
+        //,contents:[]});
+        //target = branch[0].contents;
         for (let file of Object.values(files)) {
-          logger("log","Uploaded file: "+fsdestination+file.name);
-          target.push({type:"file",name:destination+file.name});
-          list.push(fsdestination+file.name);
-          fs.rename(file.path, fsdestination+file.name, (err) => {});
+          logger("log","Uploading file: "+fsdestination+file.name);
+          //target.push({type:"file",name:destination+file.name});
+          //list.push(fsdestination+file.name);
+          fs.rename(file.path, fsdestination+file.name, (err) => { console.log("upload failure:",err); });
         }
-        Tree.importFiles(branch,list);
+        Tree.generateTrees();
       });
     } else {
       try {
