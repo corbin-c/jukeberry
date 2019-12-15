@@ -195,7 +195,9 @@ let Tree = {
     })
     });
   },
-  youtubePlay: (response,youtubeId) => {
+  youtubePlay: async (response,youtubeId) => {
+    await Tree.killPlayer();
+    await wait(1000);
     logger("log","Playing youtube video ID #"+youtubeId);
     exec("ytdl https://www.youtube.com/watch?v="+youtubeId+" | mplayer -");
   },
