@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { exec, execSync, spawn } = require("child_process");
+const { execSync, spawn } = require("child_process");
 const http = require("http");
 const formidable = require("formidable");
 const YouTube = require("youtube-node");
@@ -199,7 +199,9 @@ let Tree = {
     await Tree.killPlayer();
     await wait(1000);
     logger("log","Playing youtube video ID #"+youtubeId);
-    exec("ytdl https://www.youtube.com/watch?v="+youtubeId+" | mplayer -");
+    let yt_url = execSync("ytdl --print-url https://www.youtube.com/watch?v="
+      +youtubeId).toString();
+    spawnAndDetach("mplayer -novideo \""+yt_yrl+"\"");
   },
   generateTrees: (response,data=false) => {
     let files = (data) ? data : [];
