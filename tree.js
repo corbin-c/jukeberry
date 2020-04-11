@@ -27,4 +27,4 @@ let TreeMaker = (path) => {
   return {tree:[{"type":"directory","name": ".","contents":makeTree(path)}],
     list:masterList};
 }
-exports.TreeMaker = TreeMaker;
+module.exports = TreeMaker;

@@ -3,7 +3,7 @@ const { exec, execSync, spawn } = require("child_process");
 const http = require("http");
 const formidable = require("formidable");
 const YouTube = require("youtube-node");
-const TreeMaker = require("./tree.js").TreeMaker;
+const TreeMaker = require("./tree.js");
 const DIRECTORY = (() => {
   let dir = fs.readFileSync("config","utf8").split("\n")[0];
   dir = (dir[dir.length-1] == "/") ? dir:dir+"/";
