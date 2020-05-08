@@ -41,7 +41,7 @@ const MIMES = { //list extracted from https://developer.mozilla.org/en-US/docs/W
   "mp3":"audio/mp3",
   "oga":"audio/ogg",
   "ogg":"audio/ogg",
-  "opus":"audio/ogg",
+  "opus":'audio/ogg;codecs="opus"',
   "wav":"audio/wav",
   "weba":"audio/webm"
 }
@@ -194,7 +194,7 @@ let streamAudioFile = (req,res,file) => {
     let range = req.headers.range;
     let readStream = {};
     let head = {};
-    if (range) {
+/*    if (range) {
       const parts = range.replace(/bytes=/, "").split("-")
       const start = parseInt(parts[0], 10)
       const end = parts[1] 
@@ -205,14 +205,13 @@ let streamAudioFile = (req,res,file) => {
       head["Accept-Ranges"] = "bytes";
       head["Content-Length"] = chunksize;
       readStream = fs.createReadStream(file,{start: start, end: end});
-    } else {
+    } else { */
       head["Content-Length"] = fileSize;
       readStream = fs.createReadStream(file);
-    }
+//    }
     let type = file.split(".").reverse()[0];
-    type = MIMES[type] || "audio/"+type;
-    console.log(type);
-    head["Content-Type"] = type;
+    //type = MIMES[type] || "audio/"+type;
+    //head["Content-Type"] = type;
     res.writeHead(200, head);
     readStream.on("open",() => {
       readStream.pipe(res);
