@@ -77,7 +77,7 @@ let folderSelect = async (parent,path) => {
   });
 }
 let mainDisplay = async (parent,list,currentPath,target=false) => {
-  for (let e of list) {
+  list.map(async (e,i) => {
     let li = document.createElement("li");
     let name = Utils.cleanName(e.name,e.type);
     li.innerText = name;
@@ -97,8 +97,15 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
     } else {
       li.addEventListener("click",() => {
         if (Jukeberry.stream) {
-          document.querySelector("audio").setAttribute("src",Jukeberry.streamPlay(e.name));
-          document.querySelector("audio").play();
+          list = list.filter((elem,rank) => (rank >= i)); 
+          let audio = document.querySelector("audio");
+          audio.onended = () => {
+            list = list.slice(1);
+            audio.setAttribute("src",Jukeberry.streamPlay(list[0].name));
+            audio.play();
+          };
+          audio.setAttribute("src",Jukeberry.streamPlay(e.name));
+          audio.play();
         } else {
           Jukeberry.play(e.name); 
         }
@@ -111,7 +118,7 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
     }
     await Utils.wait(DELAY);
     parent.append(li);
-  }
+  });
 }
 let displayBranch = async (path,target=false) => {
   let musicList = await Jukeberry.getTree(path);
