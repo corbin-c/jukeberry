@@ -21,7 +21,9 @@ let commands = [
   {query:"getRadios",func:"serveStreams"},
   {query:"makeTree",func:"generateTrees"},
   {query:"playFile",func:"prepareAndPlay"},
-  {query:"playRandom",func:"suffleRecursiveDir"},
+  {query:"prepareForStreaming",func:"prepareForStreaming"},
+  {query:"streamPlay",func:"streamAudioFile"},
+  {query:"playRandom",func:"shuffleRecursiveDir"},
   {query:"playAllRandom",func:"playAllRandom"},
   {query:"playLive",func:"stream"},
   {query:"getCurrentSong",func:"serveLog"},
@@ -173,6 +175,41 @@ let search = (str) => {
     .sort(() => Math.random() - 0.5)
     .slice(0,20);
 }
+//Audio file streamer
+let streamAudioFile = (req,res,file) => {
+  return new Promise(async (resolve,reject) => {
+    let fileSize = fs.statSync(file).size;
+    let range = req.headers.range;
+    let readStream = {};
+    let head = {};
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-")
+      const start = parseInt(parts[0], 10)
+      const end = parts[1] 
+        ? parseInt(parts[1], 10)
+        : fileSize-1
+      const chunksize = (end-start)+1
+      head["Content-Range"] = `bytes ${start}-${end}/${fileSize}`;
+      head["Accept-Ranges"] = "bytes";
+      head["Content-Length"] = chunksize;
+      readStream = fs.createReadStream(file,{start: start, end: end});
+    } else {
+      head["Content-Length"] = fileSize;
+      readStream = fs.createReadStream(file);
+    }
+    head["Content-Type"] = "audio/"+file.split(".").reverse()[0]; //dirty hack to be fixed
+    res.writeHead(200, head);
+    readStream.on("open",() => {
+      readStream.pipe(res);
+    });
+    readStream.on("close",() => {
+      resolve();
+    });
+    readStream.on("error", (err) => {
+      reject(err);
+    });
+  });
+};
 //Main object
 let Tree = {
   youtubeSearch: async (response,searchString) => {
@@ -371,15 +408,18 @@ let Tree = {
       throw e;
     }
   },
+  streamAudioFile: async (response,path,request) => {
+    await streamAudioFile(request,response,path.replace("./",DIRECTORY));
+  },
   prepareAndPlay: async (response,path) => {
     await Tree.generatePlaylist(path);
     Tree.play("./playlist");  
   },
-  suffleAndPlay: async (response,path) => {
+  shuffleAndPlay: async (response,path) => {
     await Tree.generatePlaylist(path);
     Tree.play("./playlist",true);  
   },
-  suffleRecursiveDir: (response,path) => {
+  shuffleRecursiveDir: (response,path) => {
     path = path.replace("./",DIRECTORY);
     let playlist = globalList.list;
     playlist = playlist.filter(e => e.indexOf(path) == 0);
@@ -454,7 +494,7 @@ let server = http.createServer(async function(req, res) {
         let cmd = commands
           .find(q => q.query == page.searchParams.get("action"))
           .func;
-        await Tree[cmd](res,page.searchParams.get("options"));
+        await Tree[cmd](res,page.searchParams.get("options"),req);
       } catch(e) {
         failure(res,e.code,e.text);
       }

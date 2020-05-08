@@ -16,7 +16,9 @@ let makeRequestFunc = (request) => {
       reqFunc = async (param) => {
         await fetch(makeRequestURL(request.action,param));
       };
-    } else {
+    } else if (request.urlonly) {
+      reqFunc = (param) => makeRequestURL(request.action,param);
+    }else {
       reqFunc = (param) => { fetch(makeRequestURL(request.action,param)); };
     }
   }
@@ -24,15 +26,17 @@ let makeRequestFunc = (request) => {
 }
 class Jukebox {
   constructor() {
+    this.isStreaming = false;
     this.requests = [
       {name:"search",json:true,defaultValue:""},
       {name:"getTree",json:true,defaultValue:"./"},
       {name:"getRadios",json:true},
-      {name:"playLive"},
-      {name:"ytp"},
-      {name:"yts",json:true},
+      {name:"playLive"},      //play live stream, eg. webradios
+      {name:"ytp"},           //youtube player
+      {name:"yts",json:true}, //youtube search
       {name:"currentSong",json:true,action:"getCurrentSong"},
       {name:"play",action:"playFile",defaultValue:"./"},
+      {name:"streamPlay",defaultValue:"./",urlonly:true},
       {name:"playRandom",action:"playRandom",defaultValue:"./"},
       {name:"stop"},
       {name:"halt"},
@@ -46,6 +50,12 @@ class Jukebox {
   }
   async upload(files) {
     await fetch("./api", {method: "POST", body: files});
+  }
+  set stream(bool) {
+    this.isStreaming = (bool === true);
+  }
+  get stream() {
+    return this.isStreaming;
   }
 }
 let Jukeberry = new Jukebox();

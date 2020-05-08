@@ -15,6 +15,7 @@
       <nav>
         <ul tabindex="1">
           <li id="search">Recherche</li>
+          <li id="toggleStream">Stream</li>
           <li id="youtubeSearch">Youtube</li>
           <li id="add_files">Ajouter</li>
           <li id="all_random">Aléatoire</li>
@@ -95,7 +96,13 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
       }
     } else {
       li.addEventListener("click",() => {
-        Jukeberry.play(e.name); });
+        if (Jukeberry.stream) {
+          document.querySelector("audio").setAttribute("src",Jukeberry.streamPlay(e.name));
+          document.querySelector("audio").play();
+        } else {
+          Jukeberry.play(e.name); 
+        }
+      });
     }
     if (target) {
       if (e.name == target) {
@@ -131,6 +138,12 @@ let displaySearch = async (delay,results) => {
   mainDisplay(ul,results);
 }
 let menu = {
+  toggleStream: () => {
+    let isStreaming = Jukeberry.stream;
+    document.querySelector("audio").setAttribute("class",(isStreaming) ? "hidden":"");
+    //add this somewhere to show we're streaming: 📲
+    Jukeberry.stream = !isStreaming;
+  },
   youtubeSearch: () => { menu.search(true); },
   search: (youtube=false) => {
     let ul = Utils.newMainList();
@@ -238,6 +251,7 @@ let menu = {
 })();
       </script>
     </main>
+    <audio class="hidden" controls src=""></audio>
     <footer class="init"></footer>
   </body>
 </html>
