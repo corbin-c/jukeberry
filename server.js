@@ -33,6 +33,18 @@ let commands = [
   {query:"halt",func:"killJukeberry"}
 ];
 //Files to be served
+const MIMES = { //list extracted from https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+  "aac":"audio/aac",
+  "m4a":"audio/mp4",
+  "mp4":"audio/mp4",
+  "flac":"audio/flac",
+  "mp3":"audio/mp3",
+  "oga":"audio/ogg",
+  "ogg":"audio/ogg",
+  "opus":"audio/ogg",
+  "wav":"audio/wav",
+  "weba":"audio/webm"
+}
 let servedFiles = [
   {pathname:"/",mime:"text/html"},
   {pathname:"/index.html",mime:"text/html"},
@@ -197,7 +209,10 @@ let streamAudioFile = (req,res,file) => {
       head["Content-Length"] = fileSize;
       readStream = fs.createReadStream(file);
     }
-    head["Content-Type"] = "audio/"+file.split(".").reverse()[0]; //dirty hack to be fixed
+    let type = file.split(".").reverse()[0];
+    type = MIMES[type] || "audio/"+type;
+    console.log(type);
+    head["Content-Type"] = type;
     res.writeHead(200, head);
     readStream.on("open",() => {
       readStream.pipe(res);
