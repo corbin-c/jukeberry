@@ -1,8 +1,10 @@
 const fs = require("fs");
 const { spawn } = require("child_process");
-require("./logger.js");
-
+let CONFIG = {};
 module.exports = {
+  setConf: (conf) => {
+    CONFIG = conf;
+  },
   wait: (t) => {
     return new Promise((resolve,reject) => {
       setTimeout(() => { resolve(); },t)
@@ -94,11 +96,11 @@ module.exports = {
     });
     return output;
   },
-  search = (str,list) => {
+  search: (str,list) => {
     str = module.exports.normalize(str);
     output = [];
     return list.filter(e => module.exports.normalize(e).indexOf(str) >= 0)
-      .map(e => e.replace(DIRECTORY,"./"))
+      .map(e => e.replace(CONFIG.musicDirectory,"./"))
       .filter(e => module.exports.normalize(e).indexOf(str) >= 0)
       .map(e => {
         e = {name:e,type:"file"};
