@@ -3,7 +3,7 @@ const { exec, execSync, spawn } = require("child_process");
 const http = require("http");
 const formidable = require("formidable");
 const YouTube = require("youtube-node");
-const server = require("@corbin-c/minimal-server");
+const minimalServer = require("@corbin-c/minimal-server");
 const TreeMaker = require("@corbin-c/minimal-server/tree.js");
 
 const DIRECTORY = (() => {
@@ -36,17 +36,7 @@ let commands = [
   {query:"stop",func:"killPlayer"},
   {query:"halt",func:"killJukeberry"}
 ];
-//Files to be served
-let servedFiles = [
-  {pathname:"/",mime:"text/html"},
-  {pathname:"/index.html",mime:"text/html"},
-  {pathname:"/main.js",mime:"application/javascript"},
-  {pathname:"/utils.js",mime:"application/javascript"},
-  {pathname:"/icons/32.png",mime:"image/png"},
-  {pathname:"/icons/192.png",mime:"image/png"},
-  {pathname:"/icons/512.png",mime:"image/png"},
-  {pathname:"/style.css",mime:"text/css"}
-];
+
 let streams = [
   {name:"Zinzine",url:"http://91.121.65.189:8000/zinzine-aix"},
   {name:"Grenouille",url:"http://live.radiogrenouille.com/live"},
@@ -61,12 +51,14 @@ let wait = (t) => {
     setTimeout(() => { resolve(); },t)
   })
 };
+
 let normalize = (str) => { return str
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .replace(/_/g," ")
   .toLowerCase();
 };
+
 let getFile = (path,bin=false) => {
   return new Promise((resolve,reject) => {
     fs.readFile(path,(bin)?null:"utf8",(error,data) => {
@@ -75,16 +67,19 @@ let getFile = (path,bin=false) => {
     });
   });
 };
+
 let logger = (level,message) => {
   if (LOG) {
     console[level]((new Date()).toISOString()+" | "+message);
   }
 };
+
 let failure = (response,code,error) => {
   logger("error",code+" "+error);
   response.writeHead(code);
   response.write(error);
 };
+
 let spawnAndDetach = (command) => {
   logger("info","detached subprocess: "+command);
   command = command.split(" ");
@@ -104,6 +99,7 @@ let spawnAndDetach = (command) => {
   });
   subprocess.unref();
 };
+
 let parseLog = async (log) => {
   let ret = false;
   if (log.indexOf("Playing") >= 0) {
@@ -141,12 +137,14 @@ let parseLog = async (log) => {
     fs.writeFileSync("current.log",log);
   }
 }
+
 let updateGlobalList = (file,update=false) => {
   logger("log","making globalList");
   list = (update) ? update:fs.readFileSync(file,"utf8");
   list = (file == "liste") ? list.split("\n"):JSON.parse(list);
   return list;
 }
+
 let makeGlobalLists = (update=false) => {
   let files = ["tree.json","liste"];
   let output = {};
@@ -157,6 +155,7 @@ let makeGlobalLists = (update=false) => {
   });
   return output;
 }
+
 let search = (str) => {
   let list = globalList.list;
   str = normalize(str);
@@ -179,6 +178,7 @@ let search = (str) => {
     .sort(() => Math.random() - 0.5)
     .slice(0,20);
 }
+
 //Audio file streamer
 let streamAudioFile = (req,res,file) => {
   return new Promise(async (resolve,reject) => {
@@ -201,6 +201,7 @@ let streamAudioFile = (req,res,file) => {
     });
   });
 };
+
 //Main object
 let Tree = {
   youtubeSearch: async (response,searchString) => {
@@ -417,8 +418,12 @@ let Tree = {
     }
   }
 }
+
 //Exposed server
-let server = http.createServer(async function(req, res) {
+let server = new minimalServer();
+server.enableStaticDir();
+server.start();
+/*let server = http.createServer(async function(req, res) {
   let page = new URL("http://dummy.com"+req.url);
   let served = servedFiles.filter(e => e.pathname == page.pathname)
   if (served.length > 0) {
@@ -442,7 +447,7 @@ let server = http.createServer(async function(req, res) {
       form.on("file", function(name, file) {
         logger("log","file upload end: "+name+" "+file);
       });*/
-      form.uploadDir = DIRECTORY;
+/*      form.uploadDir = DIRECTORY;
       form.keepExtensions = true;
       form.multiples = true;
       form.parse(req, (err, fields, files) => {
@@ -490,4 +495,4 @@ let startServer = async () => {
     startServer();
   }
 }
-startServer();
+startServer();*/
