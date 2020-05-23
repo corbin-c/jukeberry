@@ -22,8 +22,8 @@ const CONFIG = (() => {
 require("./logger.js")(CONFIG.log);
 const utils = require("./utils.js")
 utils.setConf(CONFIG);
-
 let globalList;
+
 //API queries to handle
 let routes = [
   {
@@ -77,14 +77,30 @@ let routes = [
   },
   {
     path: "/radio/list",
-    hdl: () => {}
+    hdl: (res,req) => {
+      server.json(CONFIG.radioStreams.map(e => e.name))(res,req);
+    }
   },
   {
     path: "/radio/play",
-    hdl: () => {}
+    hdl: (res,req) => {
+      let radio = CONFIG.radioStreams
+        .find(e => e.name == req.page.searchParams.get("options"));
+      if (typeof radio !== "undefined") {
+        await media.stop();
+        await utils.wait(1000);
+        utils.spawnAndDetach("mplayer -msglevel all=4 "+radio.url);
+      }
+    }
   },
   {
     path: "/streaming/prepare",
+    /* those lousy "streaming" routes are a quick n dirty fix, they should
+     * either be upgraded or removed.
+     * upgrades thought: make it isomorphic with non stream functions
+     *    (radio streams, random mode)
+     * + fix the "range" header
+     */
     hdl: () => {}
   },
   {
@@ -96,8 +112,22 @@ let routes = [
     hdl: () => {}
   },
   {
-    path: "/player/getLog",
-    hdl: () => {}
+    path: "/player/log",
+    hdl: (req,res) => {
+      try {
+        let currentLog = fs.readFileSync("current.log","utf8");
+        currentLog = JSON.parse(currentLog);
+        let log = {};
+        for (let v of Object.keys(currentLog)) {
+          if (["raw","clip_info"].indexOf(v) < 0) {
+            log[v] = currentLog[v];
+          }
+        }
+        server.json(log)(req,res);
+      } catch {
+        server.failure(res,404,"no current log");
+      }
+    }
   },
   {
     path: "/player/stop",
@@ -131,7 +161,7 @@ let routes = [
     hdl: () => {}
   },
   {
-    path: "/files/getList",
+    path: "/files/list",
     hdl: () => {}
   },
   {
@@ -256,23 +286,11 @@ let media = {
       throw {code:400,text:"Bad request :\n"+e};
     }
   },
-  serveStreams: (response) => {
-    response.writeHead(200, {"Content-Type": "application/json"});
-    response.write(JSON.stringify(streams.map(e => e.name)));
-  },
   stop: () => {
     try {
       execSync("killall -s SIGKILL mplayer");
     } catch {
       console.log("killall: nothing to stop");
-    }
-  },
-  stream: async (response,stream_name) => {
-    let radio = streams.find(e => e.name == stream_name);
-    if (typeof radio !== "undefined") {
-      await Tree.killPlayer();
-      await wait(1000);
-      spawnAndDetach("mplayer -msglevel all=4 "+radio.url);
     }
   },
   play: async (path,random=false) => {
@@ -321,22 +339,6 @@ let media = {
   },
   playAllRandom: (response,path) => {
     Tree.play("./liste",true);
-  },
-  serveLog: (response) => {
-    response.writeHead(200, {"Content-Type":"application/json"});
-    try {
-      let currentLog = fs.readFileSync("current.log","utf8");
-      currentLog = JSON.parse(currentLog);
-      let log = {};
-      for (let v of Object.keys(currentLog)) {
-        if (["raw","clip_info"].indexOf(v) < 0) {
-          log[v] = currentLog[v];
-        }
-      }
-      response.write(JSON.stringify(log));
-    } catch {
-      failure(response,404,"no current log");
-    }
   }
 }
 
