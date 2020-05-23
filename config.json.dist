@@ -1,0 +1,19 @@
+{
+  "musicDirectory": "/path/to/your/music",
+  "youtube-api-key": "yourYoutubeAPIkey",
+  "log": false,
+  "radioStreams": [
+    { "name": "Zinzine",
+      "url":  "http://91.121.65.189:8000/zinzine-aix" },
+    { "name": "Grenouille",
+      "url":  "http://live.radiogrenouille.com/live"  },
+    { "name": "France Info",
+      "url":  "http://icecast.radiofrance.fr/franceinfo-midfi.mp3"  },
+    { "name": "FIP",
+      "url":  "http://icecast.radiofrance.fr/fip-midfi.mp3" },
+    { "name": "France Inter",
+      "url":  "http://icecast.radiofrance.fr/franceinter-midfi.mp3" },
+    { "name": "France Culture",
+      "url":  "http://icecast.radiofrance.fr/franceculture-midfi.mp3" }
+  ]
+}

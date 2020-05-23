@@ -6,17 +6,22 @@ const YouTube = require("youtube-node");
 const minimalServer = require("@corbin-c/minimal-server");
 const TreeMaker = require("@corbin-c/minimal-server/tree.js");
 
-const DIRECTORY = (() => {
-  let dir = fs.readFileSync("config","utf8").split("\n")[0];
-  dir = (dir[dir.length-1] == "/") ? dir:dir+"/";
-  return dir;
+const CONFIG = (() => {
+  let conf = fs.readFileSync("config.json","utf8");
+  conf = JSON.parse(conf);
+  conf.musicDirectory = (conf.musicDirectory[conf.musicDirectory.length-1] == "/")
+    ? conf.musicDirectory:conf.musicDirectory+"/";
+  if (typeof conf["youtube-api-key"] !== "undefined") {
+    conf.youtube = new YouTube();
+    conf.youtube.setKey(conf["youtube-api-key"]);
+  } else {
+    conf.youtube = false;
+  }
+  conf.log = (typeof conf.log === "boolean") ? conf.log : false;
+  return conf;
 })();
 
-const LOG = true;
-
 let globalList;
-const youTube = new YouTube();
-youTube.setKey(fs.readFileSync("youtube-api-key","utf8").split("\n")[0]);
 //API queries to handle
 let commands = [
   {query:"ytp",func:"youtubePlay"},
@@ -37,14 +42,6 @@ let commands = [
   {query:"halt",func:"killJukeberry"}
 ];
 
-let streams = [
-  {name:"Zinzine",url:"http://91.121.65.189:8000/zinzine-aix"},
-  {name:"Grenouille",url:"http://live.radiogrenouille.com/live"},
-  {name:"France Info",url:"http://icecast.radiofrance.fr/franceinfo-midfi.mp3"},
-  {name:"FIP",url:"http://icecast.radiofrance.fr/fip-midfi.mp3"},
-  {name:"France Inter",url:"http://icecast.radiofrance.fr/franceinter-midfi.mp3"},
-  {name:"France Culture",url:"http://icecast.radiofrance.fr/franceculture-midfi.mp3"}
-];
 //Utilities functions
 let wait = (t) => {
   return new Promise((resolve,reject) => {
