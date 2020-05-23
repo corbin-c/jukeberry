@@ -4,12 +4,15 @@ const http = require("http");
 const formidable = require("formidable");
 const YouTube = require("youtube-node");
 const TreeMaker = require("./tree.js");
+
 const DIRECTORY = (() => {
   let dir = fs.readFileSync("config","utf8").split("\n")[0];
   dir = (dir[dir.length-1] == "/") ? dir:dir+"/";
   return dir;
 })();
+
 const LOG = true;
+
 let globalList;
 const youTube = new YouTube();
 youTube.setKey(fs.readFileSync("youtube-api-key","utf8").split("\n")[0]);
@@ -33,18 +36,6 @@ let commands = [
   {query:"halt",func:"killJukeberry"}
 ];
 //Files to be served
-const MIMES = { //list extracted from https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-  "aac":"audio/aac",
-  "m4a":"audio/mp4",
-  "mp4":"audio/mp4",
-  "flac":"audio/flac",
-  "mp3":"audio/mp3",
-  "oga":"audio/ogg",
-  "ogg":"audio/ogg",
-  "opus":'audio/ogg;codecs="opus"',
-  "wav":"audio/wav",
-  "weba":"audio/webm"
-}
 let servedFiles = [
   {pathname:"/",mime:"text/html"},
   {pathname:"/index.html",mime:"text/html"},
@@ -194,24 +185,9 @@ let streamAudioFile = (req,res,file) => {
     let range = req.headers.range;
     let readStream = {};
     let head = {};
-/*    if (range) {
-      const parts = range.replace(/bytes=/, "").split("-")
-      const start = parseInt(parts[0], 10)
-      const end = parts[1] 
-        ? parseInt(parts[1], 10)
-        : fileSize-1
-      const chunksize = (end-start)+1
-      head["Content-Range"] = `bytes ${start}-${end}/${fileSize}`;
-      head["Accept-Ranges"] = "bytes";
-      head["Content-Length"] = chunksize;
-      readStream = fs.createReadStream(file,{start: start, end: end});
-    } else { */
-      head["Content-Length"] = fileSize;
-      readStream = fs.createReadStream(file);
-//    }
+    head["Content-Length"] = fileSize;
+    readStream = fs.createReadStream(file);
     let type = file.split(".").reverse()[0];
-    //type = MIMES[type] || "audio/"+type;
-    //head["Content-Type"] = type;
     res.writeHead(200, head);
     readStream.on("open",() => {
       readStream.pipe(res);
@@ -349,22 +325,6 @@ let Tree = {
     response.writeHead(200, {"Content-Type": "application/json"});
     response.write(JSON.stringify(streams.map(e => e.name)));
   },
-/*  importFiles: (branch,list) => {
-    list = [...globalList.list,...list];
-    let tree = Tree.getTree();
-    let jsonpath = "tree";
-//console.log(branch);
-    let path = branch[0].name.split("/");
-    path.pop();
-    jsonpath += Tree.getPath(tree,path.join("/"));
-    jsonpath += ".push("+JSON.stringify(...branch)+")";
-    eval(jsonpath);
-    Tree.generateTrees(false,[
-      {name:"tree.json",data:JSON.stringify(tree)},
-      {name:"liste",data:list.join("\n")}
-    ]);
-    return path;
-  },*/
   search: (response,str) => {
     response.writeHead(200, {"Content-Type": "application/json"});
     response.write(JSON.stringify(search(str)));
@@ -380,11 +340,6 @@ let Tree = {
     response.writeHead(200);
     response.end("Goodbye");
     await Tree.killPlayer();
-    /*try { //this should be handled by OS on shutdown
-      execSync("sudo umount "+DIRECTORY);
-    } catch {
-      console.log("couldn't unmount device"); 
-    }*/
     logger("warn","shutdown triggered");
     await wait(1000);
     execSync("sudo shutdown now");
@@ -476,7 +431,7 @@ let server = http.createServer(async function(req, res) {
     res.write(served);
   } else if (page.pathname == "/api") {
     if (req.method == "POST") {
-      let form = new formidable.IncomingForm();
+      let form = new formidable.IncomingForm(); //TODO: implement progress meter
       /*form.on("progress", function(bytesReceived, bytesExpected) {
         logger("log","upload processing: "+bytesReceived+" / "+bytesExpected);
       });
