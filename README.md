@@ -29,6 +29,7 @@ directory where the music is.
 ## Use
 
 Run (or append to `~/.profile` for launch on login): `node server.js`.
-Browse to `localhost:3000` (or to whatever your IP is).
-You might want to redirect incoming connections on port 80 to port 3000 with
+Browse to `localhost:5000` (or to whatever your IP is). Port may be customed by
+setting the `PORT` environment variable.
+You might want to redirect incoming connections on port 80 to port 5000 with
 `iptables`.
