@@ -2,3 +2,4 @@ config.json
 liste
 tree.json
 playlist
+current.log raw.log test.log
