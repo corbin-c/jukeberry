@@ -15,7 +15,7 @@
       <nav>
         <ul tabindex="1">
           <li id="search">Recherche</li>
-          <li id="toggleStream">Stream</li>
+          <!--<li id="toggleStream">Stream</li>-->
           <li id="youtubeSearch">Youtube</li>
           <li id="add_files">Ajouter</li>
           <li id="all_random">Aléatoire</li>
@@ -32,7 +32,7 @@ const DELAY = 10;
 import { Jukeberry } from "./main.js";
 import { Utils } from "./utils.js";
 let folderSelect = async (parent,path) => {
-  let list = await Jukeberry.getTree(path);
+  let list = await Jukeberry.filesList(path);
   list = list.filter(e => e.type != "file");
   let choices = [{name:path},{name:"newfolder"}];
   list = (list[0].type == "parentdir")
@@ -91,7 +91,7 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
       } else {
         li.addEventListener("contextmenu",(event) => {
           event.preventDefault();
-          Jukeberry.playRandom(e.name);
+          Jukeberry.playerShuffle(e.name);
         });
       }
     } else {
@@ -107,7 +107,7 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
           audio.setAttribute("src",Jukeberry.streamPlay(e.name));
           audio.play();
         } else {
-          Jukeberry.play(e.name); 
+          Jukeberry.playerPlay(e.name); 
         }
       });
     }
@@ -121,12 +121,11 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
   });
 }
 let displayBranch = async (path,target=false) => {
-  let musicList = await Jukeberry.getTree(path);
+  let musicList = await Jukeberry.filesList(path);
   mainDisplay(Utils.newMainList(),musicList,path,target);
 }
 let displaySearch = async (delay,results) => {
   let ul = document.querySelector("main ul");
-  console.log(results);
   [...ul.children].map(e => {
     if (e.id != "li_input") {
       if (e.getAttribute("class") == "toremove") {
@@ -161,21 +160,21 @@ let menu = {
     input.value = "";
     if (youtube) {
       input.addEventListener("change",async () => {
-        let r = await Jukeberry.yts(input.value);
+        let r = await Jukeberry.youtubeSearch(input.value);
         [...ul.children].map(e => {
           if (e.id !== "li_input") { e.remove(); }
         });
         r.map(e => {
           let li = document.createElement("li");
           li.innerHTML = e.title + " - " + e.channel;
-          li.addEventListener("click",() => { Jukeberry.ytp(e.id) });
+          li.addEventListener("click",() => { Jukeberry.youtubePlay(e.id) });
           ul.append(li);
         });
       });
     } else {
       input.addEventListener("keyup",async () => {
         if ((input.value.length >= 3) && (input.value != input.lastValue)) {
-          let r = await Jukeberry.search(input.value);
+          let r = await Jukeberry.filesSearch(input.value);
           input.lastValue = input.value;
           displaySearch(10,r);
         }
@@ -195,29 +194,29 @@ let menu = {
     await Jukeberry.upload(formData);
     destination_form.removeAll();
   },
-  all_random: () => { Jukeberry.allRandom(); },
+  all_random: () => { Jukeberry.playerRandom(); },
   regenerate: async () => {
-    await Jukeberry.regenerate();
+    await Jukeberry.filesRegenerate();
     displayBranch(".");
   },
   radio: async () => {
     let radio_choice = Utils.makeFolderChoice("Choisir une radio");
-    let radio_list = await Jukeberry.getRadios();
+    let radio_list = await Jukeberry.radioList();
     radio_list.map(e => {
       let li = document.createElement("li");
       li.innerText = e;
       radio_choice.querySelector("ul").append(li);
       li.addEventListener("click", () => {
-        Jukeberry.playLive(e);
+        Jukeberry.radioPlay(e);
         radio_choice.removeAll();
       });
     });
   },
-  stop: () => { Jukeberry.stop(); },
+  stop: () => { Jukeberry.playerStop(); },
   halt: () => {
     if (confirm(`Ceci va éteindre le dispositif et couper la connexion.
 Êtes-vous sûr ?`)) {
-        Jukeberry.halt();
+        Jukeberry.playerHalt();
     }
   },
 };
@@ -242,7 +241,7 @@ let menu = {
   btn.innerText = "💡";
   btn.addEventListener("click",async () => {
     let display = "";
-    let song = await Jukeberry.currentSong();
+    let song = await Jukeberry.playerLog();
       if ((typeof song.artist !== "undefined") && (song.artist !== "")) {
         display += song.artist+" - ";
       }
