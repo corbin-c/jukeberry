@@ -59,7 +59,7 @@ let routes = [
         console.log("Playing youtube video ID #"+youtubeId);
         let url = await ((id) => {
           return new Promise((resolve, reject) => {
-            exec("ytdl --print-url https://www.youtube.com/watch?v="+id,
+            exec("./node-modules/ytdl/bin/ytdl.js ytdl --print-url https://www.youtube.com/watch?v="+id,
               (error, stdout, stderr) => {
               if (error) {
                 server.failure(res,404,"error fetching video"+error+stderr)
@@ -77,13 +77,13 @@ let routes = [
   },
   {
     path: "/radio/list",
-    hdl: (res,req) => {
-      server.json(CONFIG.radioStreams.map(e => e.name))(res,req);
+    hdl: (req,res) => {
+      server.json(CONFIG.radioStreams.map(e => e.name))(req,res);
     }
   },
   {
     path: "/radio/play",
-    hdl: (res,req) => {
+    hdl: async (req,res) => {
       let radio = CONFIG.radioStreams
         .find(e => e.name == req.page.searchParams.get("options"));
       if (typeof radio !== "undefined") {
@@ -94,22 +94,18 @@ let routes = [
     }
   },
   {
-    path: "/streaming/prepare",
-    /* those lousy "streaming" routes are a quick n dirty fix, they should
-     * either be upgraded or removed.
-     * upgrades thought: make it isomorphic with non stream functions
-     *    (radio streams, random mode)
-     * + fix the "range" header
-     */
-    hdl: () => {}
-  },
-  {
-    path: "/streaming/play",
-    hdl: () => {}
-  },
-  {
     path: "/player/play",
-    hdl: () => {}
+    hdl: async (req,res) => {
+      try {
+        let path = req.page.searchParams.get("options");
+        await media.generatePlaylist(path);
+        media.play("./playlist");
+        res.writeHead(200);
+        res.end();
+      } catch (e) {
+        server.failure(res,500,"Something went wrong while generating playlist"+e);
+      }
+    }
   },
   {
     path: "/player/log",
@@ -138,12 +134,26 @@ let routes = [
     }
   },
   {
-    path: "/player/shuffle",
-    hdl: () => {}
+    path: "/player/shuffle", //recursively shuffles a directory
+    hdl: (req,res) => {
+      let path = req.page.searchParams.get("options");
+      path = path.replace("./",CONFIG.musicDirectory);
+      let playlist = globalList.list;
+      playlist = playlist.filter(e => e.indexOf(path) == 0);
+      playlist = playlist.join("\n");
+      fs.writeFileSync("playlist",playlist);
+      media.play("./playlist",true);
+      res.writeHead(200);
+      res.end();
+    }
   },
   {
-    path: "/player/random",
-    hdl: () => {}
+    path: "/player/random", //random on all musicDir root
+    hdl: (req,res) => {
+      res.writeHead(200);
+      media.play("./liste",true);
+      res.end();
+    }
   },
   {
     path: "/player/halt",
@@ -162,7 +172,21 @@ let routes = [
   },
   {
     path: "/files/list",
-    hdl: () => {}
+    hdl: (req,res) => {
+      let path = req.page.searchParams.get("options");
+      let tree = files.getTree();
+      try {
+        tree = files.getBranch(tree,path);
+        tree = files.cleanBranch(tree);
+        let parentpath = files.getParentFolder(path);
+        if (parentpath) {
+          tree.unshift({type:"parentdir",name:parentpath});
+        }
+        server.json(tree)(req,res);
+      } catch(e) {
+        server.failure(res,400,"Bad request :\n"+e);
+      }
+    }
   },
   {
     path: "/files/search",
@@ -174,36 +198,19 @@ let routes = [
   },
   {
     path: "/files/regenerate",
-    hdl: () => {}
+    hdl: (req,res) => {
+      try {
+        files.generateTrees();
+      } catch {
+        server.failure(res,500,"Internal server error while generating files tree");
+      }
+    }
   },
 ]
 
-//Audio file streamer
-let streamAudioFile = (req,res,file) => {
-  return new Promise(async (resolve,reject) => {
-    let fileSize = fs.statSync(file).size;
-    let range = req.headers.range;
-    let readStream = {};
-    let head = {};
-    head["Content-Length"] = fileSize;
-    readStream = fs.createReadStream(file);
-    let type = file.split(".").reverse()[0];
-    res.writeHead(200, head);
-    readStream.on("open",() => {
-      readStream.pipe(res);
-    });
-    readStream.on("close",() => {
-      resolve();
-    });
-    readStream.on("error", (err) => {
-      reject(err);
-    });
-  });
-};
-
-//Main object
-let media = {
-  generateTrees: (response,data=false) => {
+//FS handling
+let files = {
+  generateTrees: (data=false) => {
     let files = (data) ? data : [];
     if (!data) {
       let tree = TreeMaker(CONFIG.musicDirectory);
@@ -250,7 +257,7 @@ let media = {
       path.shift();
       path = path.join("/");
       backpath += firstPath.slice(0,firstPath.length-path.length)
-      return Tree.getBranch(tree,path,backpath);
+      return files.getBranch(tree,path,backpath);
     } else {
       return tree;
     }
@@ -265,27 +272,16 @@ let media = {
     if (output.split("contents").length == path.split("/").length+1) {
       return output;
     } else {
-      return Tree.getPath(newTree.contents,path,output);
+      return files.getPath(newTree.contents,path,output);
     }
   },
   cleanBranch: (tree) => {
     return tree.map(e => ({type:e.type,name:e.name}));
-  },
-  serveBranch: (response,path) => {
-    let tree = Tree.getTree();
-    try {
-      tree = Tree.getBranch(tree,path);
-      tree = Tree.cleanBranch(tree);
-      response.writeHead(200, {"Content-Type": "application/json"});
-      let parentpath = Tree.getParentFolder(path);
-      if (parentpath) {
-        tree.unshift({type:"parentdir",name:parentpath});
-      }
-      response.write(JSON.stringify(tree));
-    } catch(e) {
-      throw {code:400,text:"Bad request :\n"+e};
-    }
-  },
+  }  
+}
+
+//Media interactions object
+let media = {
   stop: () => {
     try {
       execSync("killall -s SIGKILL mplayer");
@@ -295,51 +291,33 @@ let media = {
   },
   play: async (path,random=false) => {
     random = (random) ? "-shuffle ":"";
-    await Tree.killPlayer();
-    await wait(1000);
-    spawnAndDetach("mplayer -msglevel all=4 "+random+"-playlist "+path);
+    await media.stop();
+    await utils.wait(1000);
+    utils.spawnAndDetach("mplayer -msglevel all=4 "+random+"-playlist "+path);
   },
   generatePlaylist: async (path) => { 
     try {
-      let tree = await Tree.getTree();
+      let tree = await files.getTree();
       let branch;
       let playlist = "";
       try {
-        branch = Tree.getBranch(tree,path);
+        branch = files.getBranch(tree,path);
       } catch {
-        branch = Tree.getBranch(tree,Tree.getParentFolder(path));
+        branch = files.getBranch(tree,files.getParentFolder(path));
         path = branch.indexOf(branch.find(e => (e.name == path)));
         branch = branch.filter((e,i) => (i >= path));
       }
       branch.filter(e => e.type == "file")
-        .map(e => playlist += e.name.replace("./",DIRECTORY)+"\n");
+        .map(e => playlist += e.name.replace("./",CONFIG.musicDirectory)+"\n");
       fs.writeFileSync("playlist",playlist);
     } catch(e) {
       throw e;
     }
   },
-  streamAudioFile: async (response,path,request) => {
-    await streamAudioFile(request,response,path.replace("./",DIRECTORY));
+  shuffleAndPlay: async (path) => { //useless / should be removed
+    await media.generatePlaylist(path);
+    media.play("./playlist",true);  
   },
-  prepareAndPlay: async (response,path) => {
-    await Tree.generatePlaylist(path);
-    Tree.play("./playlist");  
-  },
-  shuffleAndPlay: async (response,path) => {
-    await Tree.generatePlaylist(path);
-    Tree.play("./playlist",true);  
-  },
-  shuffleRecursiveDir: (response,path) => {
-    path = path.replace("./",DIRECTORY);
-    let playlist = globalList.list;
-    playlist = playlist.filter(e => e.indexOf(path) == 0);
-    playlist = playlist.join("\n");
-    fs.writeFileSync("playlist",playlist);
-    Tree.play("./playlist",true);
-  },
-  playAllRandom: (response,path) => {
-    Tree.play("./liste",true);
-  }
 }
 
 //Exposed server
@@ -361,7 +339,7 @@ let startServer = async () => {
   try {
     globalList = makeGlobalLists();
   } catch {
-    media.generateTrees(false);
+    files.generateTrees(false);
   }
   console.log("starting server...");
   try {
