@@ -7,8 +7,7 @@ playback. It is intended to be used on a Raspberry Pi.
 * browse, search & listen audio files
 * random
 * remotely adding files
-* search and playback from Youtube
-    (requires `ytdl` dependency and a youtube api key)
+* search and playback from Youtube (requires a youtube api key)
 * listening to web radios
 
 ## Installation
@@ -16,7 +15,6 @@ playback. It is intended to be used on a Raspberry Pi.
 * `git clone https://github.com/corbin-c/jukeberry.git`
 * `cd jukeberry`
 * `npm install`
-* `npm install -g ytdl`
 
 ## Configuration
 
