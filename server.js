@@ -168,7 +168,36 @@ let routes = [
   },
   {
     path: "/files/upload",
-    hdl: () => {}
+    hdl: (req,res) => {
+      if (req.method == "POST") {
+      let form = new formidable.IncomingForm(); //TODO: implement progress meter
+      /*form.on("progress", function(bytesReceived, bytesExpected) {
+        logger("log","upload processing: "+bytesReceived+" / "+bytesExpected);
+      });
+      form.on("fileBegin", function(name, file) {
+        logger("log","begin file upload: "+name+" "+file);
+      });
+      form.on("file", function(name, file) {
+        logger("log","file upload end: "+name+" "+file);
+      });*/
+      form.uploadDir = CONFIG.musicDirectory;
+      form.keepExtensions = true;
+      form.multiples = true;
+      form.parse(req, (err, fields, files) => {
+        let destination = fields.destination;
+        destination += (destination[destination.length-1] == "/")
+          ? ""
+          : "/";
+        let fsdestination = destination.replace("./",CONFIG.musicDirectory);
+        if (!fs.existsSync(fsdestination)) {
+          fs.mkdirSync(fsdestination);
+        }for (let file of Object.values(files)) {
+          console.log("Uploading file: "+fsdestination+file.name);
+          fs.rename(file.path, fsdestination+file.name, (err) => {  });
+        }
+        files.generateTrees();
+      });
+    }
   },
   {
     path: "/files/list",
@@ -352,59 +381,3 @@ let startServer = async () => {
   }
 }
 startServer();
-/*let server = http.createServer(async function(req, res) {
-  let page = new URL("http://dummy.com"+req.url);
-  let served = servedFiles.filter(e => e.pathname == page.pathname)
-  if (served.length > 0) {
-    served = served[0];
-    logger("log","File served:\t["+served.mime+"]\t"+served.pathname);
-    let type = served.mime;
-    res.writeHead(200, {"Content-Type": type});
-    served = (page.pathname == "/") ? "/index.html":page.pathname;
-    served = served.slice(1);
-    served = await getFile(served,(type.indexOf("image") >= 0));
-    res.write(served);
-  } else if (page.pathname == "/api") {
-    if (req.method == "POST") {
-      let form = new formidable.IncomingForm(); //TODO: implement progress meter
-      /*form.on("progress", function(bytesReceived, bytesExpected) {
-        logger("log","upload processing: "+bytesReceived+" / "+bytesExpected);
-      });
-      form.on("fileBegin", function(name, file) {
-        logger("log","begin file upload: "+name+" "+file);
-      });
-      form.on("file", function(name, file) {
-        logger("log","file upload end: "+name+" "+file);
-      });*/
-/*      form.uploadDir = DIRECTORY;
-      form.keepExtensions = true;
-      form.multiples = true;
-      form.parse(req, (err, fields, files) => {
-        let destination = fields.destination;
-        destination += (destination[destination.length-1] == "/")
-          ? ""
-          : "/";
-        let fsdestination = destination.replace("./",DIRECTORY);
-        if (!fs.existsSync(fsdestination)) {
-          fs.mkdirSync(fsdestination);
-        }for (let file of Object.values(files)) {
-          logger("log","Uploading file: "+fsdestination+file.name);
-          fs.rename(file.path, fsdestination+file.name, (err) => {  });
-        }
-        Tree.generateTrees();
-      });
-    } else {
-      try {
-        let cmd = commands
-          .find(q => q.query == page.searchParams.get("action"))
-          .func;
-        await Tree[cmd](res,page.searchParams.get("options"),req);
-      } catch(e) {
-        failure(res,e.code,e.text);
-      }
-    }
-  } else {
-    failure(res,404,"Not found :(");
-  }
-  res.end();
-});*/
