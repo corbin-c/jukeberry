@@ -5,7 +5,8 @@ const formidable = require("formidable");
 const YouTube = require("youtube-node");
 const minimalServer = require("@corbin-c/minimal-server");
 const TreeMaker = require("@corbin-c/minimal-server/tree.js");
-const CONFIG = (() => {
+
+const CONFIG = (() => { // INIT CONFIG
   let conf = fs.readFileSync("config.json","utf8");
   conf = JSON.parse(conf);
   conf.directories = {};
@@ -36,9 +37,11 @@ const CONFIG = (() => {
   })(Object.keys(conf.directories));
   return conf;
 })();
+
 require("./logger.js")(CONFIG.log);
 const utils = require("./utils.js")
 utils.setConf(CONFIG);
+
 let globalList;
 
 //API queries to handle
@@ -84,7 +87,7 @@ let routes = [
               resolve(stdout.split("\n")[0]);
             });
         })})(youtubeId);
-        utils.spawnAndDetach("mplayer -novideo -msglevel all=-1 "+url);
+        utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -novideo -msglevel all=-1 "+url);
         res.writeHead(200);
         res.end()
       } else {
@@ -106,7 +109,7 @@ let routes = [
       if (typeof radio !== "undefined") {
         await media.stop();
         await utils.wait(1000);
-        utils.spawnAndDetach("mplayer -msglevel all=4 "+radio.url);
+        utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 "+radio.url);
       }
     }
   },
@@ -125,28 +128,54 @@ let routes = [
     }
   },
   {
-    path: "/player/log",
+    path: "/player/commands",
     hdl: (req,res) => {
-      try {
-        let currentLog = fs.readFileSync("current.log","utf8");
-        currentLog = JSON.parse(currentLog);
-        let log = {};
-        for (let v of Object.keys(currentLog)) {
-          if (["raw","clip_info"].indexOf(v) < 0) {
-            log[v] = currentLog[v];
-          }
+      let command = [
+        {
+          name: "togglePlay",
+          cmd: "key_down_event 32"
+        },
+        {
+          name: "forward",
+          cmd: "seek 10"
+        },
+        {
+          name: "rewind",
+          cmd: "seek -10"
+        },
+        {
+          name: "next",
+          cmd: "key_down_event 62"
+        },
+        {
+          name: "prev",
+          cmd: "key_down_event 60"
         }
-        server.json(log)(req,res);
-      } catch {
-        server.failure(res,404,"no current log");
+      ].find(e => e.name == req.page.searchParams.get("options"));
+      if (typeof command === "undefined") {
+        server.failure(res,404,"media player command not found");
+      } else {
+        media.master(command.cmd);
+        res.writeHead(200);
+        res.end();
+      }
+    }
+  },
+  {
+    path: "/player/log",
+    hdl: async (req,res) => {
+      try {
+        server.json(utils.parseLog())(req,res);
+      } catch(e) {
+        server.failure(res,404,"no current log: "+e.message);
       }
     }
   },
   {
     path: "/player/stop",
     hdl: (req,res) => {
-      res.writeHead(200);
       media.stop();
+      res.writeHead(200);
       res.end();
     }
   },
@@ -154,7 +183,7 @@ let routes = [
     path: "/player/shuffle", //recursively shuffles a directory
     hdl: (req,res) => {
       let path = req.page.searchParams.get("options");
-      path = path.replace("./",CONFIG.musicDirectory);
+      path = path.replace("./",CONFIG.directories["musicDirectory"]);
       let playlist = globalList.list;
       playlist = playlist.filter(e => e.indexOf(path) == 0);
       playlist = playlist.join("\n");
@@ -168,7 +197,7 @@ let routes = [
     path: "/player/random", //random on all musicDir root
     hdl: (req,res) => {
       res.writeHead(200);
-      media.play("./liste",true);
+      media.play("./musicDirectory_list",true);
       res.end();
     }
   },
@@ -222,9 +251,9 @@ let routes = [
   },
   {
     path: "/files/list",
-    hdl: (req,res) => {
+    hdl: (req,res,type="music") => {
       let path = req.page.searchParams.get("options");
-      let tree = files.getTree();
+      let tree = files.getTree(type);
       try {
         tree = files.getBranch(tree,path);
         tree = files.cleanBranch(tree);
@@ -239,10 +268,16 @@ let routes = [
     }
   },
   {
+    path: "/files/videoList",
+    hdl: (req,res) => {
+      routes.find(e => e.path == "/files/list").hdl(req,res,"video");
+    }
+  },
+  {
     path: "/files/search",
     hdl: (req,res) => {
       server.json(
-        utils.search(req.page.searchParams.get("options"),globalList.list)
+        utils.search(req.page.searchParams.get("options"),globalList.musicDirectory_list)
       )(req,res);
     }
   },
@@ -280,8 +315,9 @@ let files = {
     globalList = utils.makeGlobalLists(files);
     console.log("tree files written");
   },
-  getTree: () => {
-    return globalList.tree;
+  getTree: (type="music") => {
+    type += "Directory_tree.json";
+    return globalList[type];
   },
   getParentFolder: (path) => {
     path = path.split("/");
@@ -334,18 +370,31 @@ let media = {
     try {
       execSync("killall -s SIGKILL mplayer");
     } catch {
-      console.log("killall: nothing to stop");
+      console.warn("killall: nothing to stop");
     }
+  },
+  master: (command) => {
+    console.log("echoing '"+command+"' to fifo");
+    return new Promise((resolve,reject) => {
+      exec("echo "+command+" >> ./mplayer_master",(error,stdout,stderr) => {
+        if (error) {
+          reject(stderr);
+        } else {
+          resolve();
+        }
+      });
+    });
   },
   play: async (path,random=false) => {
     random = (random) ? "-shuffle ":"";
     await media.stop();
     await utils.wait(1000);
-    utils.spawnAndDetach("mplayer -msglevel all=4 "+random+"-playlist "+path);
+    console.log("starting mplayer");
+    utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 -quiet "+random+"-playlist "+path);
   },
   generatePlaylist: async (path) => { 
     try {
-      let tree = await files.getTree();
+      let tree = await files.getTree("music");
       let branch;
       let playlist = "";
       try {
@@ -356,7 +405,7 @@ let media = {
         branch = branch.filter((e,i) => (i >= path));
       }
       branch.filter(e => e.type == "file")
-        .map(e => playlist += e.name.replace("./",CONFIG.musicDirectory)+"\n");
+        .map(e => playlist += e.name.replace("./",CONFIG.directories["musicDirectory"])+"\n");
       fs.writeFileSync("playlist",playlist);
     } catch(e) {
       throw e;

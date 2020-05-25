@@ -1,5 +1,5 @@
 const fs = require("fs");
-const { spawn } = require("child_process");
+const { spawn, execSync } = require("child_process");
 let CONFIG = {};
 module.exports = {
   setConf: (conf) => {
@@ -24,42 +24,16 @@ module.exports = {
       });
     });
   },
-  parseLog: async (log) => {
-    let ret = false;
-    if (log.indexOf("Playing") >= 0) {
-      fs.writeFileSync("raw.log","");
-    }
-    log = fs.readFileSync("raw.log","utf8")+log;
-    fs.writeFileSync("raw.log",log);
-    log = {raw:log};
-    if (log.raw.indexOf("Playing") >= 0) {
-      log.filename = log.raw.split("\n");
-      log.filename = log.filename.filter(e => e != "")[0].slice(0,-1);
-      log.filename = log.filename.split("/");
-      log.filename = log.filename.pop();
-      log.filename = log.filename.split(".");
-      log.filename.pop();
-      log.filename = log.filename.join(" ");
-      ret = true;
-      currentLog = log;
-    } 
-    if (log.raw.indexOf("Clip info") >= 0) {
-      log.clip_info = log.raw.split("Clip info:\n");
-      log.clip_info = log.clip_info.pop();
-      log.clip_info = log.clip_info.split("Load subtitles in")[0];
-      log.clip_info = log.clip_info.split("\n");
-      log.clip_info.filter(e => e != "").map(e => {
-        e = e.split(": ")
-        e[1] = e[1].replace(/\s+/g," ");
-        e[0] = e[0].slice(1).toLowerCase();
-        log[e[0]] = e[1];
-      });
-      ret = true;
-    }
-    if (ret) {
-      log = JSON.stringify(log);
-      fs.writeFileSync("current.log",log);
-    }
+  parseLog: () => {
+    let log = fs.readFileSync("raw.log","utf8");
+    let metadata = {};
+    log.split("\n").map(e => {
+      if ((e !== "") && (e.indexOf("ANS_") == 0)) {
+        e = e.split("=");
+        metadata[e[0].split("ANS_")[1].toLowerCase()] = e[1];
+      }
+    });
+    return metadata;
   },
   spawnAndDetach: (command) => {
     console.info("detached subprocess: "+command);
@@ -70,7 +44,23 @@ module.exports = {
     });
     subprocess.stdout.setEncoding("utf8");
     subprocess.stdout.on("data", (e) => {
-      module.exports.parseLog(e);
+      if (e.indexOf("Playing") >= 0) {
+        fs.writeFileSync("raw.log","");
+        execSync(`echo "get_file_name
+get_time_length
+get_meta_title
+get_meta_artist
+get_meta_album
+get_meta_year
+get_meta_track
+get_meta_genre" >> ./mplayer_master`);
+      }
+      try {
+        fs.writeFileSync("raw.log",fs.readFileSync("raw.log","utf8")+"\n"+e);
+      } catch(error) {
+        console.warn(error.message);
+        fs.writeFileSync("raw.log",e);
+      }
     });
     subprocess.stderr.on("data", (e) => {
       //console.error("player error "+e);
