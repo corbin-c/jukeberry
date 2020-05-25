@@ -8,15 +8,32 @@ const TreeMaker = require("@corbin-c/minimal-server/tree.js");
 const CONFIG = (() => {
   let conf = fs.readFileSync("config.json","utf8");
   conf = JSON.parse(conf);
-  conf.musicDirectory = (conf.musicDirectory[conf.musicDirectory.length-1] == "/")
-    ? conf.musicDirectory:conf.musicDirectory+"/";
-  if (typeof conf["youtube-api-key"] !== "undefined") {
+  conf.directories = {};
+  ["musicDirectory","videoDirectory"].map(e => {
+    if (typeof conf[e] === "undefined") {
+      conf.directories[e] = false;
+    } else {
+      conf.directories[e] = (conf[e][conf[e].length-1] == "/")
+    ? conf[e]:conf[e]+"/";
+    }
+  });
+  if (typeof conf["youtube-api-key"] === "undefined") {
+    conf.youtube = false;
+  } else {
     conf.youtube = new YouTube();
     conf.youtube.setKey(conf["youtube-api-key"]);
-  } else {
-    conf.youtube = false;
   }
   conf.log = (typeof conf.log === "boolean") ? conf.log : false;
+  conf.files = ((dirs) => {
+    let files = [];
+    dirs.map(e => {
+      if (conf.directories[e] !== false) {
+        files.push(e+"_tree.json");
+        files.push(e+"_list");
+      }
+    });
+    return files;
+  })(Object.keys(conf.directories));
   return conf;
 })();
 require("./logger.js")(CONFIG.log);
@@ -170,33 +187,37 @@ let routes = [
     path: "/files/upload",
     hdl: (req,res) => {
       if (req.method == "POST") {
-      let form = new formidable.IncomingForm(); //TODO: implement progress meter
-      /*form.on("progress", function(bytesReceived, bytesExpected) {
-        logger("log","upload processing: "+bytesReceived+" / "+bytesExpected);
-      });
-      form.on("fileBegin", function(name, file) {
-        logger("log","begin file upload: "+name+" "+file);
-      });
-      form.on("file", function(name, file) {
-        logger("log","file upload end: "+name+" "+file);
-      });*/
-      form.uploadDir = CONFIG.musicDirectory;
-      form.keepExtensions = true;
-      form.multiples = true;
-      form.parse(req, (err, fields, files) => {
-        let destination = fields.destination;
-        destination += (destination[destination.length-1] == "/")
-          ? ""
-          : "/";
-        let fsdestination = destination.replace("./",CONFIG.musicDirectory);
-        if (!fs.existsSync(fsdestination)) {
-          fs.mkdirSync(fsdestination);
-        }for (let file of Object.values(files)) {
-          console.log("Uploading file: "+fsdestination+file.name);
-          fs.rename(file.path, fsdestination+file.name, (err) => {  });
-        }
-        files.generateTrees();
-      });
+        let form = new formidable.IncomingForm(); //TODO: implement progress meter
+        /*form.on("progress", function(bytesReceived, bytesExpected) {
+          logger("log","upload processing: "+bytesReceived+" / "+bytesExpected);
+        });
+        form.on("fileBegin", function(name, file) {
+          logger("log","begin file upload: "+name+" "+file);
+        });
+        form.on("file", function(name, file) {
+          logger("log","file upload end: "+name+" "+file);
+        });*/
+        form.uploadDir = CONFIG.musicDirectory;
+        form.keepExtensions = true;
+        form.multiples = true;
+        form.parse(req, (err, fields, files) => {
+          let destination = fields.destination;
+          destination += (destination[destination.length-1] == "/")
+            ? ""
+            : "/";
+          let fsdestination = destination.replace("./",CONFIG.musicDirectory);
+          if (!fs.existsSync(fsdestination)) {
+            fs.mkdirSync(fsdestination);
+          }
+          for (let file of Object.values(files)) {
+            console.log("Uploading file: "+fsdestination+file.name);
+            fs.rename(file.path, fsdestination+file.name, (err) => { 
+              console.error("Error while moving file",file.name);
+            });
+          }
+          files.generateTrees();
+        });
+      }
     }
   },
   {
@@ -239,22 +260,20 @@ let routes = [
 
 //FS handling
 let files = {
-  generateTrees: (data=false) => {
-    let files = (data) ? data : [];
-    if (!data) {
-      let tree = TreeMaker(CONFIG.musicDirectory);
+  generateTrees: () => {
+    let files = [];
+    CONFIG.files.map(e => {
+      let dir = CONFIG.directories[e.split("_")[0]];
+      let tree = TreeMaker(dir);
+      let json = e.split(".")[1] === "json";
       files.push({
-        name:"tree.json",
-        data:JSON.stringify(tree.tree)
+        name:e,
+        data: (json) ?
+          JSON.stringify(tree.tree)
+          : tree.list.map(e => e.replace("./",dir)).join("\n")
       });
-      console.log("json tree successfully built");
-      files.push({
-        name:"liste",
-        data:tree.list.map(e => e.replace("./",CONFIG.musicDirectory))
-          .join("\n")
-      });
-      console.log("raw list successfully built");
-    }
+      console.log(e,"successfully built");
+    });
     for (i of files) {
       fs.writeFileSync(i.name,i.data);
     }
@@ -367,8 +386,11 @@ routes.map(e => {
   await server.enableStaticDir();
   try {
     globalList = utils.makeGlobalLists();
-  } catch {
-    files.generateTrees(false);
+    console.info("success !");
+  } catch(e) {
+    console.warn(e.message);
+    console.info("Building lists from scratch...");
+    files.generateTrees();
   }
   console.log("starting server...");
   try {

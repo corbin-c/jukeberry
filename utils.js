@@ -81,16 +81,18 @@ module.exports = {
     subprocess.unref();
   },
   updateGlobalList: (file,update=false) => {
-    console.log("making globalList");
+    if (!update) {
+      console.info("Trying to read from file",file);
+    }
     list = (update) ? update:fs.readFileSync(file,"utf8");
-    list = (file == "liste") ? list.split("\n"):JSON.parse(list);
+    list = (file.indexOf("_list") > 0) ? list.split("\n"):JSON.parse(list);
     return list;
   },
   makeGlobalLists: (update=false) => {
-    let files = ["tree.json","liste"];
     let output = {};
-    files.map(e => {
-      output[e.slice(0,4)] = (update)
+    console.log("acquiring directories descriptions...");
+    CONFIG.files.map(e => {
+      output[e] = (update)
         ? module.exports.updateGlobalList(e,update.find(f => f.name == e).data)
         : module.exports.updateGlobalList(e);
     });
