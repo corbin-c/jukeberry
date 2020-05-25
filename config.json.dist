@@ -1,5 +1,7 @@
 {
   "musicDirectory": "/path/to/your/music",
+  "videoDirectory": "/path/to/your/videos",
+  "startupSound": "/file/to/play/when/ready",
   "youtube-api-key": "yourYoutubeAPIkey",
   "log": false,
   "radioStreams": [

@@ -449,4 +449,12 @@ routes.map(e => {
     await wait(5000);
     server.start();
   }
+  if (typeof CONFIG.startupSound === "string") {
+    try {
+      fs.writeFileSync("./playlist",CONFIG.startupSound);
+      media.play("./playlist");
+    } catch {
+      console.error("Couldn't play startup sound");
+    }
+  }
 })();
