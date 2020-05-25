@@ -410,11 +410,7 @@ let media = {
     } catch(e) {
       throw e;
     }
-  },
-  shuffleAndPlay: async (path) => { //useless / should be removed
-    await media.generatePlaylist(path);
-    media.play("./playlist",true);  
-  },
+  }
 }
 
 //Exposed server
@@ -432,6 +428,9 @@ routes.map(e => {
   }
 });
 (async () => {
+  try {
+    execSync("mkfifo ./mplayer_master");
+  } catch { /* NoOp, named pipe should already exist */ }
   await server.enableStaticDir();
   try {
     globalList = utils.makeGlobalLists();
