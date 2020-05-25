@@ -363,10 +363,10 @@ routes.map(e => {
     handler: e.hdl
   }
 });
-let startServer = async () => {
+(async () => {
   await server.enableStaticDir();
   try {
-    globalList = makeGlobalLists();
+    globalList = utils.makeGlobalLists();
   } catch {
     files.generateTrees(false);
   }
@@ -379,5 +379,4 @@ let startServer = async () => {
     await wait(5000);
     server.start();
   }
-}
-startServer();
+})();
