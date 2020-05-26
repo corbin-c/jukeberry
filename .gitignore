@@ -1,5 +1,5 @@
 config.json
-liste
-tree.json
+musicDirectory_*
+videoDirectory_*
 playlist
-current.log raw.log test.log
+*.log

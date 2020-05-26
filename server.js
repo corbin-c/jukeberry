@@ -128,6 +128,24 @@ let routes = [
     }
   },
   {
+    path: "/player/video",
+    hdl: (req,res) => {
+      let path = req.page.searchParams.get("options");
+      path = path.replace("./",CONFIG.directories["videoDirectory"]);
+      let subs = globalList
+        .filter(e => e.indexOf(path.split(".").slice(0,-1).join(".")) >= 0)
+        .find(e => ["srt","sub"].includes(e.split(".").reverse[0]));
+      if (typeof subs !== "undefined") {
+        subs = "--subtitles "+subs+" ";
+      } else {
+        subs = "";
+      }
+      utils.spawnAndDetach("omxplayer --no-ghost-box "+subs+path;
+      res.writeHead(200);
+      res.end();
+    }
+  },
+  {
     path: "/player/commands",
     hdl: (req,res) => {
       let command = [
@@ -257,6 +275,9 @@ let routes = [
       try {
         tree = files.getBranch(tree,path);
         tree = files.cleanBranch(tree);
+        if (type == "video") {
+          tree = tree.filter(e => ["srt","sub"].indexOf(e.name.split(".").reverse()[0]) < 0)
+        }
         let parentpath = files.getParentFolder(path);
         if (parentpath) {
           tree.unshift({type:"parentdir",name:parentpath});
@@ -443,7 +464,7 @@ routes.map(e => {
   console.log("starting server...");
   try {
     server.start();
-    console.log("server listening");
+    console.log("Server listening");
   } catch (e) {
     console.error(e);
     await wait(5000);

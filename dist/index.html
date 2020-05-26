@@ -14,8 +14,8 @@
       <h1>Jukeberry !</h1>
       <nav>
         <ul tabindex="1">
+          <li id="toggleVideo">Vidéos</li>
           <li id="search">Recherche</li>
-          <!--<li id="toggleStream">Stream</li>-->
           <li id="youtubeSearch">Youtube</li>
           <li id="add_files">Ajouter</li>
           <li id="all_random">Aléatoire</li>
@@ -32,7 +32,9 @@ const DELAY = 10;
 import { Jukeberry } from "./main.js";
 import { Utils } from "./utils.js";
 let folderSelect = async (parent,path) => {
-  let list = await Jukeberry.filesList(path);
+  let list = (Jukeberry.video)
+    ? await Jukeberry.filesVideoList(path)
+    : await Jukeberry.filesList(path);
   list = list.filter(e => e.type != "file");
   let choices = [{name:path},{name:"newfolder"}];
   list = (list[0].type == "parentdir")
@@ -91,21 +93,15 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
       } else {
         li.addEventListener("contextmenu",(event) => {
           event.preventDefault();
-          Jukeberry.playerShuffle(e.name);
+          if (!Jukeberry.video) {
+            Jukeberry.playerShuffle(e.name);
+          }
         });
       }
     } else {
       li.addEventListener("click",() => {
-        if (Jukeberry.stream) {
-          list = list.filter((elem,rank) => (rank >= i)); 
-          let audio = document.querySelector("audio");
-          audio.onended = () => {
-            list = list.slice(1);
-            audio.setAttribute("src",Jukeberry.streamPlay(list[0].name));
-            audio.play();
-          };
-          audio.setAttribute("src",Jukeberry.streamPlay(e.name));
-          audio.play();
+        if (Jukeberry.video) {
+          Jukeberry.playerVideo(e.name);
         } else {
           Jukeberry.playerPlay(e.name); 
         }
@@ -121,7 +117,9 @@ let mainDisplay = async (parent,list,currentPath,target=false) => {
   });
 }
 let displayBranch = async (path,target=false) => {
-  let musicList = await Jukeberry.filesList(path);
+  let musicList = (Jukeberry.video)
+    ? await Jukeberry.filesVideoList(path)
+    : await Jukeberry.filesList(path);
   mainDisplay(Utils.newMainList(),musicList,path,target);
 }
 let displaySearch = async (delay,results) => {
@@ -144,11 +142,12 @@ let displaySearch = async (delay,results) => {
   mainDisplay(ul,results);
 }
 let menu = {
-  toggleStream: () => {
-    let isStreaming = Jukeberry.stream;
-    document.querySelector("audio").setAttribute("class",(isStreaming) ? "hidden":"");
-    //add this somewhere to show we're streaming: 📲
-    Jukeberry.stream = !isStreaming;
+  toggleVideo: () => {
+    Jukeberry.video = !Jukeberry.video;
+    document.querySelector("#toggleVideo").innerText = (Jukeberry.video)
+      ? "Musique"
+      : "Vidéos";
+    displayBranch(".");
   },
   youtubeSearch: () => { menu.search(true); },
   search: (youtube=false) => {
@@ -257,7 +256,6 @@ let menu = {
 })();
       </script>
     </main>
-    <audio class="hidden" controls src=""></audio>
     <footer class="init"></footer>
   </body>
 </html>

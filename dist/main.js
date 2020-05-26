@@ -25,9 +25,10 @@ let makeRequestFunc = (request) => {
 }
 class Jukebox {
   constructor() {
-    //this.isStreaming = false;
+    this.isVideo = false;
     this.requests = [
       {name:"/files/search",json:true,defaultValue:""},
+      {name:"/files/videoList",json:true,defaultValue:"./"},
       {name:"/files/list",json:true,defaultValue:"./"},
       {name:"/radio/list",json:true},
       {name:"/radio/play"},
@@ -35,12 +36,13 @@ class Jukebox {
       {name:"/youtube/search",json:true},
       {name:"/player/log",json:true},
       {name:"/player/play",defaultValue:"./"},
+      {name:"/player/video",defaultValue:"./"},
       //{name:"streamPlay",defaultValue:"./",urlonly:true},
       {name:"/player/shuffle",defaultValue:"./"},
       {name:"/player/stop"},
       {name:"/player/halt"},
       {name:"/player/random"},
-      {name:"/files/regenerate",action:"makeTree",await:true},
+      {name:"/files/regenerate",await:true},
     ];
     this.requests.map(e => {
       let functionName = e.name.split("/").map((e,i) => {
@@ -55,12 +57,12 @@ class Jukebox {
   async upload(files) {
     await fetch("/files/upload", {method: "POST", body: files});
   }
-  /*set stream(bool) {
-    this.isStreaming = (bool === true);
+  set video(bool) {
+    this.isVideo = (bool === true);
   }
-  get stream() {
-    return this.isStreaming;
-  }*/
+  get video() {
+    return this.isVideo;
+  }
 }
 let Jukeberry = new Jukebox();
 export { Jukeberry };
