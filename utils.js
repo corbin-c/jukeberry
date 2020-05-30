@@ -92,7 +92,7 @@ get_meta_genre" >> ./mplayer_master`);
     str = module.exports.normalize(str);
     output = [];
     return list.filter(e => module.exports.normalize(e).indexOf(str) >= 0)
-      .map(e => e.replace(CONFIG.musicDirectory,"./"))
+      .map(e => e.replace(CONFIG.directories["musicDirectory"],"./"))
       .filter(e => module.exports.normalize(e).indexOf(str) >= 0)
       .map(e => {
         e = {name:e,type:"file"};
