@@ -45,7 +45,8 @@ main.init {
   min-height: 0;
 }
 footer.init {
-  background-image: url("icons/192.png");
+  background-image: url("logo.svg");
+  background-size: 10%;
   background-repeat: no-repeat;
   background-position: 50% 150%;
   bottom: calc(100% - 200px);
@@ -117,7 +118,8 @@ li.target {
   background-color: #d87fa1 !important;
 }
 header {
-  background-image: url("icons/192.png");
+  background-image: url("logo.svg");
+  background-size: 10%;
   background-repeat: no-repeat;
   background-position: 50% 10%;
   border-bottom: 6px solid var(--contrast-color);
@@ -128,7 +130,8 @@ header {
   z-index:102;
 }
 footer {
-  background-image: url("icons/192.png");
+  background-image: url("logo.svg");
+  background-size: 10%;
   background-repeat: no-repeat;
   background-position: 50% 90%;
   padding: 10px;
