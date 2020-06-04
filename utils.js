@@ -5,6 +5,9 @@ module.exports = {
   setConf: (conf) => {
     CONFIG = conf;
   },
+  setSocket: (ws) => {
+    CONFIG.socket = ws;
+  },
   wait: (t) => {
     return new Promise((resolve,reject) => {
       setTimeout(() => { resolve(); },t)
@@ -33,7 +36,13 @@ module.exports = {
         metadata[e[0].split("ANS_")[1].toLowerCase()] = e[1];
       }
     });
-    return metadata;
+    try {
+      if (typeof CONFIG.socket !== "undefined") {
+        CONFIG.socket.text(JSON.stringify(metadata));
+      }
+    } catch (e) {
+      console.warn("Problem writing to socket");
+    }
   },
   spawnAndDetach: (command) => {
     console.info("detached subprocess: "+command);
@@ -61,6 +70,7 @@ get_meta_genre" >> ./mplayer_master`);
         console.warn(error.message);
         fs.writeFileSync("raw.log",e);
       }
+      module.exports.parseLog();
     });
     subprocess.stderr.on("data", (e) => {
       //console.error("player error "+e);

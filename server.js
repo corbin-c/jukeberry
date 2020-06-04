@@ -1,6 +1,7 @@
 const fs = require("fs");
 const { exec, execSync, spawn } = require("child_process");
 const http = require("http");
+const websocket = require("websocket-driver");
 const formidable = require("formidable");
 const YouTube = require("youtube-node");
 const minimalServer = require("@corbin-c/minimal-server");
@@ -140,7 +141,7 @@ let routes = [
       } else {
         subs = "";
       }
-      utils.spawnAndDetach("omxplayer --no-ghost-box "+subs+path;
+      utils.spawnAndDetach("omxplayer --no-ghost-box "+subs+path);
       res.writeHead(200);
       res.end();
     }
@@ -176,16 +177,6 @@ let routes = [
         media.master(command.cmd);
         res.writeHead(200);
         res.end();
-      }
-    }
-  },
-  {
-    path: "/player/log",
-    hdl: async (req,res) => {
-      try {
-        server.json(utils.parseLog())(req,res);
-      } catch(e) {
-        server.failure(res,404,"no current log: "+e.message);
       }
     }
   },
@@ -436,6 +427,21 @@ let media = {
 
 //Exposed server
 let server = new minimalServer();
+let driver;
+server.server.on("upgrade", (request,socket,body) => { //socket to pass current logs
+ if (!websocket.isWebSocket(request)) return;
+ 
+  var driver = websocket.http(request);
+ 
+  driver.io.write(body);
+  socket.pipe(driver.io).pipe(socket);
+ 
+  driver.messages.on("data", function(message) {
+    console.log("Got a message", message);
+  });
+  driver.start();
+  utils.setSocket(driver);
+});
 server.failure = (response,code,error) => {
   console.error(code,error);
   response.writeHead(code);
@@ -453,6 +459,11 @@ routes.map(e => {
     execSync("mkfifo ./mplayer_master");
   } catch { /* NoOp, named pipe should already exist */ }
   await server.enableStaticDir();
+  try {
+    await ws;
+  } catch (e) {
+    console.log(e);
+  }
   try {
     globalList = utils.makeGlobalLists();
     console.info("success !");

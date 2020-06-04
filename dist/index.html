@@ -236,23 +236,21 @@ let menu = {
   let current = document.createElement("p");
   current.setAttribute("id","currentSong");
   footer.append(current);
-  let btn = document.createElement("button");
-  btn.innerText = "💡";
-  btn.addEventListener("click",async () => {
+  let socket = new WebSocket("ws://"+document.location.host);
+  socket.onmessage = (event) => {
     let display = "";
-    let song = await Jukeberry.playerLog();
-      if ((typeof song.artist !== "undefined") && (song.artist !== "")) {
-        display += song.artist+" - ";
-      }
-      if ((typeof song.title !== "undefined") && (song.title !== "")) {
-        display += song.title;
-      }
+    let song = JSON.parse(event.data);
+    if ((typeof song.meta_artist !== "undefined") && (song.meta_artist !== "")) {
+      display += song.meta_artist.slice(1,-1)+" - ";
+    }
+    if ((typeof song.meta_title !== "undefined") && (song.meta_title !== "")) {
+      display += song.meta_title.slice(1,-1);
+    }
     if ((display == "") && (typeof song.filename !== "undefined")) {
-      display = song.filename.replace(/_/g," ");
+      display = song.filename.slice(1,-1).replace(/_/g," ");
     }
     current.innerText = display;
-  });
-  footer.append(btn);
+  }
 })();
       </script>
     </main>
