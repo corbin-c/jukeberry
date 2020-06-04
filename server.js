@@ -133,7 +133,7 @@ let routes = [
     hdl: (req,res) => {
       let path = req.page.searchParams.get("options");
       path = path.replace("./",CONFIG.directories["videoDirectory"]);
-      let subs = globalList
+      let subs = globalList.videoDirectory_list
         .filter(e => e.indexOf(path.split(".").slice(0,-1).join(".")) >= 0)
         .find(e => ["srt","sub"].includes(e.split(".").reverse[0]));
       if (typeof subs !== "undefined") {
@@ -193,7 +193,7 @@ let routes = [
     hdl: (req,res) => {
       let path = req.page.searchParams.get("options");
       path = path.replace("./",CONFIG.directories["musicDirectory"]);
-      let playlist = globalList.list;
+      let playlist = globalList.musicDirectory_list;
       playlist = playlist.filter(e => e.indexOf(path) == 0);
       playlist = playlist.join("\n");
       fs.writeFileSync("playlist",playlist);
@@ -287,10 +287,17 @@ let routes = [
   },
   {
     path: "/files/search",
-    hdl: (req,res) => {
+    hdl: (req,res,type="music") => {
+      type = (type !== "music") ? "video":type;
       server.json(
-        utils.search(req.page.searchParams.get("options"),globalList.musicDirectory_list)
+        utils.search(req.page.searchParams.get("options"),globalList[type+"Directory_list"])
       )(req,res);
+    }
+  },
+  {
+    path: "/files/videoSearch",
+    hdl: (req,res) => {
+      routes.find(e => e.path == "/files/search").hdl(req,res,"video");
     }
   },
   {
