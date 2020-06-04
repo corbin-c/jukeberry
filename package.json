@@ -2,10 +2,10 @@
   "name": "jukeberry",
   "version": "0.0.1",
   "dependencies": {
-    "@corbin-c/minimal-server": "^1.0.31",
+    "@corbin-c/minimal-server": "^1.0.4",
     "formidable": "^1.2.1",
+    "websocket-driver": "^0.7.3",
     "youtube-node": "^1.3.3",
-    "ytdl": "^1.3.0",
-    "websocket-driver": "^0.7.3"
+    "ytdl": "^1.3.0"
   }
 }
