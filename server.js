@@ -427,18 +427,11 @@ let media = {
 
 //Exposed server
 let server = new minimalServer();
-let driver;
 server.server.on("upgrade", (request,socket,body) => { //socket to pass current logs
- if (!websocket.isWebSocket(request)) return;
- 
-  var driver = websocket.http(request);
- 
+  if (!websocket.isWebSocket(request)) return;
+  let driver = websocket.http(request);
   driver.io.write(body);
   socket.pipe(driver.io).pipe(socket);
- 
-  driver.messages.on("data", function(message) {
-    console.log("Got a message", message);
-  });
   driver.start();
   utils.setSocket(driver);
 });
