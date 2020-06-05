@@ -111,6 +111,7 @@ let routes = [
         await media.stop();
         await utils.wait(1000);
         utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 "+radio.url);
+        utils.sendLog({radio_name:req.page.searchParams.get("options")});
       }
     }
   },
@@ -387,6 +388,7 @@ let files = {
 let media = {
   stop: () => {
     try {
+      utils.sendLog({filename:" "});
       execSync("killall -s SIGKILL mplayer");
     } catch {
       console.warn("killall: nothing to stop");
@@ -459,11 +461,6 @@ routes.map(e => {
     execSync("mkfifo ./mplayer_master");
   } catch { /* NoOp, named pipe should already exist */ }
   await server.enableStaticDir();
-  try {
-    await ws;
-  } catch (e) {
-    console.log(e);
-  }
   try {
     globalList = utils.makeGlobalLists();
     console.info("success !");

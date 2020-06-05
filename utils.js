@@ -6,7 +6,11 @@ module.exports = {
     CONFIG = conf;
   },
   setSocket: (ws) => {
-    CONFIG.socket = ws;
+    if (typeof CONFIG.sockets !== "undefined") {
+      CONFIG.sockets.push(ws);
+    } else {
+      CONFIG.sockets = [ws];
+    }
   },
   wait: (t) => {
     return new Promise((resolve,reject) => {
@@ -30,22 +34,35 @@ module.exports = {
   parseLog: () => {
     let log = fs.readFileSync("raw.log","utf8");
     let metadata = {};
-    log.split("\n").map(e => {
-      if ((e !== "") && (e.indexOf("ANS_") == 0)) {
+    log.split("\n").filter(e => e !== "").map(e => {
+      if (e.indexOf("ANS_") == 0) {
         e = e.split("=");
-        metadata[e[0].split("ANS_")[1].toLowerCase()] = e[1];
+        if (isNaN(parseFloat(e[1]))) {
+          e[1] = e[1].slice(1,-1);
+        }
+        if (e[1] != "") {
+          metadata[e[0].split("ANS_")[1].toLowerCase()] = e[1];
+        }
       }
     });
-    try {
-      if (typeof CONFIG.socket !== "undefined") {
-        CONFIG.socket.text(JSON.stringify(metadata));
-      }
-    } catch (e) {
-      console.warn("Problem writing to socket");
+    if (Object.keys(metadata).length !== 0) {
+      module.exports.sendLog(metadata);
+    }
+  },
+  sendLog: (metadata_object) => {
+    if (typeof CONFIG.sockets !== "undefined") {
+      CONFIG.sockets.map(socket => {
+        try {
+          socket.text(JSON.stringify(metadata_object));
+        } catch {
+          console.warn("Problem writing to socket");
+        }
+      });
     }
   },
   spawnAndDetach: (command) => {
     console.info("detached subprocess: "+command);
+    fs.writeFileSync("raw.log","");
     command = command.split(" ");
     let subprocess = spawn(command[0], command.slice(1), {
       detached: true,
