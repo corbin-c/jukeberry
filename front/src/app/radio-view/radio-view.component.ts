@@ -13,13 +13,13 @@ export class RadioViewComponent implements OnInit {
   }
   public radioList = [];
   ngOnInit(): void {
-    this.jukeberryService.getRadioList().subscribe(
-      (response) => {
+    this.jukeberryService.query("/radio/list")((response) => {
         this.radioList = response;
       },
       (error) => {
         console.error(error);
-      });
+      }
+    );
   }
 
 }

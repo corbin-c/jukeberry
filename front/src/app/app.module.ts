@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { MusicViewComponent } from './music-view/music-view.component';
@@ -13,8 +14,11 @@ import { HeaderComponent } from './header/header.component';
 import { NavComponent } from './nav/nav.component';
 import { JukeberryService } from './services/jukeberry.service';
 import { RadioComponent } from './radio/radio.component';
+import { YoutubeViewComponent } from './youtube-view/youtube-view.component';
+import { YoutubeItemComponent } from './youtube-item/youtube-item.component';
 
 const appRoutes: Routes = [
+  { path: 'youtube', component: YoutubeViewComponent },
   { path: 'music', component: MusicViewComponent },
   { path: 'video', component: VideoViewComponent },
   { path: 'radio', component: RadioViewComponent },
@@ -30,11 +34,14 @@ const appRoutes: Routes = [
     FooterComponent,
     HeaderComponent,
     NavComponent,
-    RadioComponent
+    RadioComponent,
+    YoutubeViewComponent,
+    YoutubeItemComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
+    FormsModule,
     RouterModule.forRoot(appRoutes)
   ],
   providers: [

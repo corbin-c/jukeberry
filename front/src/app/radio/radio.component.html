@@ -1,1 +1,4 @@
-<li>{{ radioName }} - {{ getStatus() }}</li>
+<li>
+  {{ radioName }}
+  <button (click)="toggleStatus()">{{ getStatus() }}</button>
+</li>
