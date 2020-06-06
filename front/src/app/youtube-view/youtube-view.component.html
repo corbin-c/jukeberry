@@ -1,0 +1,8 @@
+<input type="text" [(ngModel)]="searchInput"><button (click)="search()">Cherche !</button>
+<app-youtube-item
+  *ngFor="let result of searchResults"
+  [channel]="result.channel"
+  [id]="result.id"
+  [description]="result.description"
+  [title]="result.title">
+</app-youtube-item>
