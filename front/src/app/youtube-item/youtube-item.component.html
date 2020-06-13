@@ -1,1 +1,3 @@
-<li>{{ title }} - {{ channel }}</li>
+<li>{{ title }} - {{ channel }}
+  <button (click)="toggleStatus()">{{ getStatus() }}</button>
+</li>

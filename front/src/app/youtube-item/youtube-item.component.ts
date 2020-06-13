@@ -15,7 +15,30 @@ export class YoutubeItemComponent implements OnInit {
   @Input() channel: string;
   @Input() description: string;
 
-  ngOnInit(): void {
+  private status: boolean = false; 
+  private play() {
+    this.jukeberryService.query("/youtube/play",this.id)();
   }
-
+  private pause() {
+    this.jukeberryService.query("/player/stop")();
+  }
+  public getStatus() {
+    return (this.status) ? "⏹️️":"▶️"
+  }
+  public toggleStatus() {
+    if (this.status) {
+      this.pause();
+    } else {
+      this.play();
+    }
+  }
+  ngOnInit(): void {
+    this.jukeberryService.getStatus((response) => {
+      if (typeof response.youtube !== "undefined") {
+        this.status = (response.youtube == this.id);
+      } else {
+        this.status = false;
+      }
+    });
+  }
 }
