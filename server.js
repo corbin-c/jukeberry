@@ -80,7 +80,7 @@ let routes = [
         console.log("Playing youtube video ID #"+youtubeId);
         let url = await ((id) => {
           return new Promise((resolve, reject) => {
-            exec("./node-modules/ytdl/bin/ytdl.js ytdl --print-url https://www.youtube.com/watch?v="+id,
+            exec("./node_modules/ytdl/bin/ytdl.js --print-url https://www.youtube.com/watch?v="+id,
               (error, stdout, stderr) => {
               if (error) {
                 server.failure(res,404,"error fetching video"+error+stderr)
@@ -89,6 +89,7 @@ let routes = [
             });
         })})(youtubeId);
         utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -novideo -msglevel all=-1 "+url);
+        utils.sendLog({youtube:youtubeId});
         res.writeHead(200);
         res.end()
       } else {
@@ -411,7 +412,7 @@ let media = {
     await media.stop();
     await utils.wait(1000);
     console.log("starting mplayer");
-    utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 -quiet "+random+"-playlist "+path);
+    utils.spawnAndDetach("mplayer -idle -slave -input file=./mplayer_master -msglevel all=4 -quiet "+random+"-playlist "+path);
   },
   generatePlaylist: async (path) => { 
     try {
@@ -475,7 +476,7 @@ routes.map(e => {
     console.log("Server listening");
   } catch (e) {
     console.error(e);
-    await wait(5000);
+    await utils.wait(5000);
     server.start();
   }
   if (typeof CONFIG.startupSound === "string") {
@@ -485,5 +486,7 @@ routes.map(e => {
     } catch {
       console.error("Couldn't play startup sound");
     }
+  } else {
+    console.log("no startup sound configured");
   }
 })();
