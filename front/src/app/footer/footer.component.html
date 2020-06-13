@@ -1,1 +1,7 @@
-<p>footer works!</p>
+<p>{{ getStatus() }}</p>
+<button (click)="control('prev')">🔼️</button>
+<button (click)="control('rewind')">⏪</button>
+<button (click)="control('togglePlay')">⏯</button>
+<button (click)="control('forward')">⏩</button>
+<button (click)="control('next')">🔽️</button>
+<button (click)="stop()">⏹️️</button>
