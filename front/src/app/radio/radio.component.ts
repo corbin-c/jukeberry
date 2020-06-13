@@ -18,7 +18,7 @@ export class RadioComponent implements OnInit {
     this.jukeberryService.query("/player/stop")();
   }
   public getStatus() {
-    return (this.status) ? "⏸️":"▶️"
+    return (this.status) ? "⏹️️":"▶️"
   }
   public toggleStatus() {
     if (this.status) {
