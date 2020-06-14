@@ -193,13 +193,19 @@ let routes = [
   {
     path: "/player/shuffle", //recursively shuffles a directory
     hdl: (req,res) => {
+      routes.find(e => e.path == "/player/recursivePlay").hdl(req,res,true);
+    }
+  },
+  {
+    path: "/player/recursivePlay", //recursively plays a directory
+    hdl: (req,res,random=false) => {
       let path = req.page.searchParams.get("options");
       path = path.replace("./",CONFIG.directories["musicDirectory"]);
       let playlist = globalList.musicDirectory_list;
       playlist = playlist.filter(e => e.indexOf(path) == 0);
       playlist = playlist.join("\n");
       fs.writeFileSync("playlist",playlist);
-      media.play("./playlist",true);
+      media.play("./playlist",random);
       res.writeHead(200);
       res.end();
     }

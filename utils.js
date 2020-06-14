@@ -91,7 +91,7 @@ get_meta_genre" >> ./mplayer_master`);
     });
     subprocess.stderr.on("data", (e) => {
       //console.error("player error "+e);
-    });
+    });       
     subprocess.on("close", (code) => {
       console.log("process exited with code "+code); 
     });
