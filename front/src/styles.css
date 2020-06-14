@@ -50,6 +50,7 @@ a, a:visited, * {
 }
 main {
   min-height: calc(100vh - 160px);
+  width: 100vw;
   background: var(--main-bg-color);
   position: fixed;
   overflow-x: hidden;
