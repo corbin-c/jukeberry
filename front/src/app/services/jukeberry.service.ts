@@ -10,11 +10,11 @@ export class JukeberryService {
     
   }
 // testing:
-//  private endpoint = "http://localhost:5000";
-//  private status = webSocket("ws://localhost:5000");
+  private endpoint = "http://localhost:5000";
+  private status = webSocket("ws://localhost:5000");
 // deployment:
-  private endpoint = "";
-  private status = webSocket("ws://"+document.location.host);
+//  private endpoint = "";
+//  private status = webSocket("ws://"+document.location.host);
   private requests = [
     {path:"/files/search",defaultValue:""},
     {path:"/files/videoList",defaultValue:"./"},

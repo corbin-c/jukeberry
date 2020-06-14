@@ -49,12 +49,19 @@ a, a:visited, * {
   text-decoration: none;
 }
 main {
-  min-height: calc(100% - 80px);
-  padding-top: 80px;
-  padding-bottom: 80px;
+  min-height: calc(100vh - 160px);
   background: var(--main-bg-color);
+  position: fixed;
+  overflow-x: hidden;
+  overflow-y: auto;
+  top: 80px;
+}
+main ul {
+  display: flex;
+  flex-flow: column;
 }
 main ul li {
+  word-break: keep-all;
   list-style-type: none;
   text-transform: uppercase;
   display: block;
@@ -91,7 +98,7 @@ main ul li .actions * {
   visibility: hidden;
 }
 main ul li:focus .actions, main ul li:focus-within .actions {
-  width: 10%;
+  width: 120px;
 }
 main ul li:focus .actions *, main ul li:focus-within .actions * {
   visibility: visible;
