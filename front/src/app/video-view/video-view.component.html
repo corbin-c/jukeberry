@@ -1,1 +1,9 @@
-<p>video-view works!</p>
+<button class="parent" *ngIf="currentPath !== './'" (click)="goToParent()">⤴️</button>
+<ul>
+<app-video-item
+  *ngFor="let item of currentFolder"
+  [type]="item.type"
+  [name]="item.name"
+  (action)="onAction($event,item.name)">
+</app-video-item>
+</ul>

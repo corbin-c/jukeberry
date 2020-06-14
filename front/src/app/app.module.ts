@@ -19,6 +19,7 @@ import { RadioViewComponent } from './radio-view/radio-view.component';
 import { RadioComponent } from './radio/radio.component';
 import { YoutubeViewComponent } from './youtube-view/youtube-view.component';
 import { YoutubeItemComponent } from './youtube-item/youtube-item.component';
+import { VideoItemComponent } from './video-item/video-item.component';
 
 const appRoutes: Routes = [
   { path: 'youtube', component: YoutubeViewComponent },
@@ -41,7 +42,8 @@ const appRoutes: Routes = [
     RadioComponent,
     YoutubeViewComponent,
     YoutubeItemComponent,
-    MusicItemComponent
+    MusicItemComponent,
+    VideoItemComponent
   ],
   imports: [
     BrowserModule,
