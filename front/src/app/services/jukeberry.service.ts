@@ -19,17 +19,19 @@ export class JukeberryService {
     {path:"/files/search",defaultValue:""},
     {path:"/files/videoList",defaultValue:"./"},
     {path:"/files/list",defaultValue:"./"},
+    {path:"/files/regenerate"},
     {path:"/radio/list"},
     {path:"/radio/play"},
     {path:"/youtube/play"},
     {path:"/youtube/search"},
+    {path:"/player/commands"},
     {path:"/player/play",defaultValue:"./"},
     {path:"/player/video",defaultValue:"./"},
     {path:"/player/shuffle",defaultValue:"./"},
+    {path:"/player/recursivePlay",defaultValue:"./"},
     {path:"/player/stop"},
     {path:"/player/halt"},
-    {path:"/player/random"},
-    {path:"/files/regenerate"},
+    {path:"/player/random"}
   ];
   public query(path:string,options?) {
     let request = [...this.requests].find(r => r.path == path);

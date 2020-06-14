@@ -1,4 +1,6 @@
-<li>
+<li tabindex="1">
   {{ radioName }}
-  <button (click)="toggleStatus()">{{ getStatus() }}</button>
+  <div class="actions">
+    <button (click)="toggleStatus()">{{ getStatus() }}</button>
+  </div>
 </li>

@@ -1,1 +1,5 @@
-<p>header works!</p>
+<header>
+  <h1><a routerLink="/">Jukeberry !</a></h1>
+  <button (click)="toggleNav()">{{ navIconStatus() }}</button>
+  <app-nav *ngIf="isNavShown"></app-nav>
+</header>

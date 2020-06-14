@@ -11,7 +11,7 @@ export class FooterComponent implements OnInit {
   constructor(private jukeberryService: JukeberryService) {
   }
 
-  private status = {}; 
+  private status = { filename:"" }; 
   public getStatus() {
     let status = [];
     ["year","artist","album","title"].forEach(key => {
@@ -36,7 +36,7 @@ export class FooterComponent implements OnInit {
       if (typeof response.filename !== "undefined") {
         this.status = response;
       } else {
-        this.status = {};
+        this.status = { filename:"" };
       }
     });
   }

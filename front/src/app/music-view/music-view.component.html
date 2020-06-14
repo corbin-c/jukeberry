@@ -1,1 +1,9 @@
-<p>music-view works!</p>
+<button *ngIf="currentPath !== './'" (click)="goToParent()">⤴️</button>
+<ul>
+<app-music-item
+  *ngFor="let item of currentFolder"
+  [type]="item.type"
+  [name]="item.name"
+  (action)="onAction($event,item.name)">
+</app-music-item>
+</ul>

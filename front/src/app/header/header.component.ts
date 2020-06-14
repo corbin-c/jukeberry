@@ -8,8 +8,16 @@ import { Component, OnInit } from '@angular/core';
 export class HeaderComponent implements OnInit {
 
   constructor() { }
-
+  private navShown = false;
   ngOnInit(): void {
   }
-
+  public get isNavShown(): boolean {
+    return this.navShown;
+  }
+  public navIconStatus(): string {
+    return (this.navShown) ? "×":"≡";
+  }
+  public toggleNav(): void {
+    this.navShown = !this.navShown;
+  }
 }

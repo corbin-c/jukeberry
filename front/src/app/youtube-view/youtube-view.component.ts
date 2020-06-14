@@ -19,7 +19,6 @@ export class YoutubeViewComponent implements OnInit {
   public search() {
     this.jukeberryService.query("/youtube/search",this.searchInput)((response) => {
       this.searchResults = response;
-      console.log(this.searchResults);
     });
   }
 }
