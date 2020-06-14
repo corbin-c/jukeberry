@@ -49,7 +49,7 @@ a, a:visited, * {
   text-decoration: none;
 }
 main {
-  min-height: calc(100vh - 160px);
+  height: calc(100vh - 160px);
   width: 100vw;
   background: var(--main-bg-color);
   position: fixed;
