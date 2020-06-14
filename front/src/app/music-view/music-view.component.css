@@ -1,0 +1,8 @@
+.parent {
+  border: none;
+  background: none;
+  font-size: 1.8em;
+  position: fixed;
+  left: 10px;
+  top: 80px;
+}

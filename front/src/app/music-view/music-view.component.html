@@ -1,4 +1,4 @@
-<button *ngIf="currentPath !== './'" (click)="goToParent()">⤴️</button>
+<button class="parent" *ngIf="currentPath !== './'" (click)="goToParent()">⤴️</button>
 <ul>
 <app-music-item
   *ngFor="let item of currentFolder"
