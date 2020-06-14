@@ -1,0 +1,31 @@
+header {
+  background-image: url("../../assets/logo.svg");
+  background-size: 60px;
+  background-repeat: no-repeat;
+  background-position: 10px 10px;
+  border-bottom: 6px solid var(--contrast-color);
+  top: 0px;
+  z-index:2;
+}
+h1 {
+  margin-left: 80px;
+  padding-top: 10px;
+  text-shadow:  var(--contrast-color) 2px 2px 0px,
+                var(--contrast-color) 2px -2px 0px,
+                var(--contrast-color) -2px 2px 0px,
+                var(--contrast-color) -2px -2px 0px;
+}
+button {
+  text-shadow:  var(--alternate-bg-color) 1px 1px 0px,
+                var(--alternate-bg-color) 1px -1px 0px,
+                var(--alternate-bg-color) -1px 1px 0px,
+                var(--alternate-bg-color) -1px -1px 0px;
+  border: none;
+  background: none;
+  font-size: 3em;
+  position: fixed;
+  z-index: 3;
+  top: 0;
+  right: 0;
+  padding-right: 10px;
+}

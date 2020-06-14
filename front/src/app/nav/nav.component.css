@@ -1,0 +1,25 @@
+nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  padding-top: 80px;
+  width: 100%;
+  z-index: 2;
+  background: var(--header-bg-color);
+  border-left: 6px solid var(--contrast-color);
+}
+@media only screen and (min-width: 900px) {
+  nav {
+    width: 20%;
+  }
+}
+ul li {
+  list-style-type: none;
+  text-transform: uppercase;
+  display: block;
+  height: 3em;
+  line-height: 3em;
+  width: 100%;
+  text-align: center;
+}
