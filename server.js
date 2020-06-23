@@ -139,11 +139,14 @@ let routes = [
         .filter(e => e.indexOf(path.split(".").slice(0,-1).join(".")) >= 0)
         .find(e => ["srt","sub"].includes(e.split(".").reverse[0]));
       if (typeof subs !== "undefined") {
-        subs = "--subtitles "+subs+" ";
+        subs = "--subtitles '"+subs+"' ";
       } else {
         subs = "";
       }
-      utils.spawnAndDetach("omxplayer --no-ghost-box "+subs+path);
+      exec("omxplayer --no-ghost-box "+subs+"'"+path+"'< omxplayer_master",
+        (error,stdout,stderr) => {
+          
+      });
       res.writeHead(200);
       res.end();
     }
@@ -468,6 +471,7 @@ routes.map(e => {
 (async () => {
   try {
     execSync("mkfifo ./mplayer_master");
+    execSync("mkfifo ./omxplayer_master");
   } catch { /* NoOp, named pipe should already exist */ }
   await server.enableStaticDir();
   try {
