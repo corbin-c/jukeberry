@@ -144,9 +144,7 @@ let routes = [
         subs = "";
       }
       exec("omxplayer --no-ghost-box "+subs+"'"+path+"'",
-        (error,stdout,stderr) => {
-          console.log(stdout);
-      });
+        (error,stdout,stderr) => {});
       fs.writeFileSync("raw.log","ANS_VIDEO_FILE="+path);
       res.writeHead(200);
       res.end();
@@ -411,6 +409,7 @@ let media = {
       }
     } else {
       media.master({cmd:"stop"});
+      fs.writeFileSync("raw.log","");
     }
   },
   master: (command) => {
