@@ -136,11 +136,11 @@ let routes = [
       let path = req.page.searchParams.get("options");
       path = path.replace("./",CONFIG.directories["videoDirectory"]);
       let subs = globalList.videoDirectory_list
-        .filter(e => e.indexOf(path.split(".").slice(0,-1).join(".")) >= 0);
+        .filter(e => e.indexOf(path.split(".").slice(0,-1).join(".")) >= 0)
         .find(e => ["srt","sub"].includes(e.split(".").reverse()[0]));
       if (typeof subs === "undefined") {
         subs = globalList.videoDirectory_list
-          .filter(e => e.indexOf(path.split("/").slice(0,-1).join("/")) >= 0);
+          .filter(e => e.indexOf(path.split("/").slice(0,-1).join("/")) >= 0)
           .find(e => ["srt","sub"].includes(e.split(".").reverse()[0]));
       }
       if (typeof subs !== "undefined") {
