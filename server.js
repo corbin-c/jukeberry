@@ -312,7 +312,9 @@ let routes = [
     path: "/files/regenerate",
     hdl: (req,res) => {
       try {
+        res.writeHead(200);
         files.generateTrees();
+        res.end();
       } catch {
         server.failure(res,500,"Internal server error while generating files tree");
       }
