@@ -48,6 +48,7 @@ module.exports = {
     if (Object.keys(metadata).length !== 0) {
       module.exports.sendLog(metadata);
     }
+    return metadata;
   },
   sendLog: (metadata_object) => {
     if (typeof CONFIG.sockets !== "undefined") {

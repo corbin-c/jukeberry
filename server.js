@@ -143,10 +143,11 @@ let routes = [
       } else {
         subs = "";
       }
-      exec("omxplayer --no-ghost-box "+subs+"'"+path+"'< omxplayer_master",
+      exec("omxplayer --no-ghost-box "+subs+"'"+path+"'",
         (error,stdout,stderr) => {
-          
+          console.log(stdout);
       });
+      fs.writeFileSync("raw.log","ANS_VIDEO_FILE="+path);
       res.writeHead(200);
       res.end();
     }
@@ -157,7 +158,8 @@ let routes = [
       let command = [
         {
           name: "togglePlay",
-          cmd: "key_down_event 32"
+          audio: "key_down_event 32",
+          video: "pause"
         },
         {
           name: "forward",
@@ -179,7 +181,7 @@ let routes = [
       if (typeof command === "undefined") {
         server.failure(res,404,"media player command not found");
       } else {
-        media.master(command.cmd);
+        media.master(command);
         res.writeHead(200);
         res.end();
       }
@@ -407,16 +409,32 @@ let media = {
     }
   },
   master: (command) => {
-    console.log("echoing '"+command+"' to fifo");
-    return new Promise((resolve,reject) => {
-      exec("echo "+command+" >> ./mplayer_master",(error,stdout,stderr) => {
-        if (error) {
-          reject(stderr);
-        } else {
-          resolve();
-        }
+    let audio = utils.parseLog();
+    audio = Object.keys(audio).some(e => e == "video_file");
+    if (audio) {
+      command = (command.cmd || command.audio)
+      console.log("echoing '"+command+"' to fifo");
+      return new Promise((resolve,reject) => {
+        exec("echo "+command+" >> ./mplayer_master",(error,stdout,stderr) => {
+          if (error) {
+            reject(stderr);
+          } else {
+            resolve();
+          }
+        });
       });
-    });
+    } else {
+      command = (command.cmd || command.video)
+      return new Promise((resolve,reject) => {
+        exec("./omx_dbus.sh "+command,(error,stdout,stderr) => {
+          if (error) {
+            reject(stderr);
+          } else {
+            resolve();
+          }
+        });
+      });
+    }
   },
   play: async (path,random=false) => {
     random = (random) ? "-shuffle ":"";
@@ -471,7 +489,6 @@ routes.map(e => {
 (async () => {
   try {
     execSync("mkfifo ./mplayer_master");
-    execSync("mkfifo ./omxplayer_master");
   } catch { /* NoOp, named pipe should already exist */ }
   await server.enableStaticDir();
   try {
