@@ -137,18 +137,29 @@ let routes = [
       path = path.replace("./",CONFIG.directories["videoDirectory"]);
       let subs = globalList.videoDirectory_list
         .filter(e => e.indexOf(path.split(".").slice(0,-1).join(".")) >= 0)
-        .find(e => ["srt","sub"].includes(e.split(".").reverse()[0]));
-      if (typeof subs === "undefined") {
+        .filter(e => ["srt","sub"].includes(e.split(".").reverse()[0]));
+      if (subs.length === 0) {
         subs = globalList.videoDirectory_list
           .filter(e => e.indexOf(path.split("/").slice(0,-1).join("/")) >= 0)
-          .find(e => ["srt","sub"].includes(e.split(".").reverse()[0]));
+          .filter(e => ["srt","sub"].includes(e.split(".").reverse()[0]));
+      }
+      if (subs.length > 1) {
+        let subs_en = subs.find(e =>
+          (e.toLowerCase().indexOf("english") > 0)
+          || (e.toLowerCase().indexOf("_en") > 0));
+        if (typeof subs_en !== "undefined") {
+          subs = subs_en;
+        } else {
+          subs = subs[0];
+        }
       }
       if (typeof subs !== "undefined") {
-        subs = "--subtitles '"+subs+"' ";
+        subs = "--subtitles \""+subs+"\" ";
       } else {
         subs = "";
       }
-      exec("omxplayer --no-ghost-box "+subs+"'"+path+"'",
+      media.master("stop");
+      exec("omxplayer --no-ghost-box "+subs+"\""+path+"\"",
         (error,stdout,stderr) => {});
       fs.writeFileSync("raw.log","ANS_VIDEO_FILE="+path);
       res.writeHead(200);
@@ -414,8 +425,13 @@ let media = {
         console.warn("killall: nothing to stop");
       }
     } else {
-      media.master({cmd:"stop"});
+      media.master({cmd:"stop"}).catch(e => { console.error(e) });
       fs.writeFileSync("raw.log","");
+      try {
+        execSync("killall -s SIGKILL omxplayer.bin");
+      } catch {
+        console.warn("killall: nothing to stop");
+      }
     }
   },
   master: (command) => {
