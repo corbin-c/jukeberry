@@ -410,7 +410,7 @@ let media = {
   },
   master: (command) => {
     let audio = utils.parseLog();
-    audio = Object.keys(audio).some(e => e == "video_file");
+    audio = !Object.keys(audio).some(e => e == "video_file");
     if (audio) {
       command = (command.cmd || command.audio)
       console.log("echoing '"+command+"' to fifo");
