@@ -401,16 +401,20 @@ let files = {
 //Media interactions object
 let media = {
   stop: () => {
-    try {
-      utils.sendLog({filename:" "});
-      execSync("killall -s SIGKILL mplayer");
-    } catch {
-      console.warn("killall: nothing to stop");
+    let audio = !Object.keys(utils.parseLog()).some(e => e == "video_file");
+    if (audio) {
+      try {
+        utils.sendLog({filename:" "});
+        execSync("killall -s SIGKILL mplayer");
+      } catch {
+        console.warn("killall: nothing to stop");
+      }
+    } else {
+      media.master({cmd:"stop"});
     }
   },
   master: (command) => {
-    let audio = utils.parseLog();
-    audio = !Object.keys(audio).some(e => e == "video_file");
+    let audio = !Object.keys(utils.parseLog()).some(e => e == "video_file");
     if (audio) {
       command = (command.cmd || command.audio)
       console.log("echoing '"+command+"' to fifo");
