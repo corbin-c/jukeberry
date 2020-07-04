@@ -113,6 +113,8 @@ let routes = [
         await utils.wait(1000);
         utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 "+radio.url);
         utils.sendLog({radio_name:req.page.searchParams.get("options")});
+        res.writeHead(200);
+        res.end();
       }
     }
   },
