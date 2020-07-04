@@ -28,7 +28,7 @@ export class HeaderComponent implements OnInit {
     setTimeout(() => { this.navShown = !this.navShown; },
       (this.navShown) ? 400:0);
     if (!this.navShown) {
-      setTimeout(() => { this.navReady = !this.navReady; },10);
+      setTimeout(() => { this.navReady = !this.navReady; },50);
     }
   }
 }
