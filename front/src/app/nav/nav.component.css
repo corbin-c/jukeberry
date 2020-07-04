@@ -20,6 +20,7 @@ nav.active {
   }
 }
 ul li {
+  white-space: nowrap;
   list-style-type: none;
   text-transform: uppercase;
   display: block;
