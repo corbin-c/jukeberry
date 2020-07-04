@@ -1,5 +1,5 @@
 <header>
   <h1><a routerLink="/">Jukeberry !</a></h1>
   <button (click)="toggleNav()">{{ navIconStatus() }}</button>
-  <app-nav *ngIf="isNavShown"></app-nav>
+  <app-nav *ngIf="isNavShown" [ready]="isNavReady" (click)="toggleNav()"></app-nav>
 </header>

@@ -4,13 +4,18 @@ nav {
   right: 0;
   height: 100vh;
   padding-top: 80px;
-  width: 100%;
+  width: 0%;
   z-index: 2;
   background: var(--header-bg-color);
   border-left: 6px solid var(--contrast-color);
+  transition-property: width;
+  transition-duration: 0.4s;
+}
+nav.active {
+  width: 100%;
 }
 @media only screen and (min-width: 900px) {
-  nav {
+  nav.active {
     width: 20%;
   }
 }

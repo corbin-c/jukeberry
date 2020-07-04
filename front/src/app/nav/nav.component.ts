@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { JukeberryService } from '../services/jukeberry.service';
 
 @Component({
@@ -9,7 +9,7 @@ import { JukeberryService } from '../services/jukeberry.service';
 export class NavComponent implements OnInit {
 
   constructor(private jukeberryService: JukeberryService) { }
-
+  @Input() ready: boolean;
   ngOnInit(): void {
   }
   public random(): void {
