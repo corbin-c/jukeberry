@@ -1,15 +1,8 @@
 const fs = require("fs");
 const { spawn, execSync } = require("child_process");
 module.exports = class {
-  constructor(config) {
-    this.config = config;
-  }
-  setSocket(ws) {
-    if (typeof this.config.sockets !== "undefined") {
-      this.config.sockets.push(ws);
-    } else {
-      this.config.sockets = [ws];
-    }
+  constructor(parent) {
+    this.parent = parent;
   }
   wait(t) {
     return new Promise((resolve,reject) => {
@@ -29,36 +22,6 @@ module.exports = class {
         resolve(data);
       });
     });
-  }
-  parseLog() {
-    let log = fs.readFileSync("raw.log","utf8");
-    let metadata = {};
-    log.split("\n").filter(e => e !== "").map(e => {
-      if (e.indexOf("ANS_") == 0) {
-        e = e.split("=");
-        if (isNaN(parseFloat(e[1]))) {
-          e[1] = e[1].slice(1,-1);
-        }
-        if (e[1] != "") {
-          metadata[e[0].split("ANS_")[1].toLowerCase()] = e[1];
-        }
-      }
-    });
-    if (Object.keys(metadata).length !== 0) {
-      this.sendLog(metadata);
-    }
-    return metadata;
-  }
-  sendLog(metadata_object) {
-    if (typeof this.config.sockets !== "undefined") {
-      this.config.sockets.map(socket => {
-        try {
-          socket.text(JSON.stringify(metadata_object));
-        } catch {
-          console.warn("Problem writing to socket");
-        }
-      });
-    }
   }
   spawnAndDetach(command) {
     console.info("detached subprocess: "+command);
@@ -87,13 +50,16 @@ get_meta_genre" >> ./mplayer_master`);
         console.warn(error.message);
         fs.writeFileSync("raw.log",e);
       }
-      this.parseLog();
+      this.parent.parseLog();
     });
     subprocess.stderr.on("data", (e) => {
       //console.error("player error "+e);
     });       
     subprocess.on("close", (code) => {
-      console.log("process exited with code "+code); 
+      console.log("process exited with code "+code);
+      this.parent.status = {
+        playing: false
+      }
     });
     subprocess.unref();
   }
@@ -108,18 +74,18 @@ get_meta_genre" >> ./mplayer_master`);
   makeGlobalLists(update=false) {
     let output = {};
     console.log("acquiring directories descriptions...");
-    this.config.files.map(e => {
+    this.parent.config.files.map(e => {
       output[e] = (update)
         ? this.updateGlobalList(e,update.find(f => f.name == e).data)
         : this.updateGlobalList(e);
     });
     return output;
   }
-  search(str,list) {
+  search(str,type,list) {
     str = this.normalize(str);
-    output = [];
+    let output = [];
     return list.filter(e => this.normalize(e).indexOf(str) >= 0)
-      .map(e => e.replace(this.config.directories["musicDirectory"],"./"))
+      .map(e => e.replace(this.parent.config.directories[type+"Directory"],"./"))
       .filter(e => this.normalize(e).indexOf(str) >= 0)
       .map(e => {
         e = {name:e,type:"file"};
