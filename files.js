@@ -2,13 +2,13 @@ const { writeFileSync } = require("fs");
 const TreeMaker = require("@corbin-c/minimal-server/tree.js");
 
 module.exports = class {
-  constructor(config) {
-    this.config = config;
+  constructor(parent) {
+    this.parent = parent;
   }
   generateTrees() {
     let files = [];
-    this.config.files.map(e => {
-      let dir = this.config.directories[e.split("_")[0]];
+    this.parent.config.files.map(e => {
+      let dir = this.parent.config.directories[e.split("_")[0]];
       let tree = TreeMaker(dir);
       let json = e.split(".")[1] === "json";
       files.push({
@@ -27,7 +27,7 @@ module.exports = class {
   }
   getTree(type="music") {
     type += "Directory_tree.json";
-    return this.globalList[type];
+    return this.parent.globalList[type];
   }
   getParentFolder(path) {
     path = path.split("/");

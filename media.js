@@ -1,17 +1,17 @@
-const { execSync } = require("child_process");
+const { execSync, exec } = require("child_process");
 const { writeFileSync } = require("fs");
 
 module.exports = class {
-  constructor(config, utils, files) {
-    this.config = config;
-    this.utils = utils;
-    this.files = files;
+  constructor(parent) {
+    this.parent = parent;
   }
   stop() {
-    let audio = !Object.keys(this.utils.parseLog()).some(e => e == "video_file");
+    let audio = !Object.keys(this.parent.parseLog()).some(e => e == "video_file");
+    this.parent.status = {
+      playing: false
+    };
     if (audio) {
       try {
-        this.utils.sendLog({filename:" "});
         execSync("killall -s SIGKILL mplayer");
       } catch {
         console.warn("killall: nothing to stop");
@@ -27,7 +27,10 @@ module.exports = class {
     }
   }
   master(command) {
-    let audio = !Object.keys(this.utils.parseLog()).some(e => e == "video_file");
+    let audio = !Object.keys(this.parent.parseLog()).some(e => e == "video_file");
+    if (command.status) {
+      this.parent.status = command.status;
+    }
     if (audio) {
       command = (command.cmd || command.audio)
       console.log("echoing '"+command+"' to fifo");
@@ -56,24 +59,31 @@ module.exports = class {
   async play(path,random=false) {
     random = (random) ? "-shuffle ":"";
     await this.stop();
-    await this.utils.wait(1000);
+    await this.parent.utils.wait(1000);
     console.log("starting mplayer");
-    this.utils.spawnAndDetach("mplayer -idle -slave -input file=./mplayer_master -msglevel all=4 -quiet "+random+"-playlist "+path);
+    this.parent.utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 -quiet "+random+"-playlist "+path);
+    this.parent.status = {
+      playing: {
+        mode: "music",
+        paused: false,
+        metadata: {}
+      }
+    };
   }
   async generatePlaylist(path) { 
     try {
-      let tree = await this.files.getTree("music");
+      let tree = await this.parent.files.getTree("music");
       let branch;
       let playlist = "";
       try {
-        branch = this.files.getBranch(tree,path);
+        branch = this.parent.files.getBranch(tree,path);
       } catch {
-        branch = this.files.getBranch(tree,files.getParentFolder(path));
+        branch = this.parent.files.getBranch(tree,this.parent.files.getParentFolder(path));
         path = branch.indexOf(branch.find(e => (e.name == path)));
         branch = branch.filter((e,i) => (i >= path));
       }
       branch.filter(e => e.type == "file")
-        .map(e => playlist += e.name.replace("./",config.directories["musicDirectory"])+"\n");
+        .map(e => playlist += e.name.replace("./",this.parent.config.directories["musicDirectory"])+"\n");
       writeFileSync("playlist",playlist);
     } catch(e) {
       throw e;
