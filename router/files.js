@@ -1,13 +1,7 @@
 const formidable = require("formidable");
 const fs = require("fs");
 
-module.exports = (requirements) => {
-  const {
-    config,
-    server,
-    utils,
-    files
-  } = requirements;
+module.exports = (parent) => {
   const filesRoutes = [
     {
       path: "/files/upload",
@@ -23,7 +17,7 @@ module.exports = (requirements) => {
           form.on("file", function(name, file) {
             logger("log","file upload end: "+name+" "+file);
           });*/
-          form.uploadDir = config.musicDirectory;
+          form.uploadDir = parent.config.musicDirectory;
           form.keepExtensions = true;
           form.multiples = true;
           form.parse(req, (err, fields, files) => {
@@ -31,7 +25,7 @@ module.exports = (requirements) => {
             destination += (destination[destination.length-1] == "/")
               ? ""
               : "/";
-            let fsdestination = destination.replace("./",config.musicDirectory);
+            let fsdestination = destination.replace("./",parent.config.musicDirectory);
             if (!fs.existsSync(fsdestination)) {
               fs.mkdirSync(fsdestination);
             }
@@ -41,7 +35,7 @@ module.exports = (requirements) => {
                 console.error("Error while moving file",file.name);
               });
             }
-            files.generateTrees();
+            parent.files.generateTrees();
           });
         }
       }
@@ -50,20 +44,20 @@ module.exports = (requirements) => {
       path: "/files/list",
       hdl: (req,res,type="music") => {
         let path = req.page.searchParams.get("options");
-        let tree = files.getTree(type);
+        let tree = parent.files.getTree(type);
         try {
-          tree = files.getBranch(tree,path);
-          tree = files.cleanBranch(tree);
+          tree = parent.files.getBranch(tree,path);
+          tree = parent.files.cleanBranch(tree);
           if (type == "video") {
             tree = tree.filter(e => ["srt","sub"].indexOf(e.name.split(".").reverse()[0]) < 0)
           }
-          let parentpath = files.getParentFolder(path);
+          let parentpath = parent.files.getParentFolder(path);
           if (parentpath) {
             tree.unshift({type:"parentdir",name:parentpath});
           }
-          server.json(tree)(req,res);
+          parent.server.json(tree)(req,res);
         } catch(e) {
-          server.failure(res,400,"Bad request :\n"+e);
+          parent.server.failure(res,400,"Bad request :\n"+e);
         }
       }
     },
@@ -83,11 +77,11 @@ module.exports = (requirements) => {
       path: "/files/regenerate",
       hdl: (req,res) => {
         try {
+          parent.files.generateTrees();
           res.writeHead(200);
-          files.generateTrees();
           res.end();
         } catch {
-          server.failure(res,500,"Internal server error while generating files tree");
+          parent.server.failure(res,500,"Internal server error while generating files tree");
         }
       }
     }

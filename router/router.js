@@ -6,15 +6,22 @@ const subRoutes = [
   "./media.js"
 ];
 
-const routes = (requirements) => {
-  let routes = [];
+const routes = (parent) => {
+  let routes = [
+    {
+      path: "/status",
+      hdl: (req,res) => {
+        parent.server.json(parent.status)(req,res);
+      }
+    }
+  ];
   subRoutes.map(r => {
-    r = require(r)(requirements);
+    r = require(r)(parent);
     routes.push(...r);
   })
   return routes;
 }
 
-module.exports = (req) => {
-  return routes(req);
+module.exports = (p) => {
+  return routes(p);
 }

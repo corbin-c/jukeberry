@@ -1,10 +1,4 @@
-module.exports = (requirements) => {
-  const {
-    config,
-    server,
-    utils,
-    globalList
-  } = requirements;
+module.exports = (parent) => {
   const searchRoutes = [
     {
       path: "/search/youtube",
@@ -12,11 +6,11 @@ module.exports = (requirements) => {
         if (config.youtube !== false) {
           let searchString = req.page.searchParams.get("options");
           console.log("Searching youtube for: "+searchString);
-          config.youtube.search(searchString, 15, (error, result) => {
+          parent.config.youtube.search(searchString, 15, (error, result) => {
             if (error) {
-              server.failure(res,500,error);
+              parent.server.failure(res,500,error);
             } else {
-              server.json(result.items.map(e => ({
+              parent.server.json(result.items.map(e => ({
                 id:e.id.videoId,
                 channel:e.snippet.channelTitle,
                 title:e.snippet.title,
@@ -25,7 +19,7 @@ module.exports = (requirements) => {
             }
           })
         } else {
-          server.failure(res,500,"no youtube API key provided");
+          parent.server.failure(res,500,"no youtube API key provided");
         }
       }
     },
@@ -33,8 +27,9 @@ module.exports = (requirements) => {
       path: "/search/files",
       hdl: (req,res,type) => {
         type = (type !== "music") ? "video":type;
-        server.json(
-          utils.search(req.page.searchParams.get("options"),globalList[type+"Directory_list"])
+        let list = parent.globalList[type+"Directory_list"];
+        parent.server.json(
+          parent.utils.search(req.page.searchParams.get("options"),type,list)
         )(req,res);
       }
     },

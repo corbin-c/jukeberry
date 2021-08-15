@@ -1,18 +1,12 @@
 const { exec } = require("child_process");
 
 module.exports = (requirements) => {
-  const {
-    config,
-    server,
-    utils,
-    media
-  } = requirements;
   const youtubeRoutes = [
     {
       path: "/youtube/play",
       hdl: async (req,res) => {
         if (config.youtube !== false) {
-          await media.stop();
+          await parent.media.stop();
           await utils.wait(1000);
           let youtubeId = req.page.searchParams.get("options");
           console.log("Playing youtube video ID #"+youtubeId);
@@ -26,8 +20,16 @@ module.exports = (requirements) => {
                 resolve(stdout.split("\n")[0]);
               });
           })})(youtubeId);
-          utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -novideo -msglevel all=-1 "+url);
-          utils.sendLog({youtube:youtubeId});
+          parent.utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -novideo -msglevel all=-1 "+url);
+          parent.status = {
+            playing: {
+              mode: "youtube",
+              paused: false,
+              metadata: {
+                id: youtubeId
+              }
+            }
+          };
           res.writeHead(200);
           res.end()
         } else {
