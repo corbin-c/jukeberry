@@ -7,42 +7,25 @@ module.exports = (parent) => {
       path: "/media/play/music",
       hdl: async (req,res) => {
         try {
-          let path = req.page.searchParams.get("options");
-          await parent.media.generatePlaylist(path);
-          parent.media.play("./playlist");
+          const options = await parent.server.getRequestBody(req);
+          const playlistPath = options.path ? "./playlist" : "./musicDirectory_list";
+          const random = options.random || false;
+          if (options.recursive) {
+            const path = options.path
+              .replace("./",parent.config.directories["musicDirectory"]);
+            const playlist = parent.globalList.musicDirectory_list
+              .filter(e => e.indexOf(path) == 0);
+              .join("\n");
+            writeFileSync("playlist",playlist);
+          } else if (options.path) {
+            await parent.media.generatePlaylist(options.path);
+          }
+          parent.media.play(playlistPath,random);
           res.writeHead(200);
           res.end();
         } catch (e) {
           parent.server.failure(res,500,"Something went wrong while generating playlist\n"+e);
         }
-      }
-    },
-    {
-      path: "/media/play/music/recursive", //recursively plays a directory
-      hdl: (req,res,random=false) => {
-        let path = req.page.searchParams.get("options");
-        path = path.replace("./",parent.config.directories["musicDirectory"]);
-        let playlist = parent.globalList.musicDirectory_list;
-        playlist = playlist.filter(e => e.indexOf(path) == 0);
-        playlist = playlist.join("\n");
-        writeFileSync("playlist",playlist);
-        parent.media.play("./playlist",random);
-        res.writeHead(200);
-        res.end();
-      }
-    },
-    {
-      path: "/media/play/music/random", //recursively shuffles a directory
-      hdl: (req,res) => {
-        mediaRoutes.find(e => e.path == "/media/play/music/recursive").hdl(req,res,true);
-      }
-    },
-    {
-      path: "/media/play/music/random/all", //random on all musicDir root
-      hdl: (req,res) => {
-        res.writeHead(200);
-        parent.media.play("./musicDirectory_list",true);
-        res.end();
       }
     },
     {
@@ -90,7 +73,8 @@ module.exports = (parent) => {
     },
     {
       path: "/media/commands",
-      hdl: (req,res) => {
+      hdl: async (req,res) => {
+        const options = await parent.server.getRequestBody(req);
         let paused = false;
         if ((typeof parent.status.playing !== "boolean")
         && (typeof parent.status.playing.paused !== "undefined")) {
@@ -124,7 +108,7 @@ module.exports = (parent) => {
             name: "prev",
             cmd: "key_down_event 60"
           }
-        ].find(e => e.name == req.page.searchParams.get("options"));
+        ].find(e => e.name == options.command);
         if (typeof command === "undefined") {
           parent.server.failure(res,404,"media player command not found");
         } else {

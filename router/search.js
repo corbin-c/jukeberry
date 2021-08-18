@@ -4,9 +4,13 @@ module.exports = (parent) => {
       path: "/search/youtube",
       hdl: async (req,res) => {
         if (config.youtube !== false) {
-          let searchString = req.page.searchParams.get("options");
-          console.log("Searching youtube for: "+searchString);
-          parent.config.youtube.search(searchString, 15, (error, result) => {
+          const options = await parent.server.getRequestBody(req);
+          if (!options.query) {
+            server.failure(res,500,"no query provided");
+            return;
+          }
+          console.log("Searching youtube for: "+options.query);
+          parent.config.youtube.search(options.query, 15, (error, result) => {
             if (error) {
               parent.server.failure(res,500,error);
             } else {
@@ -25,11 +29,16 @@ module.exports = (parent) => {
     },
     {
       path: "/search/files",
-      hdl: (req,res,type) => {
-        type = (type !== "music") ? "video":type;
+      hdl: async (req,res,type) => {
+        const options = await parent.server.getRequestBody(req);
+        if (!options.query) {
+          server.failure(res,500,"no query provided");
+          return;
+        }
+        type = type || ((options.type !== "music") ? "video":"music");
         let list = parent.globalList[type+"Directory_list"];
         parent.server.json(
-          parent.utils.search(req.page.searchParams.get("options"),type,list)
+          parent.utils.search(options.query,type,list)
         )(req,res);
       }
     },

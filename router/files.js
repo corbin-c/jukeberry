@@ -42,16 +42,21 @@ module.exports = (parent) => {
     },
     {
       path: "/files/list",
-      hdl: (req,res,type="music") => {
-        let path = req.page.searchParams.get("options");
+      hdl: (req,res,type) => {
+        const options = await parent.server.getRequestBody(req);
+        type = type || ((options.type !== "music") ? "video":"music");
+        if (!options.path) {
+          server.failure(res,500,"no path provided");
+          return;
+        }
         let tree = parent.files.getTree(type);
         try {
-          tree = parent.files.getBranch(tree,path);
+          tree = parent.files.getBranch(tree,options.path);
           tree = parent.files.cleanBranch(tree);
           if (type == "video") {
             tree = tree.filter(e => ["srt","sub"].indexOf(e.name.split(".").reverse()[0]) < 0)
           }
-          let parentpath = parent.files.getParentFolder(path);
+          let parentpath = parent.files.getParentFolder(options.path);
           if (parentpath) {
             tree.unshift({type:"parentdir",name:parentpath});
           }

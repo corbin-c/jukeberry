@@ -9,8 +9,13 @@ module.exports = (requirements) => {
     {
       path: "/radio/play",
       hdl: async (req,res) => {
-        let radio = config.radioStreams
-          .find(e => e.name == req.page.searchParams.get("options"));
+        const options = await parent.server.getRequestBody(req);
+        if (!options.radio) {
+          server.failure(res,500,"no radio name provided");
+          return;
+        }
+        const radio = config.radioStreams
+          .find(e => e.name == options.radio);
         if (typeof radio !== "undefined") {
           await parent.media.stop();
           await utils.wait(1000);
@@ -19,13 +24,15 @@ module.exports = (requirements) => {
             playing: {
               mode: "radio",
               metadata: {
-                title: req.page.searchParams.get("options")
+                title: options.radio
               },
               paused: false
             }
           };
           res.writeHead(200);
           res.end();
+        } else {
+          server.failure(res,500,"no radio found");
         }
       }
     },

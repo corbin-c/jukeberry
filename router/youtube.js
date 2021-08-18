@@ -8,9 +8,13 @@ module.exports = (requirements) => {
         if (config.youtube !== false) {
           await parent.media.stop();
           await utils.wait(1000);
-          let youtubeId = req.page.searchParams.get("options");
-          console.log("Playing youtube video ID #"+youtubeId);
-          let url = await ((id) => {
+          const options = await parent.server.getRequestBody(req);
+          if (!options.id) {
+            server.failure(res,500,"no youtube video ID provided");
+            return;
+          }
+          console.log("Playing youtube video ID #"+options.id);
+          const url = await ((id) => {
             return new Promise((resolve, reject) => {
               exec("./node_modules/ytdl/bin/ytdl.js --print-url https://www.youtube.com/watch?v="+id,
                 (error, stdout, stderr) => {
@@ -19,15 +23,13 @@ module.exports = (requirements) => {
                 }
                 resolve(stdout.split("\n")[0]);
               });
-          })})(youtubeId);
+          })})(options.id);
           parent.utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -novideo -msglevel all=-1 "+url);
           parent.status = {
             playing: {
               mode: "youtube",
               paused: false,
-              metadata: {
-                id: youtubeId
-              }
+              metadata: options
             }
           };
           res.writeHead(200);
