@@ -4,9 +4,13 @@
     <span v-else>
       {{ fileName }}
     </span>
-    <span class="path" v-if="type !== 'parentdir' && showDir === true">
+    <router-link
+      class="path"
+      v-if="type !== 'parentdir' && showDir === true"
+      :to="'/'+context+'/'+pathName"
+    >
       {{ pathName }}
-    </span>
+    </router-link>
     <div class="actions" v-if="type == 'file'">
       <button @click="play()">
         <MaterialIcon icon="play_circle" />
