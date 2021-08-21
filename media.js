@@ -27,7 +27,9 @@ module.exports = class {
     }
   }
   master(command) {
-    let audio = !Object.keys(this.parent.parseLog()).some(e => e == "video_file");
+    let audio = !(this.parent.status.ready
+      && this.parent.status.playing
+      && this.parent.status.playing.mode !== "music")
     if (command.status) {
       this.parent.status = command.status;
     }
