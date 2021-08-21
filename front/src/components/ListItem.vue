@@ -6,7 +6,7 @@
     </span>
     <router-link
       class="path"
-      v-if="type !== 'parentdir' && showDir === true"
+      v-if="type === 'file' && showDir === true"
       :to="'/'+context+'/'+pathName"
     >
       {{ pathName }}
