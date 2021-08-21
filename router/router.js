@@ -2,6 +2,7 @@ const subRoutes = [
   "./files.js",
   "./youtube.js",
   "./search.js",
+  "./playlist.js",
   "./radio.js",
   "./media.js"
 ];

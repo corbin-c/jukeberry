@@ -4,6 +4,7 @@ const websocket = require("websocket-driver");
 const Utils = require("./utils.js")
 const FilesHandler = require("./files.js");
 const MediaPlayer = require("./media.js");
+const PlayListManager = require("./playlist.js");
 const server = require("./server.js");
 const CONFIG = require("./config.js");
 
@@ -17,11 +18,12 @@ class Jukeberry {
     this.utils = new Utils(this);
     this.files = new FilesHandler(this);
     this.media = new MediaPlayer(this);
+    this.playlist = new PlayListManager(this);
     this.server = server;
     const routes = require("./router/router.js")(this);
     routes.map(e => {
       this.server.route = {
-        path: e.path,
+        path: "/api"+e.path,
         handler: e.hdl
       }
     });
@@ -98,6 +100,7 @@ class Jukeberry {
     this.globalList = this.utils.makeGlobalLists(files);
   }
   async init() {
+    setInterval(() => { this.sendLog() },5000);
     try {
       execSync("mkfifo ./mplayer_master");
     } catch { /* NoOp, named pipe should already exist */ }

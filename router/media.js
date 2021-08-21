@@ -4,6 +4,20 @@ const { writeFileSync } = require("fs");
 module.exports = (parent) => {
   const mediaRoutes = [
     {
+      path: "/media/play/playlist",
+      hdl: async (req,res) => {
+        const options = await parent.server.getRequestBody(req);
+        if (!options.id) {
+          parent.server.failure(res,500,"no playlist ID provided");
+          return;
+        }
+        const random = options.random || false;
+        const playlist = parent.playlist.getPlaylist(options.id);
+        writeFileSync("./playlist",playlist.join("\n"));
+        parent.media.play("./playlist",random);
+      }
+    },
+    {
       path: "/media/play/music",
       hdl: async (req,res) => {
         try {
@@ -14,7 +28,7 @@ module.exports = (parent) => {
             const path = options.path
               .replace("./",parent.config.directories["musicDirectory"]);
             const playlist = parent.globalList.musicDirectory_list
-              .filter(e => e.indexOf(path) == 0);
+              .filter(e => e.indexOf(path) == 0)
               .join("\n");
             writeFileSync("playlist",playlist);
           } else if (options.path) {
@@ -72,7 +86,7 @@ module.exports = (parent) => {
       }
     },
     {
-      path: "/media/commands",
+      path: "/media/command",
       hdl: async (req,res) => {
         const options = await parent.server.getRequestBody(req);
         let paused = false;

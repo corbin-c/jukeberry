@@ -6,7 +6,7 @@ module.exports = (parent) => {
         if (config.youtube !== false) {
           const options = await parent.server.getRequestBody(req);
           if (!options.query) {
-            server.failure(res,500,"no query provided");
+            parent.server.failure(res,500,"no query provided");
             return;
           }
           console.log("Searching youtube for: "+options.query);
@@ -32,10 +32,10 @@ module.exports = (parent) => {
       hdl: async (req,res,type) => {
         const options = await parent.server.getRequestBody(req);
         if (!options.query) {
-          server.failure(res,500,"no query provided");
+          parent.server.failure(res,500,"no query provided");
           return;
         }
-        type = type || ((options.type !== "music") ? "video":"music");
+        type = type || ((options.type) ? options.type:"music");
         let list = parent.globalList[type+"Directory_list"];
         parent.server.json(
           parent.utils.search(options.query,type,list)
@@ -43,13 +43,13 @@ module.exports = (parent) => {
       }
     },
     {
-      path: "/search/files/music",
+      path: "/search/music",
       hdl: (req,res) => {
         searchRoutes.find(e => e.path == "/search/files").hdl(req,res,"music");
       }
     },
     {
-      path: "/search/files/video",
+      path: "/search/video",
       hdl: (req,res) => {
         searchRoutes.find(e => e.path == "/search/files").hdl(req,res,"video");
       }

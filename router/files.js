@@ -42,9 +42,9 @@ module.exports = (parent) => {
     },
     {
       path: "/files/list",
-      hdl: (req,res,type) => {
+      hdl: async (req,res,type) => {
         const options = await parent.server.getRequestBody(req);
-        type = type || ((options.type !== "music") ? "video":"music");
+        type = type || ((options.type) ? options.type:"music");
         if (!options.path) {
           server.failure(res,500,"no path provided");
           return;
