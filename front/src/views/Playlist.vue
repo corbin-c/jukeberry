@@ -13,6 +13,7 @@
       <PlayListItem
         v-for="(item,index) in list"
         :key="index"
+        :index="index"
         :id="parseInt(item.id)"
         :modal="modal"
         :path="path"
@@ -48,6 +49,10 @@ export default {
     this.getList();
   },
   methods: {
+    async organize(elementAfter,element) {
+      const newIndex = this.list.indexOf(elementAfter);
+      this.list = await requests.organizePlaylist(parseInt(this.id),element,newIndex);
+    },
     getList() {
       if (this.id) {
         this.getPlaylist(parseInt(this.id));
