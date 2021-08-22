@@ -12,14 +12,17 @@ const requests = {
       response = await fetch(rootUrl+url);
     }
     if (!response.ok) {
+      const error = await response.text();
+      console.warn("server error",error);
       return {
-        error: await response.text()
+        error
       }
     }
     try {
       response = await response.json();
     } catch {
-      console.log("empty response from server");
+      response = await response.text();
+      console.log("not json response from server", response);
     }
     return response;
   },
