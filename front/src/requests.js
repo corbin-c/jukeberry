@@ -21,8 +21,7 @@ const requests = {
     try {
       response = await response.json();
     } catch {
-      response = await response.text();
-      console.log("not json response from server", response);
+      console.log("no json response from server");
     }
     return response;
   },
@@ -47,7 +46,9 @@ const requests = {
       {
         recursive: (type == "directory"),
         random,
-        path
+        path,
+        id: (context === "playlist") ? path : undefined,
+        from: (context === "playlist") ? type : undefined
       }
     );
   },
@@ -105,6 +106,15 @@ const requests = {
         song: path
       }
     );
+  },
+  organizePlaylist: async (id, path, index) => {
+    return await requests.makeRequest(
+    "/playlist/organize",
+    {
+      id,
+      song: path,
+      position: index
+    });
   }
 };
 export default requests;
