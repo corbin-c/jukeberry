@@ -5,6 +5,7 @@ const Utils = require("./utils.js")
 const FilesHandler = require("./files.js");
 const MediaPlayer = require("./media.js");
 const PlayListManager = require("./playlist.js");
+const RadioManager = require("./radios.js");
 const server = require("./server.js");
 const CONFIG = require("./config.js");
 
@@ -19,6 +20,7 @@ class Jukeberry {
     this.files = new FilesHandler(this);
     this.media = new MediaPlayer(this);
     this.playlist = new PlayListManager(this);
+    this.radios = new RadioManager(this);
     this.server = server;
     const routes = require("./router/router.js")(this);
     routes.map(e => {

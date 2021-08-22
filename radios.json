@@ -1,0 +1,1227 @@
+[
+  {
+    "name": "Zinzine",
+    "favorite": true,
+    "url":  "http://91.121.65.189:8000/zinzine-aix"
+  },
+  {
+    "name": "Grenouille",
+    "favorite": true,
+    "url":  "http://live.radiogrenouille.com/live"
+  },
+  {
+    "name": "France Info",
+    "favorite": true,
+    "url":  "http://icecast.radiofrance.fr/franceinfo-midfi.mp3" 
+  },
+  {
+    "name": "FIP",
+    "favorite": true,
+    "url":  "http://icecast.radiofrance.fr/fip-midfi.mp3"
+  },
+  {
+    "name": "France Inter",
+    "favorite": true,
+    "url":  "http://icecast.radiofrance.fr/franceinter-midfi.mp3"
+  },
+  {
+    "name": "France Culture",
+    "favorite": true,
+    "url":  "http://icecast.radiofrance.fr/franceculture-midfi.mp3"
+  }
+  {
+    "name":"Agora Côte d'Azur",
+    "favorite": false,
+    "url":"http://agoracotedazur.ice.infomaniak.ch/agoracotedazur.mp3"
+  },
+  {
+    "name":"47FM",
+    "favorite": false,
+    "url":"http://mmradios.ice.infomaniak.ch/47fm.mp3"
+  },
+  {
+    "name":"100% Radio",
+    "favorite": false,
+    "url":"http://100radio-albi.ice.infomaniak.ch/100radio-albi-128.mp3"
+  },
+  {
+    "name":"Ado FM",
+    "favorite": false,
+    "url":"http://start-adofm.ice.infomaniak.ch/start-adofm-high.mp3"
+  },
+  {
+    "name":"π Node",
+    "favorite": false,
+    "url":"http://stream.p-node.org:80/pnode.mp3"
+  },
+  {
+    "name":"666",
+    "favorite": false,
+    "url":"http://radio666.net:8000"
+  },
+  {
+    "name":"Aleo",
+    "favorite": false,
+    "url":"http://vt-net.org:8056/;"
+  },
+  {
+    "name":"Alouette",
+    "favorite": false,
+    "url":"http://alouette.ice.infomaniak.ch/alouette-high.mp3"
+  },
+  {
+    "name":"Alpes 1 Gap",
+    "favorite": false,
+    "url":"http://alpes1gap.ice.infomaniak.ch/alpes1gap-high.mp3"
+  },
+  {
+    "name":"Bayou Blue Radio",
+    "favorite": false,
+    "url":"http://bayoublueradio.com:8000/live"
+  },
+  {
+    "name":"AZUR FM 67 - Sélestat",
+    "favorite": false,
+    "url":"http://listen.radioking.com/radio/74173/stream/112156"
+  },
+  {
+    "name":"Arvorig FM",
+    "favorite": false,
+    "url":"http://arvorig-fm.online.radiobreizh.bzh/live.mp3"
+  },
+  {
+    "name":"AZUR FM 68 - Colmar",
+    "favorite": false,
+    "url":"http://listen.radioking.com/radio/74176/stream/112165"
+  },
+  {
+    "name":"Addict Alternative",
+    "favorite": false,
+    "url":"http://stream1.addictradio.net/addictalternative.mp3"
+  },
+  {
+    "name":"Addict Lounge",
+    "favorite": false,
+    "url":"http://stream1.addictradio.net/addictlounge.mp3"
+  },
+  {
+    "name":"Addict Star",
+    "favorite": false,
+    "url":"http://stream1.addictradio.net/addictstar.mp3"
+  },
+  {
+    "name":"Addict Rock",
+    "favorite": false,
+    "url":"http://stream1.addictradio.net/addictrock.mp3"
+  },
+  {
+    "name":"Radio-Bro-Gwened",
+    "favorite": false,
+    "url":"http://rbg.online.radiobreizh.bzh/live.mp3"
+  },
+  {
+    "name":"Aligre FM",
+    "favorite": false,
+    "url":"http://live3.vestaradio.com/aligrefm"
+  },
+  {
+    "name":"Clin d'oeil FM",
+    "favorite": false,
+    "url":"http://clindoeilfm1061.ice.infomaniak.ch/clindoeilfm1061-128.mp3"
+  },
+  {
+    "name":"C Lab",
+    "favorite": false,
+    "url":"http://stream.c-lab.fr:8001/c-lab"
+  },
+  {
+    "name":"Nice Radio",
+    "favorite": false,
+    "url":"https://niceradio.ice.infomaniak.ch/niceradio-192.mp3"
+  },
+  {
+    "name":"Canal Sud",
+    "favorite": false,
+    "url":"http://91.224.148.160:8000/canalsud-live"
+  },
+  {
+    "name":"Alpes 1 Grenoble",
+    "favorite": false,
+    "url":"http://alpes1grenoble.ice.infomaniak.ch/alpes1grenoble-high.mp3"
+  },
+  {
+    "name":"Couleur3.fr",
+    "favorite": false,
+    "url":"http://stream.srg-ssr.ch/m/couleur3/mp3_128"
+  },
+  {
+    "name":"AYP FM",
+    "favorite": false,
+    "url":"https://stric6.streamakaci.com/radioayp.mp3"
+  },
+  {
+    "name":"Cristal FM",
+    "favorite": false,
+    "url":"http://radiocristal.ice.infomaniak.ch/radiocristal-high.mp3"
+  },
+  {
+    "name":"C9 Radio",
+    "favorite": false,
+    "url":"http://stream.c9.fr/c9.mp3"
+  },
+  {
+    "name":"Collines",
+    "favorite": false,
+    "url":"http://collineslaradio.ice.infomaniak.ch/collineslaradio-128.mp3"
+  },
+  {
+    "name":"CanalB",
+    "favorite": false,
+    "url":"http://stream.levillage.org/canalb"
+  },
+  {
+    "name":"Contact",
+    "favorite": false,
+    "url":"http://radio-contact.ice.infomaniak.ch/radio-contact-high.mp3"
+  },
+  {
+    "name":"Demoiselle FM",
+    "favorite": false,
+    "url":"http://stream.demoisellefm.com:8000/rochefort-192.mp3"
+  },
+  {
+    "name":"FIP",
+    "favorite": false,
+    "url":"http://icecast.radiofrance.fr/fip-hifi.aac"
+  },
+  {
+    "name":"Euradio",
+    "favorite": false,
+    "url":"http://80.82.229.202:8000/euradio.mp3"
+  },
+  {
+    "name":"AlterNantes FM",
+    "favorite": false,
+    "url":"http://diffusion.lafrap.fr/alternantes.ogg"
+  },
+  {
+    "name":"Espace FM",
+    "favorite": false,
+    "url":"http://listen.radioking.com/radio/16769/stream/49487"
+  },
+  {
+    "name":"France Inter",
+    "favorite": false,
+    "url":"http://icecast.radiofrance.fr/franceinter-midfi.mp3"
+  },
+  {
+    "name":"Africa n°1",
+    "favorite": false,
+    "url":"https://african1paris.ice.infomaniak.ch/african1paris-128.mp3"
+  },
+  {
+    "name":"Divergence Fm",
+    "favorite": false,
+    "url":"http://ridibundus.divergence-fm.org:8000/divergence.ogg"
+  },
+  {
+    "name":"Flor FM",
+    "favorite": false,
+    "url":"http://stream.florfm.com:8000/florfm.mp3"
+  },
+  {
+    "name":"GENERATION SOUL DISCO FUNK - La Référence Soul, Disco, Funk !",
+    "favorite": false,
+    "url":"http://www.generationdiscofunk.com/pls/hd.m3u"
+  },
+  {
+    "name":"Frequence Plus",
+    "favorite": false,
+    "url":"http://freqplus.ice.infomaniak.ch/freqplus-high.mp3"
+  },
+  {
+    "name":"Fréquence Paris Plurielle",
+    "favorite": false,
+    "url":"http://radio.toile-libre.org:8000/fpp.mp3"
+  },
+  {
+    "name":"Fox Radio",
+    "favorite": false,
+    "url":"http://163.172.90.98:8000/livefox"
+  },
+  {
+    "name":"Fuzzy & Groovy Rock Radio",
+    "favorite": false,
+    "url":"http://listen.radionomy.com/fuzzy-and-groovy.m3u"
+  },
+  {
+    "name":"Frequence3",
+    "favorite": false,
+    "url":"http://hd.stream.frequence3.net/frequence3-128.mp3"
+  },
+  {
+    "name":"Generations FM",
+    "favorite": false,
+    "url":"http://generationfm.ice.infomaniak.ch/generationfm-high.mp3"
+  },
+  {
+    "name":"Cause Commune",
+    "favorite": false,
+    "url":"https://stream.causecommune.fm/voixdulat_ogg"
+  },
+  {
+    "name":"Fugi FM",
+    "favorite": false,
+    "url":"http://92.175.228.15:8000/stream.mp3"
+  },
+  {
+    "name":"FG Vlaanderen Belgium",
+    "favorite": false,
+    "url":"http://radiofg.impek.com/fga"
+  },
+  {
+    "name":"Grimaldi FM",
+    "favorite": false,
+    "url":"http://91.121.29.128:8058/stream"
+  },
+  {
+    "name":"idFM Radio Enghien",
+    "favorite": false,
+    "url":"http://live.idfm98.fr:8000/idfm.m3u"
+  },
+  {
+    "name":"Fréquence K",
+    "favorite": false,
+    "url":"http://frequencek.ice.infomaniak.ch/frequencek-128.mp3"
+  },
+  {
+    "name":"Kiss FM",
+    "favorite": false,
+    "url":"http://kissfm2.ice.infomaniak.ch/kissfm2-128.mp3"
+  },
+  {
+    "name":"Frequence Luz",
+    "favorite": false,
+    "url":"http://stream.radios-arra.fr:8000/frequenceluz"
+  },
+  {
+    "name":"radio Graf'hit 94.9FM - radio locale indépendante à Compiègne",
+    "favorite": false,
+    "url":"http://109.238.10.2:8000/grafhit.mp3"
+  },
+  {
+    "name":"kisswestcoast",
+    "favorite": false,
+    "url":"http://kisswestcoast.ice.infomaniak.ch/kisswestcoast-64.aac"
+  },
+  {
+    "name":"Jazz Radio",
+    "favorite": false,
+    "url":"http://jazzradio.ice.infomaniak.ch/jazzradio-high.mp3"
+  },
+  {
+    "name":"K6 FM",
+    "favorite": false,
+    "url":"http://k6fm.ice.infomaniak.ch/k6fm-64.aac"
+  },
+  {
+    "name":"Graffiti Urban-Radio 88.6 FM La Roche sur Yon",
+    "favorite": false,
+    "url":"http://80.82.229.202:8000/graffiti.mp3"
+  },
+  {
+    "name":"Magnum La Radio",
+    "favorite": false,
+    "url":"http://str0.creacast.com/magnum"
+  },
+  {
+    "name":"Gascogne FM",
+    "favorite": false,
+    "url":"http://stream.radios-arra.fr:8000/gascognefm"
+  },
+  {
+    "name":"Maxi France",
+    "favorite": false,
+    "url":"http://stream.maxifrance.radio:8358/stream"
+  },
+  {
+    "name":"Europe 1",
+    "favorite": false,
+    "url":"http://ais-live.cloud-services.paris:8000/europe1.mp3"
+  },
+  {
+    "name":"Grand Lille Info",
+    "favorite": false,
+    "url":"https://str0.creacast.com/grandlilleinfos"
+  },
+  {
+    "name":"JetFm (Nantes)",
+    "favorite": false,
+    "url":"http://80.82.229.202:8000/jetfm.mp3"
+  },
+  {
+    "name":"Galaxie FM 95.30",
+    "favorite": false,
+    "url":"https://listen.radioking.com/radio/15684/stream/29075"
+  },
+  {
+    "name":"Lor'FM",
+    "favorite": false,
+    "url":"http://lorfm.ice.infomaniak.ch/lorfm-128.mp3"
+  },
+  {
+    "name":"France Maghreb 2",
+    "favorite": false,
+    "url":"https://francemaghreb2.ice.infomaniak.ch/francemaghreb2-high.mp3"
+  },
+  {
+    "name":"Monte Carlo Doualiya (Anciennement RMC Moyen Orient)",
+    "favorite": false,
+    "url":"http://live02.mc-doualiya.com/mc-doualiya.mp3"
+  },
+  {
+    "name":"Horizon Radio",
+    "favorite": false,
+    "url":"https://horizonradio-bethunelens.ice.infomaniak.ch/horizonradio-bethunelens-128"
+  },
+  {
+    "name":"MFM",
+    "favorite": false,
+    "url":"http://mfm.ice.infomaniak.ch/mfm-128.mp3"
+  },
+  {
+    "name":"NEO",
+    "favorite": false,
+    "url":"http://stream.radioneo.org:8000/;"
+  },
+  {
+    "name":"Radio MDM",
+    "favorite": false,
+    "url":"http://www.radio-mdm.fr:8000/listen.pls"
+  },
+  {
+    "name":"Mixx Radio",
+    "favorite": false,
+    "url":"http://mixxfmfr.ice.infomaniak.ch/mixxfmfr-192.mp3"
+  },
+  {
+    "name":"Mona FM",
+    "favorite": false,
+    "url":"http://monafm.ice.infomaniak.ch/monafm-high.mp3"
+  },
+  {
+    "name":"Morow - Rock Progressif",
+    "favorite": false,
+    "url":"http://stream.fr.morow.com:8080/morow_med.mp3"
+  },
+  {
+    "name":"O2 Radio (Bordeaux)",
+    "favorite": false,
+    "url":"http://91.121.176.26:7900/;"
+  },
+  {
+    "name":"Nov FM",
+    "favorite": false,
+    "url":"https://shoutcast.novfm.org/novfm.mp3"
+  },
+  {
+    "name":"Radio Kerne",
+    "favorite": false,
+    "url":"http://kerne.online.stalig.net/live.mp3"
+  },
+  {
+    "name":"Djamradio",
+    "favorite": false,
+    "url":"http://ledjamradio.ice.infomaniak.ch/ledjamradio.mp3"
+  },
+  {
+    "name":"Planete FM",
+    "favorite": false,
+    "url":"http://planetefm.ice.infomaniak.ch/planetefm-128.mp3"
+  },
+  {
+    "name":"Ici & Maintenant !",
+    "favorite": false,
+    "url":"http://radio.rim952.fr:8000/stream.ogg"
+  },
+  {
+    "name":"L'Eko des Garrigues",
+    "favorite": false,
+    "url":"http://91.121.159.124:8000/eko-des-garrigues-256k.ogg"
+  },
+  {
+    "name":"Hotmix Radio 80's",
+    "favorite": false,
+    "url":"http://streamingads.hotmixradio.fm/hotmixradio-80-128.mp3"
+  },
+  {
+    "name":"La Clé des Ondes",
+    "favorite": false,
+    "url":"http://radio.lacdo.org/stream"
+  },
+  {
+    "name":"K-POP",
+    "favorite": false,
+    "url":"https://mmradios.ice.infomaniak.ch/kpopstyle.mp3"
+  },
+  {
+    "name":"Radio Accent 4",
+    "favorite": false,
+    "url":"http://str0.creacast.com/accent4"
+  },
+  {
+    "name":"Prun'92Fm",
+    "favorite": false,
+    "url":"http://80.82.229.202:8000/streamprun"
+  },
+  {
+    "name":"Playloud",
+    "favorite": false,
+    "url":"http://91.121.59.45:8280/stream"
+  },
+  {
+    "name":"Océane Fm",
+    "favorite": false,
+    "url":"http://oceanefm.ice.infomaniak.ch/oceanefm-128.mp3"
+  },
+  {
+    "name":"Radio Arc-en-Ciel Strasbourg",
+    "favorite": false,
+    "url":"http://str0.creacast.com/arcencielweb"
+  },
+  {
+    "name":"Plum fm",
+    "favorite": false,
+    "url":"http://plumfm.online.radiobreizh.bzh/live.mp3"
+  },
+  {
+    "name":"Libre à toi",
+    "favorite": false,
+    "url":"http://audio.libre-a-toi.org:8000/voixdulat_ogg"
+  },
+  {
+    "name":"NA Radio",
+    "favorite": false,
+    "url":"https://naradio.ice.infomaniak.ch/naradio-192.mp3"
+  },
+  {
+    "name":"OÜI FM Alternatif",
+    "favorite": false,
+    "url":"http://alternatif.stream.ouifm.fr/ouifm2.mp3"
+  },
+  {
+    "name":"OÜI FM",
+    "favorite": false,
+    "url":"http://stream.ouifm.fr/ouifm-high.mp3"
+  },
+  {
+    "name":"OÜI FM Classic Rock",
+    "favorite": false,
+    "url":"http://classicrock.stream.ouifm.fr/ouifm3.mp3"
+  },
+  {
+    "name":"OÜI FM Blues'n'Rock",
+    "favorite": false,
+    "url":"http://bluesnrock.stream.ouifm.fr/ouifmbluesnrock-128.mp3"
+  },
+  {
+    "name":"OÜI FM Ganja",
+    "favorite": false,
+    "url":"http://ganja.stream.ouifm.fr/ouifmganja-128.mp3"
+  },
+  {
+    "name":"LibreAntenne.org",
+    "favorite": false,
+    "url":"http://stream.libreantenne.org/listen.opus"
+  },
+  {
+    "name":"OÜI FM Rock indé",
+    "favorite": false,
+    "url":"http://rockinde.stream.ouifm.fr/ouifm5.mp3"
+  },
+  {
+    "name":"Radio Bassin Arcachon",
+    "favorite": false,
+    "url":"http://mmradios.ice.infomaniak.ch/rba.mp3"
+  },
+  {
+    "name":"Hotmix Radio 90's",
+    "favorite": false,
+    "url":"http://streamingads.hotmixradio.fm/hotmixradio-90-128.mp3"
+  },
+  {
+    "name":"Hotmix Radio Funky",
+    "favorite": false,
+    "url":"http://streaming.hotmixradio.fm/hotmixradio-funky-128.mp3"
+  },
+  {
+    "name":"Hotmix Radio",
+    "favorite": false,
+    "url":"http://streamingads.hotmixradio.fm/hotmixradio-dance-128.mp3"
+  },
+  {
+    "name":"Radio Campus Toulouse",
+    "favorite": false,
+    "url":"http://live.radio-campus.org:8000/toulouse"
+  },
+  {
+    "name":"Radio CAPSAO",
+    "favorite": false,
+    "url":"http://str0.creacast.com/capsao_b"
+  },
+  {
+    "name":"Radio Bouton",
+    "favorite": false,
+    "url":"http://heberg.radioludo.com:8076/stream.mp3"
+  },
+  {
+    "name":"Radio Chalom Nitsan (RCN)",
+    "favorite": false,
+    "url":"http://rcnradiochalomcotedazur.ice.infomaniak.ch/rcnradiochalomcotedazur-128.mp3"
+  },
+  {
+    "name":"Axel Aime 432Hz Radio",
+    "favorite": false,
+    "url":"https://streamingv2.shoutcast.com/AxelAime432Hz"
+  },
+  {
+    "name":"Radio Classique",
+    "favorite": false,
+    "url":"http://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3"
+  },
+  {
+    "name":"Radio Campus Bordeaux",
+    "favorite": false,
+    "url":"http://live.radiocampus.fr:8000/campus-bordeaux"
+  },
+  {
+    "name":"Radio Clapas",
+    "favorite": false,
+    "url":"https://stations.radioclapas.fr/radio/8130/radio.mp3"
+  },
+  {
+    "name":"Radio En Construction (R.E.C.)",
+    "favorite": false,
+    "url":"http://str0.creacast.com/rec"
+  },
+  {
+    "name":"Radio ECN",
+    "favorite": false,
+    "url":"http://str30.creacast.com/ecn1"
+  },
+  {
+    "name":"Radio Campus Orléans",
+    "favorite": false,
+    "url":"http://orleans.radiocampus.org:8000/stream_rco"
+  },
+  {
+    "name":"Radio 8 Ardennes",
+    "favorite": false,
+    "url":"https://radio8.ice.infomaniak.ch/radio8-128.mp3"
+  },
+  {
+    "name":"Radio Émotion",
+    "favorite": false,
+    "url":"http://radioemotion.ice.infomaniak.ch/radioemotion-128.mp3"
+  },
+  {
+    "name":"Radio Cristal",
+    "favorite": false,
+    "url":"http://stream.inovacast.fr:8888/stream"
+  },
+  {
+    "name":"Radio Espace",
+    "favorite": false,
+    "url":"http://radioespace.ice.infomaniak.ch/radioespace-high.mp3"
+  },
+  {
+    "name":"Radio Canut",
+    "favorite": false,
+    "url":"http://live.francra.org:8000/radiocanut"
+  },
+  {
+    "name":"Radio 6 Calais",
+    "favorite": false,
+    "url":"https://radio6-calais.ice.infomaniak.ch/radio6-calais-128.mp3"
+  },
+  {
+    "name":"Radio Courtoisie",
+    "favorite": false,
+    "url":"https://radiocourtoisie.nex-informatique.com/;stream.nsv"
+  },
+  {
+    "name":"Radio Flemme",
+    "favorite": false,
+    "url":"http://str45.streamakaci.com:8014/;"
+  },
+  {
+    "name":"Radio Junior",
+    "favorite": false,
+    "url":"http://213.186.61.62:8080/;"
+  },
+  {
+    "name":"Radio Cité Vauban (RCV)",
+    "favorite": false,
+    "url":"http://listen.radioking.com/radio/3086/stream/9476"
+  },
+  {
+    "name":"Radio Judaica Strasbourg",
+    "favorite": false,
+    "url":"http://radiojudaicastrasbourg.ice.infomaniak.ch/radiojudaicastrasbourg-128.mp3"
+  },
+  {
+    "name":"Radio Dio",
+    "favorite": false,
+    "url":"http://live.francra.org:8000/RadioDio"
+  },
+  {
+    "name":"Radio Gazelle",
+    "favorite": false,
+    "url":"http://france1.coollabel-productions.com:8134/stream"
+  },
+  {
+    "name":"Radio Caroline",
+    "favorite": false,
+    "url":"https://radiocast-002.m2network.fr:8443/radiocaroline.mp3"
+  },
+  {
+    "name":"Radio Escapades",
+    "favorite": false,
+    "url":"http://stream.radios-arra.fr:8000/radioescapades"
+  },
+  {
+    "name":"Radio Latitude Troyes",
+    "favorite": false,
+    "url":"http://latitude.ice.infomaniak.ch/latitude-128.mp3"
+  },
+  {
+    "name":"Radio Mélodie",
+    "favorite": false,
+    "url":"http://str0.creacast.com/melodie"
+  },
+  {
+    "name":"Radio Galère",
+    "favorite": false,
+    "url":"http://www.radiogalere.org:8080/galere.mp3"
+  },
+  {
+    "name":"Radio Ethic",
+    "favorite": false,
+    "url":"http://163.172.37.18:8000/radioethic.mp3"
+  },
+  {
+    "name":"Radio Espérance Grégorien",
+    "favorite": false,
+    "url":"https://esperance.streamakaci.com/gregorien.mp3"
+  },
+  {
+    "name":"Musical Spa Radio",
+    "favorite": false,
+    "url":"http://streaming.radionomy.com/MusicalSpaRadio"
+  },
+  {
+    "name":"Radio Espérance Enseignements",
+    "favorite": false,
+    "url":"https://esperance.streamakaci.com/enseignement.mp3"
+  },
+  {
+    "name":"Radio Espérance Musique Sacrée",
+    "favorite": false,
+    "url":"https://esperance.streamakaci.com/musique.mp3"
+  },
+  {
+    "name":"Radio Mont Blanc",
+    "favorite": false,
+    "url":"http://radiomontblanc1.ice.infomaniak.ch/radiomontblanc1-128.mp3"
+  },
+  {
+    "name":"Radio Espérance Parole de Dieu",
+    "favorite": false,
+    "url":"https://esperance.streamakaci.com/parole-de-dieu.mp3"
+  },
+  {
+    "name":"Radio NTI",
+    "favorite": false,
+    "url":"http://streaming.radionti.com/nti-hd.mp3"
+  },
+  {
+    "name":"Radio María - France",
+    "favorite": false,
+    "url":"http://heberg.radioludo.com:8003/stream"
+  },
+  {
+    "name":"Radio Espérance",
+    "favorite": false,
+    "url":"https://esperance.streamakaci.com/esperance.mp3"
+  },
+  {
+    "name":"Radio Espérance Louange",
+    "favorite": false,
+    "url":"https://esperance.streamakaci.com/louange.mp3"
+  },
+  {
+    "name":"Radio Kreiz Breizh",
+    "favorite": false,
+    "url":"http://rkb.online.radiobreizh.bzh/live.mp3"
+  },
+  {
+    "name":"Radio Perfecto",
+    "favorite": false,
+    "url":"http://radioperfecto.net-radio.fr/perfecto.mp3"
+  },
+  {
+    "name":"Radio Grenouille",
+    "favorite": false,
+    "url":"http://live.radiogrenouille.com/live"
+  },
+  {
+    "name":"Radio Meuh",
+    "favorite": false,
+    "url":"http://radiomeuh.ice.infomaniak.ch/radiomeuh-128.mp3"
+  },
+  {
+    "name":"Radio Nova Bordeaux",
+    "favorite": false,
+    "url":"http://snb.ice.infomaniak.ch/snb-high.mp3"
+  },
+  {
+    "name":"Ràdio Lenga d'Òc",
+    "favorite": false,
+    "url":"http://91.121.147.40:8000/rlo-direct.mp3"
+  },
+  {
+    "name":"Radio Nova Lyon",
+    "favorite": false,
+    "url":"http://nova-lyon.ice.infomaniak.ch/nova-lyon-128.mp3"
+  },
+  {
+    "name":"Radio Campus Lille",
+    "favorite": false,
+    "url":"http://radiocampuslille.ice.infomaniak.ch:80/radiocampuslille-96.aac"
+  },
+  {
+    "name":"Radio Star (Montbéliard)",
+    "favorite": false,
+    "url":"http://radiostar.ice.infomaniak.ch/radiostar-128.mp3"
+  },
+  {
+    "name":"Radio Scoop Bourg en Bresse",
+    "favorite": false,
+    "url":"http://radioscoopbourg-en-bresse.ice.infomaniak.ch/radioscoop-bourg-128.mp3"
+  },
+  {
+    "name":"Radio Scoop Saint Etienne",
+    "favorite": false,
+    "url":"http://radioscoopsaintetienne.ice.infomaniak.ch/radioscoop-stetienne-128.mp3"
+  },
+  {
+    "name":"Radio Notre Dame",
+    "favorite": false,
+    "url":"http://windu.radionotredame.net/RadioNotreDame-Fm.mp3"
+  },
+  {
+    "name":"Radio RVA",
+    "favorite": false,
+    "url":"http://rva.ice.infomaniak.ch/rva-high.mp3"
+  },
+  {
+    "name":"Radio Scoop Lyon",
+    "favorite": false,
+    "url":"http://radioscooplyon.ice.infomaniak.ch/radioscoop-lyon-128.mp3"
+  },
+  {
+    "name":"Radio Scoop Clermont-Ferrand",
+    "favorite": false,
+    "url":"http://radioscoopclermont-ferrand.ice.infomaniak.ch/radioscoop-clermont-128.mp3"
+  },
+  {
+    "name":"Radio Béton",
+    "favorite": false,
+    "url":"http://51.254.220.198:8000/stream.mp3"
+  },
+  {
+    "name":"RFI Afrique",
+    "favorite": false,
+    "url":"http://live02.rfi.fr/rfiafrique-96k.mp3"
+  },
+  {
+    "name":"RFI Monde",
+    "favorite": false,
+    "url":"http://live02.rfi.fr/rfimonde-96k.mp3"
+  },
+  {
+    "name":"RBA Radio Bassin Arcachon",
+    "favorite": false,
+    "url":"http://mmradios.ice.infomaniak.ch/rba.mp3"
+  },
+  {
+    "name":"Radio Ter",
+    "favorite": false,
+    "url":"http://62.210.215.26:8002/radioter"
+  },
+  {
+    "name":"Radio Nova",
+    "favorite": false,
+    "url":"https://radionova.ice.infomaniak.ch/radionova-256.aac"
+  },
+  {
+    "name":"SOL-FM 100.7",
+    "favorite": false,
+    "url":"http://stric6.streamakaci.com/solfm64.mp3"
+  },
+  {
+    "name":"Radio Sensations",
+    "favorite": false,
+    "url":"http://sensations.ice.infomaniak.ch/sensations.mp3"
+  },
+  {
+    "name":"Radio Système",
+    "favorite": false,
+    "url":"http://stream.radios-arra.fr:8000/radiosysteme"
+  },
+  {
+    "name":"Radio Val-de-Meuse (RVM)",
+    "favorite": false,
+    "url":"http://stream.rvm.fr:8022/stream.mp3"
+  },
+  {
+    "name":"Radio Zinzine",
+    "favorite": false,
+    "url":"http://91.121.65.189:8000/3"
+  },
+  {
+    "name":"Swing FM",
+    "favorite": false,
+    "url":"http://swingfm.ice.infomaniak.ch:80/swingfm-128"
+  },
+  {
+    "name":"Radio Orient",
+    "favorite": false,
+    "url":"http://stream3.broadcast-associes.com:8405/Radio-Orient"
+  },
+  {
+    "name":"Radio Plus",
+    "favorite": false,
+    "url":"https://radioplus2.ice.infomaniak.ch/radioplus.aac"
+  },
+  {
+    "name":"Radio Zinzine Aix",
+    "favorite": false,
+    "url":"http://91.121.65.189:8000/zinzine-aix"
+  },
+  {
+    "name":"Timbre fm",
+    "favorite": false,
+    "url":"http://5.39.86.216:8666/timbrefm"
+  },
+  {
+    "name":"Tendance Ouest",
+    "favorite": false,
+    "url":"http://tendanceouest-centremanche.ice.infomaniak.ch/saintlo.mp3"
+  },
+  {
+    "name":"Tonic Radio",
+    "favorite": false,
+    "url":"http://hit-sport.ice.infomaniak.ch/hit-sport-high.mp3"
+  },
+  {
+    "name":"Vibration",
+    "favorite": false,
+    "url":"http://vibration.ice.infomaniak.ch/vibration-high.mp3"
+  },
+  {
+    "name":"Radio Rencontre",
+    "favorite": false,
+    "url":"https://listen.radioking.com/radio/153745/stream/194338"
+  },
+  {
+    "name":"Virage Radio",
+    "favorite": false,
+    "url":"http://virageradio.ice.infomaniak.ch/virageradio-high.mp3"
+  },
+  {
+    "name":"Zen Radio",
+    "favorite": false,
+    "url":"http://flux2.zenradio.fr:8000/"
+  },
+  {
+    "name":"Yvelines Radio",
+    "favorite": false,
+    "url":"http://yvelinesradio884fm.ice.infomaniak.ch/yvelinesradio884fm-96.aac"
+  },
+  {
+    "name":"Sing Sing",
+    "favorite": false,
+    "url":"http://stream.sing-sing.org:8000/singsing128"
+  },
+  {
+    "name":"Sun",
+    "favorite": false,
+    "url":"http://80.82.229.202:8000/sunhd.mp3"
+  },
+  {
+    "name":"Welsass",
+    "favorite": false,
+    "url":"http://welsass.fr:80/play"
+  },
+  {
+    "name":"Radio Star (Marseille)",
+    "favorite": false,
+    "url":"https://listen.radioking.com/radio/9728/stream/49346"
+  },
+  {
+    "name":"RIG",
+    "favorite": false,
+    "url":"http://big1.coollabel-productions.com:8100/rigfm321.mp3"
+  },
+  {
+    "name":"ABF Love",
+    "favorite": false,
+    "url":"https://abf.net-radio.fr/abflove.mp3"
+  },
+  {
+    "name":"ABF Gold",
+    "favorite": false,
+    "url":"https://abf.net-radio.fr/abfgold.mp3"
+  },
+  {
+    "name":"RPL Radio",
+    "favorite": false,
+    "url":"https://listen.radioking.com/radio/2966/stream/63127"
+  },
+  {
+    "name":"Skyrock",
+    "favorite": false,
+    "url":"http://icecast.skyrock.net/s/natio_mp3_128k"
+  },
+  {
+    "name":"ABF",
+    "favorite": false,
+    "url":"https://abf.net-radio.fr/abf.mp3"
+  },
+  {
+    "name":"ABF Cult",
+    "favorite": false,
+    "url":"https://abf.net-radio.fr/abfcult.mp3"
+  },
+  {
+    "name":"Voltage 96.9 FM 80's",
+    "favorite": false,
+    "url":"https://voltage80s.ice.infomaniak.ch/voltage80s-128.mp3"
+  },
+  {
+    "name":"Sud Radio",
+    "favorite": false,
+    "url":"https://start-sud.ice.infomaniak.ch/start-sud-high.mp3"
+  },
+  {
+    "name":"Toulouse FM",
+    "favorite": false,
+    "url":"https://mmradios.ice.infomaniak.ch/toulousefm.mp3"
+  },
+  {
+    "name":"ABF World",
+    "favorite": false,
+    "url":"https://abf.net-radio.fr/abfworld.mp3"
+  },
+  {
+    "name":"RFM Night Fever",
+    "favorite": false,
+    "url":"https://stream.rfm.fr/rfm-wr2.aac"
+  },
+  {
+    "name":"RFM",
+    "favorite": false,
+    "url":"https://stream.rfm.fr/rfm.aac"
+  },
+  {
+    "name":"RFM Party 80",
+    "favorite": false,
+    "url":"https://stream.rfm.fr/rfm-wr4.aac"
+  },
+  {
+    "name":"Voltage 96.9 FM Club",
+    "favorite": false,
+    "url":"https://voltageclub.ice.infomaniak.ch/voltageclub-128.mp3"
+  },
+  {
+    "name":"Voltage 96.9 FM 90's",
+    "favorite": false,
+    "url":"https://voltage90s.ice.infomaniak.ch/voltage90s-128.mp3"
+  },
+  {
+    "name":"FG Chic",
+    "favorite": false,
+    "url":"http://radiofg.impek.com:80/fgc"
+  },
+  {
+    "name":"FG (FM)",
+    "favorite": false,
+    "url":"http://radiofg.impek.com/fg"
+  },
+  {
+    "name":"FG Club",
+    "favorite": false,
+    "url":"http://radiofg.impek.com/fg6"
+  },
+  {
+    "name":"FG Non Stop",
+    "favorite": false,
+    "url":"http://radiofg.impek.com/fge"
+  },
+  {
+    "name":"Voltage 96.9 FM 2000",
+    "favorite": false,
+    "url":"https://voltage2000.ice.infomaniak.ch/voltage2000-128.mp3"
+  },
+  {
+    "name":"Voltage 96.9 FM",
+    "favorite": false,
+    "url":"https://start-voltage.ice.infomaniak.ch/start-voltage-high.mp3"
+  },
+  {
+    "name":"Virgin Radio",
+    "favorite": false,
+    "url":"https://stream.virginradio.fr/virgin.aac?aw_0_1st.playerid=lagardereWebVirgin"
+  },
+  {
+    "name":"FG Dance by Hakimakli",
+    "favorite": false,
+    "url":"http://radiofg.impek.com/fgd"
+  },
+  {
+    "name":"Hit West",
+    "favorite": false,
+    "url":"http://broadcast.infomaniak.ch/hitwest-high.mp3"
+  },
+  {
+    "name":"France Bleu",
+    "favorite": false,
+    "url":"http://direct.francebleu.fr/live/fbalsace-midfi.mp3"
+  },
+  {
+    "name":"France Culture",
+    "favorite": false,
+    "url":"http://direct.franceculture.fr/live/franceculture-midfi.mp3"
+  },
+  {
+    "name":"France Info",
+    "favorite": false,
+    "url":"http://direct.franceinfo.fr/live/franceinfo-midfi.mp3"
+  },
+  {
+    "name":"France Musique",
+    "favorite": false,
+    "url":"http://direct.francemusique.fr/live/francemusique-midfi.mp3"
+  },
+  {
+    "name":"Radio Fidélité",
+    "favorite": false,
+    "url":"http://80.82.229.202/fidelite.mp3"
+  },
+  {
+    "name":"Bide et Musique",
+    "favorite": false,
+    "url":"http://relay1.bide-et-musique.com:9100"
+  },
+  {
+    "name":"Fréquence Jazz",
+    "favorite": false,
+    "url":"http://broadcast.infomaniak.ch/frequencejazz-high.mp3"
+  },
+  {
+    "name":"Chante France",
+    "favorite": false,
+    "url":"http://stream1.evasionfm.com/Chante_France"
+  },
+  {
+    "name":"Beur FM",
+    "favorite": false,
+    "url":"http://broadcast.infomaniak.ch/beurfm-high.mp3"
+  },
+  {
+    "name":"Radio87",
+    "favorite": false,
+    "url":"http://live2.radio87.fr"
+  },
+  {
+    "name":"Evasion FM",
+    "favorite": false,
+    "url":"http://stream1.evasionfm.com/Yvelines"
+  },
+  {
+    "name":"Radio Activ'",
+    "favorite": false,
+    "url":"http://stream.radio-activ.com"
+  },
+  {
+    "name":"Radio Show",
+    "favorite": false,
+    "url":"http://www.radioking.com/play/radio-show"
+  },
+  {
+    "name":"Chérie FM",
+    "favorite": false,
+    "url":"https://scdn.nrjaudio.fm/audio1/fr/30201/mp3_128.mp3"
+  },
+  {
+    "name":"MBS Classic Gold",
+    "favorite": false,
+    "url":"http://stream1.evasionfm.com/mbs"
+  },
+  {
+    "name":"Nostalgie",
+    "favorite": false,
+    "url":"https://scdn.nrjaudio.fm/audio1/fr/30601/mp3_128.mp3"
+  },
+  {
+    "name":"BFM",
+    "favorite": false,
+    "url":"http://bfmbusiness.cdn.dvmr.fr/bfmbusiness"
+  },
+  {
+    "name":"La 1ère",
+    "favorite": false,
+    "url":"http://outremer.ice.infomaniak.ch/outremer-128.mp3"
+  },
+  {
+    "name":"NRJ",
+    "favorite": false,
+    "url":"https://scdn.nrjaudio.fm/audio1/fr/30001/mp3_128.mp3"
+  },
+  {
+    "name":"Fun Radio France",
+    "favorite": false,
+    "url":"http://streaming.radio.funradio.fr:80/fun-1-44-128"
+  },
+  {
+    "name":"Radio Primitive",
+    "favorite": false,
+    "url":"http://www.radioprimitive.fr/live.mp3"
+  },
+  {
+    "name":"Rire et chansons 100% Sketches",
+    "favorite": false,
+    "url":"https://scdn.nrjaudio.fm/adwz1/fr/30407/aac_64.mp3"
+  },
+  {
+    "name":"Rire et chansons",
+    "favorite": false,
+    "url":"https://scdn.nrjaudio.fm/audio1/fr/30401/mp3_128.mp3"
+  },
+  {
+    "name":"RMC Info Talk Sport",
+    "favorite": false,
+    "url":"http://chai5she.cdn.dvmr.fr/rmcinfo"
+  },
+  {
+    "name":"RTL",
+    "favorite": false,
+    "url":"http://streaming.radio.rtl.fr/rtl-1-44-128"
+  },
+  {
+    "name":"Radio Rennes",
+    "favorite": false,
+    "url":"https://play.vestaradio.com/RADIORENNES.mp3"
+  }
+]
