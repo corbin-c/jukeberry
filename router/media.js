@@ -7,14 +7,20 @@ module.exports = (parent) => {
       path: "/media/play/playlist",
       hdl: async (req,res) => {
         const options = await parent.server.getRequestBody(req);
-        if (!options.id) {
+        if (typeof options.id === "undefined") {
           parent.server.failure(res,500,"no playlist ID provided");
           return;
         }
         const random = options.random || false;
-        const playlist = parent.playlist.getPlaylist(options.id);
-        writeFileSync("./playlist",playlist.join("\n"));
+        const from = options.from || 0;
+        const playlist = parent.playlist.getPlaylist(options.id)
+          .map(e => e.replace("./",parent.config.directories["musicDirectory"]))
+          .slice(from)
+          .join("\n");
+        writeFileSync("./playlist",playlist);
         parent.media.play("./playlist",random);
+        res.writeHead(200);
+        res.end();
       }
     },
     {
