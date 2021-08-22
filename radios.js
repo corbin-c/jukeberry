@@ -13,7 +13,7 @@ module.exports = class {
   get list() {
     return this._list.map(e => ({
       url: e.id,
-      favorite: e.favorite
+      favorite: e.favorite,
       name: e.name
     }));
   }
