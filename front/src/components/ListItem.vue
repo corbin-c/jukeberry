@@ -2,6 +2,7 @@
   <li :class="type">
     <router-link v-if="type == 'parentdir'" :to="'/'+context+'/'+path.slice(2)"><MaterialIcon icon="arrow_upward" /></router-link>
     <span v-else>
+      <MaterialIcon :icon="(type == 'file') ? 'audiotrack' : 'folder_open'" />
       {{ fileName }}
     </span>
     <router-link
@@ -20,7 +21,7 @@
       </button>
     </div>
     <div class="actions" v-else-if="type == 'directory'">
-      <router-link :to="'/'+context+'/'+path.slice(2)"><MaterialIcon icon="folder_open" /></router-link>
+      <router-link :to="'/'+context+'/'+path.slice(2)"><MaterialIcon icon="subdirectory_arrow_right" /></router-link>
       <button @click="play()">
         <MaterialIcon icon="play_circle" />
       </button>
