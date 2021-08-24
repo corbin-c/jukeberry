@@ -1,5 +1,11 @@
 <template>
   <main id="app">
+    <header>
+      <figure>
+        <img src="./assets/icon.png">
+      </figure>
+      <router-link to="/"><h1>Jukeberry</h1></router-link>
+    </header>
     <router-view/>
     <Footer :status="status"/>
     <Modal
@@ -39,21 +45,4 @@ export default {
 }
 </script>
 
-<style>
-#notification {
-  opacity: .75;
-  background: black;
-  border-radius: 5px;
-  position: fixed;
-  bottom: 5%;
-  right: 5%;
-  width: 90%;
-  padding: 15px;
-  color: white;
-}
-@media screen and (min-width: 1024px) {
-  #notification {
-    width: 20%;
-  }
-}
-</style>
+<style src="./assets/style.css"></style>
