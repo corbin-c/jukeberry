@@ -29,7 +29,7 @@ module.exports = class {
   master(command) {
     let audio = !(this.parent.status.ready
       && this.parent.status.playing
-      && this.parent.status.playing.mode !== "music")
+      && this.parent.status.playing.mode === "video")
     if (command.status) {
       this.parent.status = command.status;
     }

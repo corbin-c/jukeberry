@@ -150,4 +150,7 @@ li.moving {
 li.over {
   padding-top: 100px;
 }
+.actions {
+  margin-left: auto;
+}
 </style>

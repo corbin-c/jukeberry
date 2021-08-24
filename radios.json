@@ -1,10 +1,5 @@
 [
   {
-    "name": "Zinzine",
-    "favorite": true,
-    "url":  "http://91.121.65.189:8000/zinzine-aix"
-  },
-  {
     "name": "Grenouille",
     "favorite": true,
     "url":  "http://live.radiogrenouille.com/live"
@@ -28,7 +23,7 @@
     "name": "France Culture",
     "favorite": true,
     "url":  "http://icecast.radiofrance.fr/franceculture-midfi.mp3"
-  }
+  },
   {
     "name":"Agora Côte d'Azur",
     "favorite": false,
@@ -190,11 +185,6 @@
     "url":"http://stream.demoisellefm.com:8000/rochefort-192.mp3"
   },
   {
-    "name":"FIP",
-    "favorite": false,
-    "url":"http://icecast.radiofrance.fr/fip-hifi.aac"
-  },
-  {
     "name":"Euradio",
     "favorite": false,
     "url":"http://80.82.229.202:8000/euradio.mp3"
@@ -208,11 +198,6 @@
     "name":"Espace FM",
     "favorite": false,
     "url":"http://listen.radioking.com/radio/16769/stream/49487"
-  },
-  {
-    "name":"France Inter",
-    "favorite": false,
-    "url":"http://icecast.radiofrance.fr/franceinter-midfi.mp3"
   },
   {
     "name":"Africa n°1",
@@ -230,7 +215,7 @@
     "url":"http://stream.florfm.com:8000/florfm.mp3"
   },
   {
-    "name":"GENERATION SOUL DISCO FUNK - La Référence Soul, Disco, Funk !",
+    "name":"Génération Soul Disco Funk !",
     "favorite": false,
     "url":"http://www.generationdiscofunk.com/pls/hd.m3u"
   },
@@ -305,7 +290,7 @@
     "url":"http://stream.radios-arra.fr:8000/frequenceluz"
   },
   {
-    "name":"radio Graf'hit 94.9FM - radio locale indépendante à Compiègne",
+    "name":"radio Graf'hit 94.9FM",
     "favorite": false,
     "url":"http://109.238.10.2:8000/grafhit.mp3"
   },
@@ -325,7 +310,7 @@
     "url":"http://k6fm.ice.infomaniak.ch/k6fm-64.aac"
   },
   {
-    "name":"Graffiti Urban-Radio 88.6 FM La Roche sur Yon",
+    "name":"Graffiti Urban-Radio",
     "favorite": false,
     "url":"http://80.82.229.202:8000/graffiti.mp3"
   },
@@ -375,7 +360,7 @@
     "url":"https://francemaghreb2.ice.infomaniak.ch/francemaghreb2-high.mp3"
   },
   {
-    "name":"Monte Carlo Doualiya (Anciennement RMC Moyen Orient)",
+    "name":"Monte Carlo Doualiya",
     "favorite": false,
     "url":"http://live02.mc-doualiya.com/mc-doualiya.mp3"
   },
@@ -770,11 +755,6 @@
     "url":"http://radioperfecto.net-radio.fr/perfecto.mp3"
   },
   {
-    "name":"Radio Grenouille",
-    "favorite": false,
-    "url":"http://live.radiogrenouille.com/live"
-  },
-  {
     "name":"Radio Meuh",
     "favorite": false,
     "url":"http://radiomeuh.ice.infomaniak.ch/radiomeuh-128.mp3"
@@ -906,7 +886,7 @@
   },
   {
     "name":"Radio Zinzine Aix",
-    "favorite": false,
+    "favorite": true,
     "url":"http://91.121.65.189:8000/zinzine-aix"
   },
   {
@@ -1098,16 +1078,6 @@
     "name":"France Bleu",
     "favorite": false,
     "url":"http://direct.francebleu.fr/live/fbalsace-midfi.mp3"
-  },
-  {
-    "name":"France Culture",
-    "favorite": false,
-    "url":"http://direct.franceculture.fr/live/franceculture-midfi.mp3"
-  },
-  {
-    "name":"France Info",
-    "favorite": false,
-    "url":"http://direct.franceinfo.fr/live/franceinfo-midfi.mp3"
   },
   {
     "name":"France Musique",

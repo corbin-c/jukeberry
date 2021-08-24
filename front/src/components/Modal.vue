@@ -56,13 +56,14 @@ export default {
   position: absolute;
 }
 #modal_content {
+  background: var(--neutral);
   position: absolute;
   top: 10%;
   left: 5%;
   width: 90%;
   height: 80%;
-  background: white;
   border-radius: 5px;
+  padding: 1.5rem;
 }
 @media screen and (min-width: 1024px) {
   #modal_content {
@@ -70,12 +71,16 @@ export default {
     left: 25%;
     width: 50%;
     height: 50%;
-    background: white;
     border-radius: 5px;
   } 
 }
 button {
   position: absolute;
+  top: 0;
   right: 0;
+  padding: .5rem;
+}
+button .material-icons-outlined {
+  font-size: 1.5rem;
 }
 </style>

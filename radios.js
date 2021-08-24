@@ -11,11 +11,7 @@ module.exports = class {
     }
   }
   get list() {
-    return this._list.map(e => ({
-      url: e.id,
-      favorite: e.favorite,
-      name: e.name
-    }));
+    return this._list;
   }
   set list(list) {
     this._list = list;

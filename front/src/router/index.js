@@ -22,6 +22,11 @@ const routes = [
     }
   },
   {
+    path: '/radio/',
+    name: 'Radio',
+    component: () => import(/* webpackChunkName: "list" */ '../views/Radio.vue'),
+  },
+  {
     path: '/search/:context',
     name: 'Search Form',
     component: () => import(/* webpackChunkName: "list" */ '../views/Search.vue'),

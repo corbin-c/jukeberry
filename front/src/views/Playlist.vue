@@ -1,6 +1,5 @@
 <template>
-  <section>
-    <router-link v-if="!modal && id" to="/playlist/"><MaterialIcon icon="arrow_back" /></router-link>
+  <section :class="modal ? 'modal':''">
     <div v-if="modal">
       <label for="create">Créez une nouvelle playlist…</label>
       <input type="text" name="create" id="create" v-model="name" />
@@ -9,7 +8,10 @@
       </button>
       <p v-if="list.length > 0">…ou sélectionnez-en une ci-dessous :</p>
     </div>
-    <ul>
+    <ul :class="modal ? 'modal':''">
+      <li class="parent" v-if="!modal && id">
+        <router-link to="/playlist/"><MaterialIcon icon="arrow_back" /></router-link>
+      </li>
       <PlayListItem
         v-for="(item,index) in list"
         :key="index"
@@ -84,3 +86,44 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+section.modal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+div, label, input, p {
+  margin-bottom: 1rem;
+}
+label {
+  margin-right: 1rem;
+}
+button {
+  margin-left: .6rem;
+  position: relative;
+  top: .7rem;
+}
+button .material-icons-outlined {
+  font-size: 2rem;
+}
+ul.modal {
+  overflow-y: scroll;
+}
+ul.modal li {
+  cursor: pointer;
+  min-height: 2rem;
+  padding: .5rem;
+  display: flex;
+  justify-content: ;
+  align-items: center;
+  background: var(--neutral2);
+}
+ul.modal li:nth-child(2n+1) {
+  background: var(--neutral);
+}
+.parent {
+  display: flex;
+  justify-content: center;
+}
+</style>

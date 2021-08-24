@@ -54,11 +54,11 @@ module.exports = (parent) => {
           parent.server.failure(res,500,"no radio url provided");
           return;
         }
-        const radio = config.radioStreams
-          .find(e => e.url == options.radio);
+        const radio = parent.radios.list
+          .find(e => e.url == options.url);
         if (typeof radio !== "undefined") {
           await parent.media.stop();
-          await utils.wait(1000);
+          await parent.utils.wait(1000);
           parent.utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 "+options.url);
           parent.status = {
             playing: {

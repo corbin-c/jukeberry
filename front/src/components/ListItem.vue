@@ -1,5 +1,5 @@
 <template>
-  <li :class="type">
+  <li :class="type" v-if="!(type == 'parentdir' && typeof currentPath === 'undefined')">
     <router-link v-if="type == 'parentdir'" :to="'/'+context+'/'+path.slice(2)"><MaterialIcon icon="arrow_upward" /></router-link>
     <span v-else>
       <MaterialIcon :icon="(type == 'file') ? 'audiotrack' : 'folder_open'" />
@@ -64,9 +64,25 @@ export default {
   },
   props: {
     type: String,
+    currentPath: String,
     path: String,
     context: String,
     showDir: Boolean
   }
 }
 </script>
+<style scoped>
+li span > .material-icons-outlined {
+  position: relative;
+  top: .4rem;
+}
+li.parentdir {
+  display: flex;
+  justify-content: center;
+}
+.actions {
+  margin-left: auto;
+  position: relative;
+  top: .2rem;
+}
+</style>

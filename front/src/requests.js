@@ -1,7 +1,8 @@
 const rootUrl = "http://localhost:5000/api";
 
 const requests = {
-  makeRequest: async (url,body) => { //handle when server throws an error
+  /* requests handler */
+  makeRequest: async (url,body) => {
     let response;
     if (body) {
       response = await fetch(rootUrl+url, {
@@ -40,6 +41,7 @@ const requests = {
       }
     );
   },
+  /* media */
   play: async (context,path,type,random=false) => {
     await requests.makeRequest(
       "/media/play/"+context,
@@ -60,6 +62,7 @@ const requests = {
   stop: () => {
     requests.makeRequest("/media/stop");
   },
+  /* playlist management */
   allPlaylists: async () => {
     return await requests.makeRequest(
       "/playlist/all");
@@ -115,6 +118,22 @@ const requests = {
       song: path,
       position: index
     });
+  },
+  /* radio */
+  allRadios: async () => {
+    return await requests.makeRequest("/radio/list");
+  },
+  addRadio: async (name, url) => {
+    return await requests.makeRequest("/radio/create", { name, url });
+  },
+  playRadio: (url) => {
+    requests.makeRequest("/radio/play", { url });    
+  },
+  toggleFavoriteRadio: async (url) => {
+    return await requests.makeRequest("/radio/toggle-favorite", { url });
+  },
+  removeRadio: async (url) => {
+    return await requests.makeRequest("/radio/delete", { url });
   }
 };
 export default requests;

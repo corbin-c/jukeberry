@@ -57,3 +57,30 @@ export default {
   }
 }
 </script>
+<style scoped>
+ul {
+  display: flex;
+  list-style-type: none;
+  justify-content: center;
+  align-items: flex-end;
+  flex: 1 0 auto;
+}
+
+ul > li {
+  margin-right: 1rem;
+}
+
+ul > li:last-child {
+  margin-right: 0;
+}
+
+ul > li button {
+  width: 3rem;
+  height: 3rem;
+}
+
+ul > li button .material-icons-outlined {
+  font-size: 44px;
+  color: var(--neutral);
+}
+</style>

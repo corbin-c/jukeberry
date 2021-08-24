@@ -1,12 +1,15 @@
 <template>
-  <ul>
-    <ListItem
-      v-for="item in list"
-      :key="item.path"
-      :context="type"
-      :type="item.type"
-      :path="item.name" />
-  </ul>
+  <section>
+    <ul>
+      <ListItem
+        v-for="item in list"
+        :key="item.path"
+        :context="type"
+        :currentPath="path"
+        :type="item.type"
+        :path="item.name" />
+    </ul>
+  </section>
 </template>
 
 <script>
