@@ -1,6 +1,0 @@
-<li tabindex="1">{{ name | normalizeName }}
-  <div class="actions">
-    <button *ngIf="type === 'directory'" (click)="setAction('getDirectory')">📂</button>
-    <button *ngIf="type === 'file'" (click)="setAction('playFile')">▶️</button>
-  </div>
-</li>
