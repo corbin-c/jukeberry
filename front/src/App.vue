@@ -1,9 +1,25 @@
 <template>
   <main id="app">
     <header>
-      <figure>
+      <figure v-on:click="showNav()">
         <img src="./assets/icon.png">
       </figure>
+      <nav :class="(navShown) ? 'shown':'hidden'" v-on:click="showNav()">
+        <ul>
+          <li>
+            <router-link to="/">Jukeberry</router-link>
+          </li>
+          <li>
+            <router-link to="/music">Musique</router-link>
+          </li>
+          <li>
+            <router-link to="/radio">Radio</router-link>
+          </li>
+          <li>
+            <router-link to="/playlist">Playlist</router-link>
+          </li>
+        </ul>
+      </nav>
       <router-link to="/"><h1>Jukeberry</h1></router-link>
     </header>
     <router-view/>
@@ -27,7 +43,13 @@ export default {
   name: 'Jukeberry',
   data() {
     return {
-      status: {}
+      status: {},
+      navShown: false
+    }
+  },
+  methods: {
+    showNav() {
+      this.navShown = !this.navShown;
     }
   },
   mounted() {
