@@ -1,291 +1,374 @@
 const fs = require("fs");
 const { exec, execSync, spawn } = require("child_process");
 const http = require("http");
+const websocket = require("websocket-driver");
 const formidable = require("formidable");
 const YouTube = require("youtube-node");
-const TreeMaker = require("./tree.js");
-const DIRECTORY = (() => {
-  let dir = fs.readFileSync("config","utf8").split("\n")[0];
-  dir = (dir[dir.length-1] == "/") ? dir:dir+"/";
-  return dir;
-})();
-const LOG = true;
-let globalList;
-const youTube = new YouTube();
-youTube.setKey(fs.readFileSync("youtube-api-key","utf8").split("\n")[0]);
-//API queries to handle
-let commands = [
-  {query:"ytp",func:"youtubePlay"},
-  {query:"yts",func:"youtubeSearch"},
-  {query:"getTree",func:"serveBranch"},
-  {query:"getRadios",func:"serveStreams"},
-  {query:"makeTree",func:"generateTrees"},
-  {query:"playFile",func:"prepareAndPlay"},
-  {query:"prepareForStreaming",func:"prepareForStreaming"},
-  {query:"streamPlay",func:"streamAudioFile"},
-  {query:"playRandom",func:"shuffleRecursiveDir"},
-  {query:"playAllRandom",func:"playAllRandom"},
-  {query:"playLive",func:"stream"},
-  {query:"getCurrentSong",func:"serveLog"},
-  {query:"upload",func:"importFiles"},
-  {query:"search",func:"search"},
-  {query:"stop",func:"killPlayer"},
-  {query:"halt",func:"killJukeberry"}
-];
-//Files to be served
-const MIMES = { //list extracted from https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-  "aac":"audio/aac",
-  "m4a":"audio/mp4",
-  "mp4":"audio/mp4",
-  "flac":"audio/flac",
-  "mp3":"audio/mp3",
-  "oga":"audio/ogg",
-  "ogg":"audio/ogg",
-  "opus":'audio/ogg;codecs="opus"',
-  "wav":"audio/wav",
-  "weba":"audio/webm"
-}
-let servedFiles = [
-  {pathname:"/",mime:"text/html"},
-  {pathname:"/index.html",mime:"text/html"},
-  {pathname:"/main.js",mime:"application/javascript"},
-  {pathname:"/utils.js",mime:"application/javascript"},
-  {pathname:"/icons/32.png",mime:"image/png"},
-  {pathname:"/icons/192.png",mime:"image/png"},
-  {pathname:"/icons/512.png",mime:"image/png"},
-  {pathname:"/style.css",mime:"text/css"}
-];
-let streams = [
-  {name:"Zinzine",url:"http://91.121.65.189:8000/zinzine-aix"},
-  {name:"Grenouille",url:"http://live.radiogrenouille.com/live"},
-  {name:"France Info",url:"http://icecast.radiofrance.fr/franceinfo-midfi.mp3"},
-  {name:"FIP",url:"http://icecast.radiofrance.fr/fip-midfi.mp3"},
-  {name:"France Inter",url:"http://icecast.radiofrance.fr/franceinter-midfi.mp3"},
-  {name:"France Culture",url:"http://icecast.radiofrance.fr/franceculture-midfi.mp3"}
-];
-//Utilities functions
-let wait = (t) => {
-  return new Promise((resolve,reject) => {
-    setTimeout(() => { resolve(); },t)
-  })
-};
-let normalize = (str) => { return str
-  .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .replace(/_/g," ")
-  .toLowerCase();
-};
-let getFile = (path,bin=false) => {
-  return new Promise((resolve,reject) => {
-    fs.readFile(path,(bin)?null:"utf8",(error,data) => {
-      if (error) { reject(error); }
-      resolve(data);
-    });
-  });
-};
-let logger = (level,message) => {
-  if (LOG) {
-    console[level]((new Date()).toISOString()+" | "+message);
-  }
-};
-let failure = (response,code,error) => {
-  logger("error",code+" "+error);
-  response.writeHead(code);
-  response.write(error);
-};
-let spawnAndDetach = (command) => {
-  logger("info","detached subprocess: "+command);
-  command = command.split(" ");
-  let subprocess = spawn(command[0], command.slice(1), {
-    detached: true,
-    stdio: [ "ignore" ]
-  });
-  subprocess.stdout.setEncoding("utf8");
-  subprocess.stdout.on("data", (e) => {
-    parseLog(e);
-  });
-  subprocess.stderr.on("data", (e) => {
-    //console.error("player error "+e);
-  });
-  subprocess.on("close", (code) => {
-    console.log("process exited with code "+code); 
-  });
-  subprocess.unref();
-};
-let parseLog = async (log) => {
-  let ret = false;
-  if (log.indexOf("Playing") >= 0) {
-    fs.writeFileSync("raw.log","");
-  }
-  log = fs.readFileSync("raw.log","utf8")+log;
-  fs.writeFileSync("raw.log",log);
-  log = {raw:log};
-  if (log.raw.indexOf("Playing") >= 0) {
-    log.filename = log.raw.split("\n");
-    log.filename = log.filename.filter(e => e != "")[0].slice(0,-1);
-    log.filename = log.filename.split("/");
-    log.filename = log.filename.pop();
-    log.filename = log.filename.split(".");
-    log.filename.pop();
-    log.filename = log.filename.join(" ");
-    ret = true;
-    currentLog = log;
-  } 
-  if (log.raw.indexOf("Clip info") >= 0) {
-    log.clip_info = log.raw.split("Clip info:\n");
-    log.clip_info = log.clip_info.pop();
-    log.clip_info = log.clip_info.split("Load subtitles in")[0];
-    log.clip_info = log.clip_info.split("\n");
-    log.clip_info.filter(e => e != "").map(e => {
-      e = e.split(": ")
-      e[1] = e[1].replace(/\s+/g," ");
-      e[0] = e[0].slice(1).toLowerCase();
-      log[e[0]] = e[1];
-    });
-    ret = true;
-  }
-  if (ret) {
-    log = JSON.stringify(log);
-    fs.writeFileSync("current.log",log);
-  }
-}
-let updateGlobalList = (file,update=false) => {
-  logger("log","making globalList");
-  list = (update) ? update:fs.readFileSync(file,"utf8");
-  list = (file == "liste") ? list.split("\n"):JSON.parse(list);
-  return list;
-}
-let makeGlobalLists = (update=false) => {
-  let files = ["tree.json","liste"];
-  let output = {};
-  files.map(e => {
-    output[e.slice(0,4)] = (update)
-      ? updateGlobalList(e,update.find(f => f.name == e).data)
-      : updateGlobalList(e);
-  });
-  return output;
-}
-let search = (str) => {
-  let list = globalList.list;
-  str = normalize(str);
-  output = [];
-  return list.filter(e => normalize(e).indexOf(str) >= 0)
-    .map(e => e.replace(DIRECTORY,"./"))
-    .filter(e => normalize(e).indexOf(str) >= 0)
-    .map(e => {
-      e = {name:e,type:"file"};
-      let norm = normalize(e.name).split("/");
-      let rank = norm.indexOf(norm.find(f => (f.indexOf(str) >= 0)));
-      if (rank != norm.length-1) {
-        e.type = "directory";
-        e.name = e.name.split("/").slice(0,rank+1).join("/");
-      }
-      return e;
-    })
-    .filter((e,i,a) =>
-    (a.lastIndexOf([...a].reverse().find(f => f.name == e.name)) == i))
-    .sort(() => Math.random() - 0.5)
-    .slice(0,20);
-}
-//Audio file streamer
-let streamAudioFile = (req,res,file) => {
-  return new Promise(async (resolve,reject) => {
-    let fileSize = fs.statSync(file).size;
-    let range = req.headers.range;
-    let readStream = {};
-    let head = {};
-/*    if (range) {
-      const parts = range.replace(/bytes=/, "").split("-")
-      const start = parseInt(parts[0], 10)
-      const end = parts[1] 
-        ? parseInt(parts[1], 10)
-        : fileSize-1
-      const chunksize = (end-start)+1
-      head["Content-Range"] = `bytes ${start}-${end}/${fileSize}`;
-      head["Accept-Ranges"] = "bytes";
-      head["Content-Length"] = chunksize;
-      readStream = fs.createReadStream(file,{start: start, end: end});
-    } else { */
-      head["Content-Length"] = fileSize;
-      readStream = fs.createReadStream(file);
-//    }
-    let type = file.split(".").reverse()[0];
-    //type = MIMES[type] || "audio/"+type;
-    //head["Content-Type"] = type;
-    res.writeHead(200, head);
-    readStream.on("open",() => {
-      readStream.pipe(res);
-    });
-    readStream.on("close",() => {
-      resolve();
-    });
-    readStream.on("error", (err) => {
-      reject(err);
-    });
-  });
-};
-//Main object
-let Tree = {
-  youtubeSearch: async (response,searchString) => {
-    logger("log","Searching youtube for: "+searchString);
-    return new Promise((resolve,reject) => {
-      youTube.search(searchString, 15, (error, result) => {
-      if (error) {
-        logger("error",error);
-        reject(error);
-      } else {
-        response.writeHead(200, {"Content-Type": "application/json"});
-        response.write(JSON.stringify(result.items.map(e => ({
-          id:e.id.videoId,
-          channel:e.snippet.channelTitle,
-          title:e.snippet.title,
-          description:e.snippet.description
-        })).filter(e => typeof e.id !== "undefined")));
-        resolve(true);
-      }
-    })
-    });
-  },
-  youtubePlay: async (response,youtubeId) => {
-    await Tree.killPlayer();
-    await wait(1000);
-    logger("log","Playing youtube video ID #"+youtubeId);
-    let ytplay = (id) => {
-      return new Promise((resolve, reject) => {
-        exec("ytdl --print-url https://www.youtube.com/watch?v="
-          +id,(error, stdout, stderr) => {
-          if (error) { failure(response,404,"error fetching video") }
-          logger("error",stderr);
-          resolve(stdout.split("\n")[0]);
-        });
-    })};
-    let url = await ytplay(youtubeId);
-    spawnAndDetach("mplayer -novideo -msglevel all=-1 "+url);
-  },
-  generateTrees: (response,data=false) => {
-    let files = (data) ? data : [];
-    if (!data) {
-      let tree = TreeMaker(DIRECTORY);
-      files.push({
-        name:"tree.json",
-        data:JSON.stringify(tree.tree)
-      });
-      logger("log","json tree successfully built");
-      files.push({
-        name:"liste",
-        data:tree.list.map(e => e.replace("./",DIRECTORY))
-          .join("\n")
-      });
-      logger("log","raw list successfully built");
+const minimalServer = require("@corbin-c/minimal-server");
+const TreeMaker = require("@corbin-c/minimal-server/tree.js");
+
+const CONFIG = (() => { // INIT CONFIG
+  let conf = fs.readFileSync("config.json","utf8");
+  conf = JSON.parse(conf);
+  conf.directories = {};
+  ["musicDirectory","videoDirectory"].map(e => {
+    if (typeof conf[e] === "undefined") {
+      conf.directories[e] = false;
+    } else {
+      conf.directories[e] = (conf[e][conf[e].length-1] == "/")
+    ? conf[e]:conf[e]+"/";
     }
+  });
+  if (typeof conf["youtube-api-key"] === "undefined") {
+    conf.youtube = false;
+  } else {
+    conf.youtube = new YouTube();
+    conf.youtube.setKey(conf["youtube-api-key"]);
+  }
+  conf.log = (typeof conf.log === "boolean") ? conf.log : false;
+  conf.files = ((dirs) => {
+    let files = [];
+    dirs.map(e => {
+      if (conf.directories[e] !== false) {
+        files.push(e+"_tree.json");
+        files.push(e+"_list");
+      }
+    });
+    return files;
+  })(Object.keys(conf.directories));
+  return conf;
+})();
+
+require("./logger.js")(CONFIG.log);
+const utils = require("./utils.js")
+utils.setConf(CONFIG);
+
+let globalList;
+
+//API queries to handle
+let routes = [
+  {
+    path: "/youtube/search",
+    hdl: async (req,res) => {
+      if (CONFIG.youtube !== false) {
+        let searchString = req.page.searchParams.get("options");
+        console.log("Searching youtube for: "+searchString);
+        CONFIG.youtube.search(searchString, 15, (error, result) => {
+          if (error) {
+            server.failure(res,500,error);
+          } else {
+            server.json(result.items.map(e => ({
+              id:e.id.videoId,
+              channel:e.snippet.channelTitle,
+              title:e.snippet.title,
+              description:e.snippet.description
+            })).filter(e => typeof e.id !== "undefined"))(req,res);
+          }
+        })
+      } else {
+        server.failure(res,500,"no youtube API key provided");
+      }
+    }
+  },
+  {
+    path: "/youtube/play",
+    hdl: async (req,res) => {
+      if (CONFIG.youtube !== false) {
+        await media.stop();
+        await utils.wait(1000);
+        let youtubeId = req.page.searchParams.get("options");
+        console.log("Playing youtube video ID #"+youtubeId);
+        let url = await ((id) => {
+          return new Promise((resolve, reject) => {
+            exec("./node_modules/ytdl/bin/ytdl.js --print-url https://www.youtube.com/watch?v="+id,
+              (error, stdout, stderr) => {
+              if (error) {
+                server.failure(res,404,"error fetching video"+error+stderr)
+              }
+              resolve(stdout.split("\n")[0]);
+            });
+        })})(youtubeId);
+        utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -novideo -msglevel all=-1 "+url);
+        utils.sendLog({youtube:youtubeId});
+        res.writeHead(200);
+        res.end()
+      } else {
+        server.failure(res,500,"no youtube API key provided");
+      }
+    }
+  },
+  {
+    path: "/radio/list",
+    hdl: (req,res) => {
+      server.json(CONFIG.radioStreams.map(e => e.name))(req,res);
+    }
+  },
+  {
+    path: "/radio/play",
+    hdl: async (req,res) => {
+      let radio = CONFIG.radioStreams
+        .find(e => e.name == req.page.searchParams.get("options"));
+      if (typeof radio !== "undefined") {
+        await media.stop();
+        await utils.wait(1000);
+        utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 "+radio.url);
+        utils.sendLog({radio_name:req.page.searchParams.get("options")});
+        res.writeHead(200);
+        res.end();
+      }
+    }
+  },
+  {
+    path: "/player/play",
+    hdl: async (req,res) => {
+      try {
+        let path = req.page.searchParams.get("options");
+        await media.generatePlaylist(path);
+        media.play("./playlist");
+        res.writeHead(200);
+        res.end();
+      } catch (e) {
+        server.failure(res,500,"Something went wrong while generating playlist"+e);
+      }
+    }
+  },
+  {
+    path: "/player/video",
+    hdl: (req,res) => {
+      let path = req.page.searchParams.get("options");
+      path = path.replace("./",CONFIG.directories["videoDirectory"]);
+      let subs = globalList.videoDirectory_list
+        .filter(e => e.indexOf(path.split(".").slice(0,-1).join(".")) >= 0)
+        .filter(e => ["srt","sub"].includes(e.split(".").reverse()[0]));
+      if (subs.length === 0) {
+        subs = globalList.videoDirectory_list
+          .filter(e => e.indexOf(path.split("/").slice(0,-1).join("/")) >= 0)
+          .filter(e => ["srt","sub"].includes(e.split(".").reverse()[0]));
+      }
+      if (subs.length > 1) {
+        let subs_en = subs.find(e =>
+          (e.toLowerCase().indexOf("english") > 0)
+          || (e.toLowerCase().indexOf("_en") > 0));
+        if (typeof subs_en !== "undefined") {
+          subs = subs_en;
+        } else {
+          subs = subs[0];
+        }
+      }
+      if (typeof subs !== "undefined") {
+        subs = "--subtitles \""+subs+"\" ";
+      } else {
+        subs = "";
+      }
+      media.master("stop");
+      exec("omxplayer --no-ghost-box "+subs+"\""+path+"\"",
+        (error,stdout,stderr) => {});
+      fs.writeFileSync("raw.log","ANS_VIDEO_FILE="+path);
+      res.writeHead(200);
+      res.end();
+    }
+  },
+  {
+    path: "/player/commands",
+    hdl: (req,res) => {
+      let command = [
+        {
+          name: "togglePlay",
+          audio: "key_down_event 32",
+          video: "pause"
+        },
+        {
+          name: "forward",
+          cmd: "seek 10"
+        },
+        {
+          name: "rewind",
+          cmd: "seek -10"
+        },
+        {
+          name: "next",
+          audio: "key_down_event 62",
+          video: "togglesubtitles"
+        },
+        {
+          name: "prev",
+          cmd: "key_down_event 60"
+        }
+      ].find(e => e.name == req.page.searchParams.get("options"));
+      if (typeof command === "undefined") {
+        server.failure(res,404,"media player command not found");
+      } else {
+        media.master(command);
+        res.writeHead(200);
+        res.end();
+      }
+    }
+  },
+  {
+    path: "/player/stop",
+    hdl: (req,res) => {
+      media.stop();
+      res.writeHead(200);
+      res.end();
+    }
+  },
+  {
+    path: "/player/shuffle", //recursively shuffles a directory
+    hdl: (req,res) => {
+      routes.find(e => e.path == "/player/recursivePlay").hdl(req,res,true);
+    }
+  },
+  {
+    path: "/player/recursivePlay", //recursively plays a directory
+    hdl: (req,res,random=false) => {
+      let path = req.page.searchParams.get("options");
+      path = path.replace("./",CONFIG.directories["musicDirectory"]);
+      let playlist = globalList.musicDirectory_list;
+      playlist = playlist.filter(e => e.indexOf(path) == 0);
+      playlist = playlist.join("\n");
+      fs.writeFileSync("playlist",playlist);
+      media.play("./playlist",random);
+      res.writeHead(200);
+      res.end();
+    }
+  },
+  {
+    path: "/player/random", //random on all musicDir root
+    hdl: (req,res) => {
+      res.writeHead(200);
+      media.play("./musicDirectory_list",true);
+      res.end();
+    }
+  },
+  {
+    path: "/player/halt",
+    hdl: async (req,res) => {
+      res.writeHead(200);
+      res.end("Goodbye");
+      await media.stop();
+      console.warn("shutdown triggered");
+      await utils.wait(1000);
+      execSync("sudo shutdown now");
+    }
+  },
+  {
+    path: "/files/upload",
+    hdl: (req,res) => {
+      if (req.method == "POST") {
+        let form = new formidable.IncomingForm(); //TODO: implement progress meter
+        /*form.on("progress", function(bytesReceived, bytesExpected) {
+          logger("log","upload processing: "+bytesReceived+" / "+bytesExpected);
+        });
+        form.on("fileBegin", function(name, file) {
+          logger("log","begin file upload: "+name+" "+file);
+        });
+        form.on("file", function(name, file) {
+          logger("log","file upload end: "+name+" "+file);
+        });*/
+        form.uploadDir = CONFIG.musicDirectory;
+        form.keepExtensions = true;
+        form.multiples = true;
+        form.parse(req, (err, fields, files) => {
+          let destination = fields.destination;
+          destination += (destination[destination.length-1] == "/")
+            ? ""
+            : "/";
+          let fsdestination = destination.replace("./",CONFIG.musicDirectory);
+          if (!fs.existsSync(fsdestination)) {
+            fs.mkdirSync(fsdestination);
+          }
+          for (let file of Object.values(files)) {
+            console.log("Uploading file: "+fsdestination+file.name);
+            fs.rename(file.path, fsdestination+file.name, (err) => { 
+              console.error("Error while moving file",file.name);
+            });
+          }
+          files.generateTrees();
+        });
+      }
+    }
+  },
+  {
+    path: "/files/list",
+    hdl: (req,res,type="music") => {
+      let path = req.page.searchParams.get("options");
+      let tree = files.getTree(type);
+      try {
+        tree = files.getBranch(tree,path);
+        tree = files.cleanBranch(tree);
+        if (type == "video") {
+          tree = tree.filter(e => ["srt","sub"].indexOf(e.name.split(".").reverse()[0]) < 0)
+        }
+        let parentpath = files.getParentFolder(path);
+        if (parentpath) {
+          tree.unshift({type:"parentdir",name:parentpath});
+        }
+        server.json(tree)(req,res);
+      } catch(e) {
+        server.failure(res,400,"Bad request :\n"+e);
+      }
+    }
+  },
+  {
+    path: "/files/videoList",
+    hdl: (req,res) => {
+      routes.find(e => e.path == "/files/list").hdl(req,res,"video");
+    }
+  },
+  {
+    path: "/files/search",
+    hdl: (req,res,type="music") => {
+      type = (type !== "music") ? "video":type;
+      server.json(
+        utils.search(req.page.searchParams.get("options"),globalList[type+"Directory_list"])
+      )(req,res);
+    }
+  },
+  {
+    path: "/files/videoSearch",
+    hdl: (req,res) => {
+      routes.find(e => e.path == "/files/search").hdl(req,res,"video");
+    }
+  },
+  {
+    path: "/files/regenerate",
+    hdl: (req,res) => {
+      try {
+        res.writeHead(200);
+        files.generateTrees();
+        res.end();
+      } catch {
+        server.failure(res,500,"Internal server error while generating files tree");
+      }
+    }
+  },
+]
+
+//FS handling
+let files = {
+  generateTrees: () => {
+    let files = [];
+    CONFIG.files.map(e => {
+      let dir = CONFIG.directories[e.split("_")[0]];
+      let tree = TreeMaker(dir);
+      let json = e.split(".")[1] === "json";
+      files.push({
+        name:e,
+        data: (json) ?
+          JSON.stringify(tree.tree)
+          : tree.list.map(e => e.replace("./",dir)).join("\n")
+      });
+      console.log(e,"successfully built");
+    });
     for (i of files) {
       fs.writeFileSync(i.name,i.data);
     }
-    globalList = makeGlobalLists(files);
-    logger("log","tree files written");
+    globalList = utils.makeGlobalLists(files);
+    console.log("tree files written");
   },
-  getTree: () => {
-    return globalList.tree;
+  getTree: (type="music") => {
+    type += "Directory_tree.json";
+    return globalList[type];
   },
   getParentFolder: (path) => {
     path = path.split("/");
@@ -309,7 +392,7 @@ let Tree = {
       path.shift();
       path = path.join("/");
       backpath += firstPath.slice(0,firstPath.length-path.length)
-      return Tree.getBranch(tree,path,backpath);
+      return files.getBranch(tree,path,backpath);
     } else {
       return tree;
     }
@@ -324,214 +407,142 @@ let Tree = {
     if (output.split("contents").length == path.split("/").length+1) {
       return output;
     } else {
-      return Tree.getPath(newTree.contents,path,output);
+      return files.getPath(newTree.contents,path,output);
     }
   },
   cleanBranch: (tree) => {
     return tree.map(e => ({type:e.type,name:e.name}));
-  },
-  serveBranch: (response,path) => {
-    let tree = Tree.getTree();
-    try {
-      tree = Tree.getBranch(tree,path);
-      tree = Tree.cleanBranch(tree);
-      response.writeHead(200, {"Content-Type": "application/json"});
-      let parentpath = Tree.getParentFolder(path);
-      if (parentpath) {
-        tree.unshift({type:"parentdir",name:parentpath});
+  }  
+}
+
+//Media interactions object
+let media = {
+  stop: () => {
+    let audio = !Object.keys(utils.parseLog()).some(e => e == "video_file");
+    if (audio) {
+      try {
+        utils.sendLog({filename:" "});
+        execSync("killall -s SIGKILL mplayer");
+      } catch {
+        console.warn("killall: nothing to stop");
       }
-      response.write(JSON.stringify(tree));
-    } catch(e) {
-      throw {code:400,text:"Bad request :\n"+e};
+    } else {
+      media.master({cmd:"stop"}).catch(e => { console.error(e) });
+      fs.writeFileSync("raw.log","");
+      try {
+        execSync("killall -s SIGKILL omxplayer.bin");
+      } catch {
+        console.warn("killall: nothing to stop");
+      }
     }
   },
-  serveStreams: (response) => {
-    response.writeHead(200, {"Content-Type": "application/json"});
-    response.write(JSON.stringify(streams.map(e => e.name)));
-  },
-/*  importFiles: (branch,list) => {
-    list = [...globalList.list,...list];
-    let tree = Tree.getTree();
-    let jsonpath = "tree";
-//console.log(branch);
-    let path = branch[0].name.split("/");
-    path.pop();
-    jsonpath += Tree.getPath(tree,path.join("/"));
-    jsonpath += ".push("+JSON.stringify(...branch)+")";
-    eval(jsonpath);
-    Tree.generateTrees(false,[
-      {name:"tree.json",data:JSON.stringify(tree)},
-      {name:"liste",data:list.join("\n")}
-    ]);
-    return path;
-  },*/
-  search: (response,str) => {
-    response.writeHead(200, {"Content-Type": "application/json"});
-    response.write(JSON.stringify(search(str)));
-  },
-  killPlayer: () => {
-    try {
-      execSync("killall -s SIGKILL mplayer");
-    } catch {
-      logger("log","killall: nothing to stop");
-    }
-  },
-  killJukeberry: async (response) => {
-    response.writeHead(200);
-    response.end("Goodbye");
-    await Tree.killPlayer();
-    /*try { //this should be handled by OS on shutdown
-      execSync("sudo umount "+DIRECTORY);
-    } catch {
-      console.log("couldn't unmount device"); 
-    }*/
-    logger("warn","shutdown triggered");
-    await wait(1000);
-    execSync("sudo shutdown now");
-  },
-  stream: async (response,stream_name) => {
-    let radio = streams.find(e => e.name == stream_name);
-    if (typeof radio !== "undefined") {
-      await Tree.killPlayer();
-      await wait(1000);
-      spawnAndDetach("mplayer -msglevel all=4 "+radio.url);
+  master: (command) => {
+    let audio = !Object.keys(utils.parseLog()).some(e => e == "video_file");
+    if (audio) {
+      command = (command.cmd || command.audio)
+      console.log("echoing '"+command+"' to fifo");
+      return new Promise((resolve,reject) => {
+        exec("echo "+command+" >> ./mplayer_master",(error,stdout,stderr) => {
+          if (error) {
+            reject(stderr);
+          } else {
+            resolve();
+          }
+        });
+      });
+    } else {
+      command = (command.cmd || command.video)
+      return new Promise((resolve,reject) => {
+        exec("./omx_dbus.sh "+command,(error,stdout,stderr) => {
+          if (error) {
+            reject(stderr);
+          } else {
+            resolve();
+          }
+        });
+      });
     }
   },
   play: async (path,random=false) => {
     random = (random) ? "-shuffle ":"";
-    await Tree.killPlayer();
-    await wait(1000);
-    spawnAndDetach("mplayer -msglevel all=4 "+random+"-playlist "+path);
+    await media.stop();
+    await utils.wait(1000);
+    console.log("starting mplayer");
+    utils.spawnAndDetach("mplayer -idle -slave -input file=./mplayer_master -msglevel all=4 -quiet "+random+"-playlist "+path);
   },
   generatePlaylist: async (path) => { 
     try {
-      let tree = await Tree.getTree();
+      let tree = await files.getTree("music");
       let branch;
       let playlist = "";
       try {
-        branch = Tree.getBranch(tree,path);
+        branch = files.getBranch(tree,path);
       } catch {
-        branch = Tree.getBranch(tree,Tree.getParentFolder(path));
+        branch = files.getBranch(tree,files.getParentFolder(path));
         path = branch.indexOf(branch.find(e => (e.name == path)));
         branch = branch.filter((e,i) => (i >= path));
       }
       branch.filter(e => e.type == "file")
-        .map(e => playlist += e.name.replace("./",DIRECTORY)+"\n");
+        .map(e => playlist += e.name.replace("./",CONFIG.directories["musicDirectory"])+"\n");
       fs.writeFileSync("playlist",playlist);
     } catch(e) {
       throw e;
     }
-  },
-  streamAudioFile: async (response,path,request) => {
-    await streamAudioFile(request,response,path.replace("./",DIRECTORY));
-  },
-  prepareAndPlay: async (response,path) => {
-    await Tree.generatePlaylist(path);
-    Tree.play("./playlist");  
-  },
-  shuffleAndPlay: async (response,path) => {
-    await Tree.generatePlaylist(path);
-    Tree.play("./playlist",true);  
-  },
-  shuffleRecursiveDir: (response,path) => {
-    path = path.replace("./",DIRECTORY);
-    let playlist = globalList.list;
-    playlist = playlist.filter(e => e.indexOf(path) == 0);
-    playlist = playlist.join("\n");
-    fs.writeFileSync("playlist",playlist);
-    Tree.play("./playlist",true);
-  },
-  playAllRandom: (response,path) => {
-    Tree.play("./liste",true);
-  },
-  serveLog: (response) => {
-    response.writeHead(200, {"Content-Type":"application/json"});
-    try {
-      let currentLog = fs.readFileSync("current.log","utf8");
-      currentLog = JSON.parse(currentLog);
-      let log = {};
-      for (let v of Object.keys(currentLog)) {
-        if (["raw","clip_info"].indexOf(v) < 0) {
-          log[v] = currentLog[v];
-        }
-      }
-      response.write(JSON.stringify(log));
-    } catch {
-      failure(response,404,"no current log");
-    }
   }
 }
+
 //Exposed server
-let server = http.createServer(async function(req, res) {
-  let page = new URL("http://dummy.com"+req.url);
-  let served = servedFiles.filter(e => e.pathname == page.pathname)
-  if (served.length > 0) {
-    served = served[0];
-    logger("log","File served:\t["+served.mime+"]\t"+served.pathname);
-    let type = served.mime;
-    res.writeHead(200, {"Content-Type": type});
-    served = (page.pathname == "/") ? "/index.html":page.pathname;
-    served = served.slice(1);
-    served = await getFile(served,(type.indexOf("image") >= 0));
-    res.write(served);
-  } else if (page.pathname == "/api") {
-    if (req.method == "POST") {
-      let form = new formidable.IncomingForm();
-      /*form.on("progress", function(bytesReceived, bytesExpected) {
-        logger("log","upload processing: "+bytesReceived+" / "+bytesExpected);
-      });
-      form.on("fileBegin", function(name, file) {
-        logger("log","begin file upload: "+name+" "+file);
-      });
-      form.on("file", function(name, file) {
-        logger("log","file upload end: "+name+" "+file);
-      });*/
-      form.uploadDir = DIRECTORY;
-      form.keepExtensions = true;
-      form.multiples = true;
-      form.parse(req, (err, fields, files) => {
-        let destination = fields.destination;
-        destination += (destination[destination.length-1] == "/")
-          ? ""
-          : "/";
-        let fsdestination = destination.replace("./",DIRECTORY);
-        if (!fs.existsSync(fsdestination)) {
-          fs.mkdirSync(fsdestination);
-        }for (let file of Object.values(files)) {
-          logger("log","Uploading file: "+fsdestination+file.name);
-          fs.rename(file.path, fsdestination+file.name, (err) => {  });
-        }
-        Tree.generateTrees();
-      });
-    } else {
-      try {
-        let cmd = commands
-          .find(q => q.query == page.searchParams.get("action"))
-          .func;
-        await Tree[cmd](res,page.searchParams.get("options"),req);
-      } catch(e) {
-        failure(res,e.code,e.text);
-      }
+let server = new minimalServer();
+server.server.on("upgrade", (request,socket,body) => { //socket to pass current logs
+  if (!websocket.isWebSocket(request)) return;
+  let driver = websocket.http(request);
+  driver.io.write(body);
+  socket.pipe(driver.io).pipe(socket);
+  driver.start();
+  utils.setSocket(driver);
+});
+server.failure = (response,code,error) => {
+  console.error(code,error);
+  response.writeHead(code);
+  response.write(error);
+  response.end();
+}
+routes.map(e => {
+  server.route = {
+    path: e.path,
+    handler: e.hdl
+  }
+});
+(async () => {
+  try {
+    execSync("mkfifo ./mplayer_master");
+  } catch { /* NoOp, named pipe should already exist */ }
+  await server.enableStaticDir();
+  try {
+    globalList = utils.makeGlobalLists();
+    console.info("success !");
+  } catch(e) {
+    console.warn(e.message);
+    console.info("Building lists from scratch...");
+    files.generateTrees();
+  }
+  console.log("starting server...");
+  try {
+    server.start();
+    console.log("Server listening");
+  } catch (e) {
+    console.error(e);
+    await utils.wait(5000);
+    server.start();
+  }
+  if (typeof CONFIG.startupSound === "string") {
+    try {
+      fs.writeFileSync("./playlist",CONFIG.startupSound);
+      media.play("./playlist");
+    } catch {
+      console.error("Couldn't play startup sound");
     }
   } else {
-    failure(res,404,"Not found :(");
+    console.log("no startup sound configured");
   }
-  res.end();
-});
-let startServer = async () => {
-  try {
-    globalList = makeGlobalLists();
-  } catch {
-    Tree.generateTrees(false);
-  }
-  logger("log","starting server...");
-  try {
-    server.listen(3000);
-    logger("log","server listening");
-  } catch (e) {
-    logger("error",e);
-    await wait(5000);
-    startServer();
-  }
-}
-startServer();
+})();

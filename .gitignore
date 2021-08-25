@@ -1,4 +1,5 @@
-config
-liste
-tree.json
+config.json
+musicDirectory_*
+videoDirectory_*
 playlist
+*.log

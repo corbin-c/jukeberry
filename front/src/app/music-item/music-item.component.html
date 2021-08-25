@@ -1,0 +1,9 @@
+<li tabindex="1">{{ name | normalizeName }}
+  <div class="actions">
+    <button *ngIf="type === 'directory'" (click)="setAction('shuffleDirectory')">🔀</button>
+    <button *ngIf="type === 'directory'" (click)="setAction('playDirectory')">▶️</button>
+    <button *ngIf="type === 'directory'" (click)="setAction('getDirectory')">📂</button>
+    <button *ngIf="type === 'file'" (click)="setAction('playFile')">▶️</button>
+    <button *ngIf="type === 'file'" (click)="setAction('addToPlaylist')">🌟️</button>
+  </div>
+</li>

@@ -1,0 +1,17 @@
+input {
+  padding: 5px;
+  margin: 5px;
+  width: calc(100% - 20px - 2em);
+  transition-property: box-shadow;
+  transition-duration: 0.4s;
+}
+input:focus {
+  box-shadow: 0px 0px 4px 2px var(--header-bg-color);
+}
+button {
+  padding: 5px;
+  margin: 5px;
+  border: none;
+  background: none;
+  width: 2em;
+}
