@@ -1,17 +1,38 @@
 <template>
-  <div class="home">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <section>
+    <ul>
+      <li>
+          <MaterialIcon icon="music_note" />
+        <router-link to="/music">
+          Musique
+        </router-link>
+      </li>
+      <li>
+          <MaterialIcon icon="radio" />
+        <router-link to="/radio">
+          Radio
+        </router-link>
+      </li>
+      <li>
+          <MaterialIcon icon="playlist_play" />
+        <router-link to="/playlist">
+          Playlist
+        </router-link>
+      </li>
+    </ul>
+  </section>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import MaterialIcon from "@/components/MaterialIcon.vue";
 
 export default {
   name: 'Home',
   components: {
-    HelloWorld
+    MaterialIcon
   }
 }
 </script>
+<style scoped>
+  
+</style>
