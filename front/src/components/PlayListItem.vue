@@ -8,7 +8,7 @@
     v-on:dragover="dragover"
     v-on:drop="drop"
     :class="classList.join(' ')">
-    <MaterialIcon icon="reorder" v-if="!isPlaylist" />
+    <MaterialIcon class="order" icon="reorder" v-if="!isPlaylist" />
     <span @click="addToPlaylist()">
       {{ fileName }}
     </span>
@@ -144,13 +144,13 @@ export default {
 }
 </script>
 <style scoped>
+.order {
+  top: 0;
+}
 li.moving {
   opacity: .5;
 }
 li.over {
   padding-top: 100px;
-}
-.actions {
-  margin-left: auto;
 }
 </style>

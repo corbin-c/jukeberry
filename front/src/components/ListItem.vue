@@ -80,9 +80,4 @@ li.parentdir {
   display: flex;
   justify-content: center;
 }
-.actions {
-  margin-left: auto;
-  position: relative;
-  top: .2rem;
-}
 </style>

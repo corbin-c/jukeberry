@@ -96,6 +96,9 @@ section.modal {
 div, label, input, p {
   margin-bottom: 1rem;
 }
+input {
+  width: calc(100% - 3rem);
+}
 label {
   margin-right: 1rem;
 }

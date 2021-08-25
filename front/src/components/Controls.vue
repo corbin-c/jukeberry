@@ -83,4 +83,9 @@ ul > li button .material-icons-outlined {
   font-size: 44px;
   color: var(--neutral);
 }
+@media screen and (max-width: 768px) {
+  ul > li {
+    margin: 0;
+  }
+}
 </style>
