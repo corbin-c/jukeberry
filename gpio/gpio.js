@@ -18,14 +18,14 @@ const GPIO = class {
           off: () => {
             this.leds[e.name].writeSync(0);
           },
-          blink: () => {
+          blink: (t) => {
             this.blinking[e.name] = setInterval(() => {
               if (this.leds[e.name].readSync() === 0) {
                 this.leds[e.name].writeSync(1);
               } else {
                 this.leds[e.name].writeSync(0);
               }              
-            }, 250);
+            }, t);
           },
           endBlink: () => {
             clearInterval(this.blinking[e.name]);
