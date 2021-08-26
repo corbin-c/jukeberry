@@ -51,13 +51,13 @@ module.exports = class {
       this.stop()
     });
     this.parent.gpio["btn-switch-t-green"].onPush(() => {
-      const radio = this.parent.radio.filter(e => e.favorite)[0];
+      const radio = this.parent.radios.list.filter(e => e.favorite)[0];
       this.playRadio(radio.name,radio.url);
     });
   }
   changeRadio(n) {
     if (this.parent.status.playing && this.parent.status.playing.mode === "radio") {
-      const radioList = this.parent.radio.filter(e => e.favorite);
+      const radioList = this.parent.radios.list.filter(e => e.favorite);
       const currentRadio = radioList
         .findIndex(e => e.url === this.parent.status.playing.metadata.url);
       let newRadio = currentRadio+n;
