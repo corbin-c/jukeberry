@@ -171,9 +171,9 @@ class Jukeberry {
           if (options.playing.paused === true) {
             this.gpio.stopAllBlinks();
             (async () => {
-              gpio["led-green"].blink(250);
+              this.gpio["led-green"].blink(250);
               await wait(125);
-              gpio["led-yellow"].blink(250); 
+              this.gpio["led-yellow"].blink(250); 
             })();
           } else {
             this.gpio.stopAllBlinks();

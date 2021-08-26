@@ -12,7 +12,7 @@ module.exports = class {
           video: "pause",
           status: {
             playing: {
-              paused
+              paused: !this.parent.status.playing.paused
             }
           }
         }
