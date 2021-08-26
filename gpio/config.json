@@ -1,5 +1,55 @@
 {
-  "gpio": false,
-  "leds": [],
-  "buttons": []
+  "gpio": true,
+  "leds": [
+    {
+      "name": "green",
+      "port": 5
+    },
+    {
+      "name": "yellow",
+      "port": 25
+    },
+    {
+      "name": "red",
+      "port": 14
+    }
+  ],
+  "buttons": [
+    {
+      "name": "push-red",
+      "port": 17
+    },
+    {
+      "name": "switch-t-red",
+      "port": 23
+    },
+    {
+      "name": "switch-b-red",
+      "port": 15
+    },
+    {
+      "name": "push-yellow",
+      "port": 19
+    },
+    {
+      "name": "switch-t-yellow",
+      "port": 26
+    },
+    {
+      "name": "switch-b-yellow",
+      "port": 6
+    },
+    {
+      "name": "push-green",
+      "port": 20
+    },
+    {
+      "name": "switch-t-green",
+      "port": 16
+    },
+    {
+      "name": "switch-b-green",
+      "port": 13
+    }
+  ]
 }
