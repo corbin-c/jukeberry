@@ -12,9 +12,9 @@ const GPIO = class {
       if (this.Gpio !== false) {
         this.leds[e.name] = new this.Gpio(e.port, "out");
         this["led-"+e.name] = {
-          on: (alone=false) => {
+          on: async (alone=false) => {
             if (alone) {
-              this.allLedsOff();
+              await this.allLedsOff();
             }
             this.leds[e.name].writeSync(1);
           },
