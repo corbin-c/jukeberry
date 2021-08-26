@@ -6,11 +6,14 @@ const FilesHandler = require("./files.js");
 const MediaPlayer = require("./media.js");
 const PlayListManager = require("./playlist.js");
 const RadioManager = require("./radios.js");
+const GpioControls = require("./gpio/gpio.js");
 const server = require("./server.js");
 const CONFIG = require("./config.js");
 
 class Jukeberry {
   constructor(config) {
+    this.gpio = GpioControls;
+    this.gpio["led-red"].on();
     this._status = {
       ready: false,
       playing: false
@@ -141,10 +144,22 @@ class Jukeberry {
   set status(options) {
     if (typeof options.ready !== "undefined") {
       this._status.ready = options.ready;
+      if (options.ready === true) {
+        this.gpio["led-red"].off();
+        this.gpio["led-yellow"].on();
+      } else {
+        this.gpio["led-yellow"].off();
+        this.gpio["led-green"].off();
+        this.gpio["led-red"].on();
+      }
     }
     if (typeof options.playing !== "undefined") {
       if (options.playing === false) {
         this._status.playing = false;
+        this.gpio.stopAllBlinks();
+        this.gpio["led-yellow"].on();
+        this.gpio["led-green"].off();
+        this.gpio["led-red"].off();
       } else {
         if (typeof this._status.playing === "boolean") {
           this._status.playing = {};
@@ -152,6 +167,21 @@ class Jukeberry {
         Object.keys(options.playing).forEach(k => {
           this._status.playing[k] = options.playing[k];
         });
+        if (typeof options.playing.paused !== "undefined") {
+          if (options.playing.paused === true) {
+            this.gpio.stopAllBlinks();
+            (async () => {
+              gpio["led-green"].blink(250);
+              await wait(125);
+              gpio["led-yellow"].blink(250); 
+            })();
+          } else {
+            this.gpio.stopAllBlinks();
+            this.gpio["led-red"].off();
+            this.gpio["led-yellow"].off();
+            this.gpio["led-green"].on();
+          }
+        }
       }
     }
     this.sendLog();

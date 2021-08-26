@@ -101,19 +101,28 @@ const GPIO = class {
   }
   stopAllBlinks() {
     this.config.leds.map(e => {
+      this["led-"+e.name].off();
       this["led-"+e.name].endBlink();
     });
   }
   stop() {
     return new Promise(async (resolve) => {
       this.stopAllBlinks();
-      const t = 1000;
+      const t = 250;
       for (let led of this.config.leds) {
         this["led-"+led.name].blink(t);
         await this.wait(t/this.config.leds.length);
       }
       await this.wait(3000);
       this.stopAllBlinks();
+      Object.values(this.buttons).forEach(e => {
+        e.unexport();
+      });
+      Object.values(this.leds).forEach(e => {
+        e.writeSync(0);
+        e.unexport();
+      });
+      resolve();
     });
   }
 }
