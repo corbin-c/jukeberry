@@ -19,7 +19,7 @@ const checkPort = (port) => {
     const jb = require("./jukeberry.js");
     require("./logger.js")(jb.config.log);
   } catch(e) {
-    console.error("port already in use. aborting");
+    console.error("port already in use. aborting",e);
     process.exit();
   }
 })();
