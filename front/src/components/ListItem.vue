@@ -48,7 +48,7 @@ export default {
     pathName() {
       let name = this.path.split("/");
       name = name.slice(1,-1);
-      return name.join("/");
+      return name.join("/").replace(/_/g," ");
     }
   },
   methods: {
