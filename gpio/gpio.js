@@ -92,6 +92,30 @@ const GPIO = class {
       });
     }
   }
+  wait(t) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve();
+      }, t);
+    });
+  }
+  stopAllBlinks() {
+    this.config.leds.map(e => {
+      this["led-"+e.name].endBlink();
+    });
+  }
+  stop() {
+    return new Promise(async (resolve) => {
+      this.stopAllBlinks();
+      const t = 1000;
+      for (let led of this.config.leds) {
+        this["led-"+led.name].blink(t);
+        await this.wait(t/this.config.leds.length);
+      }
+      await this.wait(3000);
+      this.stopAllBlinks();
+    });
+  }
 }
 
 module.exports = new GPIO(config, Gpio);
