@@ -17,14 +17,19 @@ new Vue({
   },
   methods: {
     cleanFileName(name) {
-      name = name.split("/");
-      name = name[name.length-1];
-      name = name.split(".");
-      if (name.length > 1) {
-        name = name.slice(0,-1);
+      try {
+        name = name.split("/");
+        name = name[name.length-1];
+        name = name.split(".");
+        if (name.length > 1) {
+          name = name.slice(0,-1);
+        }
+        name = name.join(".");
+        return name.replace(/_/g, " ");
+      } catch(e) {
+        console.warn("cleanFileName failure",e);
+        return name;
       }
-      name = name.join(".");
-      return name;
     },
     showNotification(text) {
       this.notificationText = text;
