@@ -120,10 +120,12 @@ const GPIO = class {
       }, t);
     });
   }
-  allLedsOff() {
+  async allLedsOff() {
     Object.values(this.leds).map(led => {
       led.writeSync(0);                
     });
+    await this.wait(100);
+    this.stopAllBlinks();
   }
   stopAllBlinks() {
     this.config.leds.map(e => {
