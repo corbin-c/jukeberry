@@ -4,6 +4,7 @@
   "dependencies": {
     "@corbin-c/minimal-server": "latest",
     "formidable": "^1.2.1",
+    "onoff": "^6.0.3",
     "websocket-driver": "^0.7.3",
     "youtube-node": "^1.3.3",
     "ytdl": "^1.3.0"
