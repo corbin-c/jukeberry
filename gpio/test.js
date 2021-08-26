@@ -16,12 +16,12 @@ const alternateBlink = async () => {
   gpio["led-yellow"].endBlink();
 }
 alternateBlink();
-gpio["push-red"].onPush(() => {
+gpio["btn-push-red"].onPush(() => {
   console.log("push red");
 });
-gpio["push-green"].onPush(() => {
+gpio["btn-push-green"].onPush(() => {
   console.log("push green");
 });
-gpio["push-green"].onRelease(() => {
+gpio["btn-push-green"].onRelease(() => {
   console.log("release green");
 });
