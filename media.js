@@ -5,18 +5,22 @@ module.exports = class {
   constructor(parent) {
     this.parent = parent;
     this.parent.gpio["btn-push-yellow"].onPush(() => {
-      this.master(
-        {
-          name: "togglePlay",
-          audio: "key_down_event 32",
-          video: "pause",
-          status: {
-            playing: {
-              paused: !this.parent.status.playing.paused
+      if (this.parent.status.playing) {
+        this.master(
+          {
+            name: "togglePlay",
+            audio: "key_down_event 32",
+            video: "pause",
+            status: {
+              playing: {
+                paused: !this.parent.status.playing.paused
+              }
             }
           }
-        }
-      );
+        );
+      } else {
+        this.play("./musicDirectory_list",true);
+      }
     });
     this.parent.gpio["btn-push-green"].onPush(() => {
       this.master(

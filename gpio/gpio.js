@@ -12,7 +12,10 @@ const GPIO = class {
       if (this.Gpio !== false) {
         this.leds[e.name] = new this.Gpio(e.port, "out");
         this["led-"+e.name] = {
-          on: () => {
+          on: (alone=false) => {
+            if (alone) {
+              this.allLedsOff();
+            }
             this.leds[e.name].writeSync(1);
           },
           off: () => {
@@ -54,10 +57,18 @@ const GPIO = class {
           pushCallback: () => {},
           releaseCallback: () => {},
           onPush: (callback) => {
-            this["btn-"+e.name].pushCallback = callback;
+            if ((typeof this.buttons[e.name].lastPush === "undefined")
+            || ((new Date()).getTime() - this.buttons[e.name].lastPush > 300)) {
+              this["btn-"+e.name].pushCallback = callback;
+            }
+            this.buttons[e.name].lastPush = (new Date()).getTime();
           },
           onRelease: (callback) => {
-            this["btn-"+e.name].releaseCallback = callback;
+            if ((typeof this.buttons[e.name].lastRelease === "undefined")
+            || ((new Date()).getTime() - this.buttons[e.name].lastRelease > 300)) {
+              this["btn-"+e.name].releaseCallback = callback;
+            }
+            this.buttons[e.name].lastRelease = (new Date()).getTime();
           }
         };
         this.buttons[e.name].watch((error,value) => {
@@ -107,6 +118,11 @@ const GPIO = class {
       setTimeout(() => {
         resolve();
       }, t);
+    });
+  }
+  allLedsOff() {
+    Object.value(this.leds).map(led => {
+      this.leds[e.name].writeSync(0);                
     });
   }
   stopAllBlinks() {

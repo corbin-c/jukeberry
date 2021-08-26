@@ -145,21 +145,16 @@ class Jukeberry {
     if (typeof options.ready !== "undefined") {
       this._status.ready = options.ready;
       if (options.ready === true) {
-        this.gpio["led-red"].off();
-        this.gpio["led-yellow"].on();
+        this.gpio["led-yellow"].on(true);
       } else {
-        this.gpio["led-yellow"].off();
-        this.gpio["led-green"].off();
-        this.gpio["led-red"].on();
+        this.gpio["led-red"].on(true);
       }
     }
     if (typeof options.playing !== "undefined") {
       if (options.playing === false) {
         this._status.playing = false;
         this.gpio.stopAllBlinks();
-        this.gpio["led-yellow"].on();
-        this.gpio["led-green"].off();
-        this.gpio["led-red"].off();
+        this.gpio["led-yellow"].on(true);
       } else {
         if (typeof this._status.playing === "boolean") {
           this._status.playing = {};
@@ -177,9 +172,7 @@ class Jukeberry {
             })();
           } else {
             this.gpio.stopAllBlinks();
-            this.gpio["led-red"].off();
-            this.gpio["led-yellow"].off();
-            this.gpio["led-green"].on();
+            this.gpio["led-green"].on(true);
           }
         }
       }
