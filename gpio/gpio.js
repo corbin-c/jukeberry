@@ -75,17 +75,16 @@ const GPIO = class {
       }
     });
     if (this.Gpio !== false) {
-      process.on("SIGINT", this.unexportOnClose);
+      process.on("SIGINT", () => {
+        Object.values(this.buttons).forEach(e => {
+          e.unexport();
+        });
+        Object.values(this.leds).forEach(e => {
+          e.writeSync(0);
+          e.unexport();
+        });
+      });
     }
-  }
-  unexportOnClose() { 
-    Object.values(this.buttons).forEach(e => {
-      e.unexport();
-    });
-    Object.values(this.leds).forEach(e => {
-      e.writeSync(0);
-      e.unexport();
-    });
   }
 }
 
