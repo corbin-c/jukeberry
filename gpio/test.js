@@ -8,19 +8,16 @@ const wait = (t) => {
   });
 }
 const alternateBlink = async () => {
-  gpio["led-green"].blink(250);
-  await wait(125);
-  gpio["led-yellow"].blink(250);  
-  await wait(5000);
-  gpio["led-green"].endBlink();
-  gpio["led-yellow"].endBlink();
+  gpio["led-green"].blink(300);
+  await wait(155);
+  gpio["led-yellow"].blink(300);  
 }
-alternateBlink();
 gpio["btn-push-red"].onPush(() => {
-  console.log("push red");
+  alternateBlink();
 });
 gpio["btn-push-green"].onPush(() => {
-  console.log("push green");
+  gpio["led-green"].endBlink();
+  gpio["led-yellow"].endBlink();
 });
 gpio["btn-push-green"].onRelease(() => {
   console.log("release green");
