@@ -57,18 +57,10 @@ const GPIO = class {
           pushCallback: () => {},
           releaseCallback: () => {},
           onPush: (callback) => {
-            if ((typeof this.buttons[e.name].lastPush === "undefined")
-            || ((new Date()).getTime() - this.buttons[e.name].lastPush > 300)) {
-              this["btn-"+e.name].pushCallback = callback;
-            }
-            this.buttons[e.name].lastPush = (new Date()).getTime();
+            this["btn-"+e.name].pushCallback = callback;
           },
           onRelease: (callback) => {
-            if ((typeof this.buttons[e.name].lastRelease === "undefined")
-            || ((new Date()).getTime() - this.buttons[e.name].lastRelease > 300)) {
-              this["btn-"+e.name].releaseCallback = callback;
-            }
-            this.buttons[e.name].lastRelease = (new Date()).getTime();
+            this["btn-"+e.name].releaseCallback = callback;
           }
         };
         this.buttons[e.name].watch((error,value) => {
@@ -77,10 +69,17 @@ const GPIO = class {
             return;
           }
           if (value === 1) {
-            this["btn-"+e.name].pushCallback();
+            if ((typeof this.buttons[e.name].lastPush === "undefined")
+            || ((new Date()).getTime() - this.buttons[e.name].lastPush > 300)) {
+              this["btn-"+e.name].pushCallback();
+            }
+            this.buttons[e.name].lastPush = (new Date()).getTime();
           } else {
-            this["btn-"+e.name].releaseCallback();
-          }
+            if ((typeof this.buttons[e.name].lastRelease === "undefined")
+            || ((new Date()).getTime() - this.buttons[e.name].lastRelease > 300)) {
+              this["btn-"+e.name].releaseCallback();
+            }
+            this.buttons[e.name].lastRelease = (new Date()).getTime();          }
         });
       } else {
         this["btn-"+e.name] = {
