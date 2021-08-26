@@ -39,7 +39,7 @@ module.exports = class {
         }
       );
     });
-    this.parent.gpio["btn-switch-b-red"].onPush(() => {
+    this.parent.gpio["btn-switch-t-red"].onPush(() => {
       this.stop()
     });
   }
