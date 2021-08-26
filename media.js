@@ -39,6 +39,9 @@ module.exports = class {
         }
       );
     });
+    this.parent.gpio["switch-b-red"].onPush(() => {
+      this.stop()
+    });
   }
   stop() {
     let audio = !Object.keys(this.parent.parseLog()).some(e => e == "video_file");
