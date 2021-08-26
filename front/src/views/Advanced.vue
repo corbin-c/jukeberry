@@ -3,13 +3,13 @@
     <ul>
       <li>
           <MaterialIcon icon="power_settings_new" />
-        <a href="#" @click="shuffleAll()">
+        <a href="#" @click="halt()">
           Arrêter
         </a>
       </li>
       <li>
           <MaterialIcon icon="cached" />
-        <a href="#" @click="shuffleAll()">
+        <a href="#" @click="regenerate()">
           Regénérer
         </a>
       </li>
