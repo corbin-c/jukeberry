@@ -19,6 +19,11 @@ const GPIO = class {
             this.leds[e.name].writeSync(0);
           },
           blink: (t) => {
+            if ((typeof this.blinking[e.name] !== "undefined")
+              && (this.blinking[e.name] !== false)) {
+              console.log(e.name, "already blinking");
+              return;
+            }
             this.blinking[e.name] = setInterval(() => {
               if (this.leds[e.name].readSync() === 0) {
                 this.leds[e.name].writeSync(1);
@@ -30,6 +35,7 @@ const GPIO = class {
           endBlink: () => {
             clearInterval(this.blinking[e.name]);
             this.leds[e.name].writeSync(0);
+            this.blinking[e.name] = false;
           }
         }
       } else {
