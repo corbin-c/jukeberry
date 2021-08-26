@@ -121,7 +121,7 @@ const GPIO = class {
     });
   }
   allLedsOff() {
-    Object.value(this.leds).map(led => {
+    Object.values(this.leds).map(led => {
       this.leds[e.name].writeSync(0);                
     });
   }
