@@ -172,7 +172,7 @@ class Jukeberry {
             this.gpio.stopAllBlinks();
             (async () => {
               this.gpio["led-green"].blink(250);
-              await wait(125);
+              await this.gpio.wait(125);
               this.gpio["led-yellow"].blink(250); 
             })();
           } else {
