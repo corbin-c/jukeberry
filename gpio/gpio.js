@@ -122,7 +122,7 @@ const GPIO = class {
   }
   allLedsOff() {
     Object.values(this.leds).map(led => {
-      this.leds[e.name].writeSync(0);                
+      this.leds[led.name].writeSync(0);                
     });
   }
   stopAllBlinks() {
