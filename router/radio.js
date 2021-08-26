@@ -57,18 +57,7 @@ module.exports = (parent) => {
         const radio = parent.radios.list
           .find(e => e.url == options.url);
         if (typeof radio !== "undefined") {
-          await parent.media.stop();
-          await parent.utils.wait(1000);
-          parent.utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 "+options.url);
-          parent.status = {
-            playing: {
-              mode: "radio",
-              metadata: {
-                title: radio.name
-              },
-              paused: false
-            }
-          };
+          parent.media.playRadio(radio.name, options.url);
           res.writeHead(200);
           res.end();
         } else {

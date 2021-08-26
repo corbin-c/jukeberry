@@ -23,25 +23,53 @@ module.exports = class {
       }
     });
     this.parent.gpio["btn-push-green"].onPush(() => {
-      this.master(
-        {
-          name: "next",
-          audio: "key_down_event 62",
-          video: "togglesubtitles"
-        }
-      );
+      if (this.parent.status.playing && this.parent.status.playing.mode === "radio") {
+        this.changeRadio(1);
+      } else {
+        this.master(
+          {
+            name: "next",
+            audio: "key_down_event 62",
+            video: "togglesubtitles"
+          }
+        );
+      }
     });
     this.parent.gpio["btn-push-red"].onPush(() => {
-      this.master(
-        {
-          name: "prev",
-          cmd: "key_down_event 60"
-        }
-      );
+      if (this.parent.status.playing && this.parent.status.playing.mode === "radio") {
+        this.changeRadio(-1);
+      } else {
+        this.master(
+          {
+            name: "prev",
+            cmd: "key_down_event 60"
+          }
+        );
+      }
     });
     this.parent.gpio["btn-switch-t-red"].onPush(() => {
       this.stop()
     });
+    this.parent.gpio["btn-switch-t-green"].onPush(() => {
+      const radio = this.parent.radio.filter(e => e.favorite)[0];
+      this.playRadio(radio.name,radio.url);
+    });
+  }
+  changeRadio(n) {
+    if (this.parent.status.playing && this.parent.status.playing.mode === "radio") {
+      const radioList = this.parent.radio.filter(e => e.favorite);
+      const currentRadio = radioList
+        .findIndex(e => e.url === this.parent.status.playing.metadata.url);
+      let newRadio = currentRadio+n;
+      if (newRadio < 0) {
+        newRadio = radioList.length-1;
+      }
+      if (newRadio == radioList.length) {
+        newRadio = 0;
+      }
+      newRadio = radioList[newRadio];
+      this.playRadio(newRadio.name, newRadio.url);
+    }
   }
   stop() {
     let audio = !Object.keys(this.parent.parseLog()).some(e => e == "video_file");
@@ -107,6 +135,21 @@ module.exports = class {
         mode: "music",
         paused: false,
         metadata: {}
+      }
+    };
+  }
+  async playRadio(name,url) {
+    await this.stop();
+    await this.parent.utils.wait(1000);
+    this.parent.utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 "+url);
+    this.parent.status = {
+      playing: {
+        mode: "radio",
+        metadata: {
+          title: name,
+          url
+        },
+        paused: false
       }
     };
   }
