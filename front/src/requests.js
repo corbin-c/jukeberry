@@ -1,4 +1,4 @@
-const rootUrl = "http://localhost:5000/api";
+const rootUrl = "http://jukeberry:5000/api";
 
 const requests = {
   /* requests handler */
