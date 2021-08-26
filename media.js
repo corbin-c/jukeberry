@@ -4,6 +4,37 @@ const { writeFileSync } = require("fs");
 module.exports = class {
   constructor(parent) {
     this.parent = parent;
+    this.parent.gpio["btn-push-yellow"].onPush(() => {
+      this.master(
+        {
+          name: "togglePlay",
+          audio: "key_down_event 32",
+          video: "pause",
+          status: {
+            playing: {
+              paused
+            }
+          }
+        }
+      );
+    });
+    this.parent.gpio["btn-push-green"].onPush(() => {
+      this.master(
+        {
+          name: "next",
+          audio: "key_down_event 62",
+          video: "togglesubtitles"
+        }
+      );
+    });
+    this.parent.gpio["btn-push-red"].onPush(() => {
+      this.master(
+        {
+          name: "prev",
+          cmd: "key_down_event 60"
+        }
+      );
+    });
   }
   stop() {
     let audio = !Object.keys(this.parent.parseLog()).some(e => e == "video_file");
