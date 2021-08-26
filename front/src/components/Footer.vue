@@ -70,7 +70,7 @@ h2 .material-icons-outlined {
   position: relative;
   top: .6rem;
 }
-@media screen and (max-width: 768px {
+@media screen and (max-width: 768px) {
   h2 {
     font-size: 1.25rem;
   }
