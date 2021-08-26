@@ -12,7 +12,7 @@ const alternateBlink = async () => {
   await wait(125);
   gpio["led-yellow"].blink(250);  
   await wait(5000);
-  gpio["led-green"].endBlink;
-  gpio["led-yellow"].endBlink;
+  gpio["led-green"].endBlink();
+  gpio["led-yellow"].endBlink();
 }
 alternateBlink();
