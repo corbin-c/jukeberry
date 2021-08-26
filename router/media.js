@@ -152,6 +152,7 @@ module.exports = (parent) => {
         res.writeHead(200);
         res.end("Goodbye");
         await parent.media.stop();
+        await parent.gpio.stop();
         console.warn("shutdown triggered");
         await parent.utils.wait(1000);
         execSync("sudo shutdown -h now");
