@@ -81,14 +81,24 @@ const GPIO = class {
       }
     });
     if (this.Gpio !== false) {
+      this.stopAllBlinks();
       process.on("SIGINT", () => {
-        Object.values(this.buttons).forEach(e => {
-          e.unexport();
+        Object.values(this.buttons).forEach(btn => {
+          try {
+            btn.unexport();
+          } catch (e) {
+            console.error(e);
+          }
         });
-        Object.values(this.leds).forEach(e => {
-          e.writeSync(0);
-          e.unexport();
+        Object.values(this.leds).forEach(led => {
+          try {
+            led.writeSync(0);
+            led.unexport();
+          } catch (e) {
+            console.error(e);
+          }
         });
+        process.exit();
       });
     }
   }
