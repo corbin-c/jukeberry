@@ -18,6 +18,9 @@
           <li>
             <router-link to="/playlist">Playlist</router-link>
           </li>
+          <li>
+            <router-link to="/search/music">Recherche</router-link>
+          </li>
         </ul>
       </nav>
       <router-link to="/"><h1>Jukeberry</h1></router-link>

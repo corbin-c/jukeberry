@@ -22,6 +22,11 @@ const routes = [
     }
   },
   {
+    path: '/advanced/',
+    name: 'Advanced',
+    component: () => import(/* webpackChunkName: "list" */ '../views/Advanced.vue'),
+  },
+  {
     path: '/radio/',
     name: 'Radio',
     component: () => import(/* webpackChunkName: "list" */ '../views/Radio.vue'),

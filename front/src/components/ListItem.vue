@@ -1,5 +1,5 @@
 <template>
-  <li :class="type" v-if="!(type == 'parentdir' && typeof currentPath === 'undefined')">
+  <li :class="type+' '+context" v-if="!(type == 'parentdir' && typeof currentPath === 'undefined')">
     <router-link v-if="type == 'parentdir'" :to="'/'+context+'/'+path.slice(2)"><MaterialIcon icon="arrow_upward" /></router-link>
     <span v-else>
       <MaterialIcon :icon="(type == 'file') ? 'audiotrack' : 'folder_open'" />
@@ -72,6 +72,16 @@ export default {
 }
 </script>
 <style scoped>
+li {
+  flex-wrap: wrap;
+}
+li .path {
+  flex: 1 0 auto;
+  order: 1;
+  width: 100%;
+  font-size: .8rem;
+  opacity: .7;
+}
 li span > .material-icons-outlined {
   position: relative;
   top: .4rem;

@@ -101,41 +101,28 @@ export default {
 }
 </script>
 <style scoped>
-ul button:first-of-type {
-  margin-left: auto;
-}
 fieldset {
-  margin: 1.5rem;
-  padding: 1.5rem;
-  border: 2px solid var(--contrast2);
-  display: flex;
-  justify-content: space-evenly;
+  grid-template-columns: 1fr 1fr 0fr;
 }
-legend {
-  padding-left: .5rem;
-  padding-right: .5rem;
-}
-fieldset button .material-icons-outlined {
-  font-size: 2rem;
+fieldset input:last-of-type {
+  grid-column: 2/3;
 }
 @media screen and (max-width: 1024px) {
   fieldset {
-    border: 0;
-    margin: 0rem;
-    padding: 0rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    flex-direction: column;
+    grid-template-columns: 1fr 0fr;
+    grid-template-rows: 1fr 1fr;
   }
-  legend {
-    padding: 0;
-    text-align: center;
-    width: 100%;
-    margin-top: 1rem;
+  fieldset input:first-of-type {
+    grid-column: 1/2;
+    grid-row: 1/2;
   }
-  input {
-    margin-bottom: 1rem;
+  fieldset input:last-of-type {
+    grid-row: 2/3;
+    grid-column: 1/2;
   }
+}
+ul button:first-of-type {
+  margin-left: auto;
 }
 section > div {
   display: flex;

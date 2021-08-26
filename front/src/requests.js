@@ -42,6 +42,11 @@ const requests = {
     );
   },
   /* media */
+  shuffleAll: () => {
+    requests.makeRequest("/media/play/music",
+      { "path": false, "random": true }
+    ); 
+  },
   play: async (context,path,type,random=false) => {
     await requests.makeRequest(
       "/media/play/"+context,
@@ -134,6 +139,13 @@ const requests = {
   },
   removeRadio: async (url) => {
     return await requests.makeRequest("/radio/delete", { url });
+  },
+  /* advanced */
+  regenerate: () => {
+    requests.makeRequest("/files/regenerate");    
+  },
+  halt: () => {
+    requests.makeRequest("/media/halt");
   }
 };
 export default requests;

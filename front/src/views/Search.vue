@@ -1,9 +1,12 @@
 <template>
   <section>
-    <input v-model="query" type="search" id="searchInput" />
-    <button @click="search()">
-      <MaterialIcon icon="search" />
-    </button>
+    <fieldset>
+      <legend>Recherche</legend>
+      <input v-model="query" type="search" id="searchInput" />
+      <button @click="search()">
+        <MaterialIcon icon="search" />
+      </button>
+    </fieldset>
     <ul v-if="results.length > 0">
       <ListItem
         v-for="item in results"
