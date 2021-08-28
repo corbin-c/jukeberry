@@ -77,7 +77,7 @@ const GPIO = class {
               const combinations = this.combinations
                 .filter(c => c.buttons.includes(e.name));
               if (combinations.length > 0) {
-                combinations.map(c => {
+                combinations.map(async c => {
                   const index = c.buttons.indexOf(e.name);
                   if (index == 0) {
                     c.lastButton = {
@@ -92,6 +92,7 @@ const GPIO = class {
                         time: (new Date()).getTime()
                       }
                       if (index == c.buttons.length-1) {
+                        await this.wait(1000);
                         c.callback();
                       }
                     }

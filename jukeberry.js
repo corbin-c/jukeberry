@@ -43,7 +43,7 @@ class Jukeberry {
     this.init();
     this.gpio.combinations.push(
       {
-        buttons: ["switch-t-green","switch-t-yellow","switch-t-red"],
+        buttons: ["switch-b-green","switch-b-yellow","switch-b-red"],
         callback: async () => {
           await this.media.stop();
           await this.gpio.stop();
