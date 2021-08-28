@@ -41,6 +41,19 @@ class Jukeberry {
       this.setSocket(driver);
     });
     this.init();
+    this.gpio.combinations.push(
+      {
+        buttons: ["switch-t-green","switch-t-yellow","switch-t-red"],
+        callback: () => {
+          await this.media.stop();
+          await this.gpio.stop();
+          console.warn("shutdown triggered");
+          await this.utils.wait(1000);
+          execSync("sudo shutdown -h now");
+        },
+        lastButton: {}
+      }
+    );
   }
   setSocket(ws) {
     if (typeof this.config.sockets !== "undefined") {

@@ -8,6 +8,8 @@ const GPIO = class {
     this.blinking = {};
     this.leds = {};
     this.buttons = {};
+    this.combinations = [];
+    this.lastButton = {};
     this.config.leds.forEach(e => {
       if (this.Gpio !== false) {
         this.leds[e.name] = new this.Gpio(e.port, "out");
@@ -72,6 +74,30 @@ const GPIO = class {
             if ((typeof this.buttons[e.name].lastPush === "undefined")
             || ((new Date()).getTime() - this.buttons[e.name].lastPush > 300)) {
               this["btn-"+e.name].pushCallback();
+              const combinations = this.combinations
+                .filter(c => c.buttons.includes(e.name));
+              if (combinations.length > 0) {
+                combinations.map(c => {
+                  const index = c.buttons.indexOf(e.name);
+                  if (index == 0) {
+                    c.lastButton = {
+                      name: e.name,
+                      time: (new Date()).getTime()
+                    }
+                  } else {
+                    if (c.lastButton.name == c.buttons[index-1]
+                    && (new Date()).getTime() - c.lastButton.time < 1000) {
+                      c.lastButton = {
+                        name: e.name,
+                        time: (new Date()).getTime()
+                      }
+                      if (index == c.buttons.length-1) {
+                        c.callback();
+                      }
+                    }
+                  }
+                });
+              }
             }
             this.buttons[e.name].lastPush = (new Date()).getTime();
           } else {
