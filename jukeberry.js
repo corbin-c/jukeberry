@@ -44,7 +44,7 @@ class Jukeberry {
     this.gpio.combinations.push(
       {
         buttons: ["switch-t-green","switch-t-yellow","switch-t-red"],
-        callback: () => {
+        callback: async () => {
           await this.media.stop();
           await this.gpio.stop();
           console.warn("shutdown triggered");
