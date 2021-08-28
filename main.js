@@ -23,3 +23,7 @@ const checkPort = (port) => {
     process.exit();
   }
 })();
+
+process.on("uncaughtException", function (err) {
+  console.error(err);
+});
