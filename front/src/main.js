@@ -17,6 +17,9 @@ new Vue({
   },
   methods: {
     cleanFileName(name) {
+      if (!name) {
+        return "";
+      }
       try {
         name = name.split("/");
         name = name[name.length-1];
