@@ -35,14 +35,7 @@ module.exports = class {
     subprocess.stdout.on("data", (e) => {
       if (e.indexOf("Playing") >= 0) {
         fs.writeFileSync("raw.log","");
-        execSync(`echo "get_file_name
-get_time_length
-get_meta_title
-get_meta_artist
-get_meta_album
-get_meta_year
-get_meta_track
-get_meta_genre" >> ./mplayer_master`);
+        execSync('echo \'run "echo ANS_FILEPATH=${path}"\' >> ./mplayer_master');
       }
       try {
         fs.writeFileSync("raw.log",fs.readFileSync("raw.log","utf8")+"\n"+e);
