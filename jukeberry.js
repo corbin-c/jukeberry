@@ -7,6 +7,7 @@ const MediaPlayer = require("./media.js");
 const PlayListManager = require("./playlist.js");
 const RadioManager = require("./radios.js");
 const GpioControls = require("./gpio/gpio.js");
+const Metadata = require("./metadata/metadata.js");
 const server = require("./server.js");
 const CONFIG = require("./config.js");
 
@@ -24,6 +25,7 @@ class Jukeberry {
     this.media = new MediaPlayer(this);
     this.playlist = new PlayListManager(this);
     this.radios = new RadioManager(this);
+    this.metadata = new Metadata(this);
     this.server = server;
     const routes = require("./router/router.js")(this);
     routes.map(e => {
@@ -62,51 +64,73 @@ class Jukeberry {
       this.config.sockets = [ws];
     }
   }
-  parseLog() {
+  async parseLog() {
+    const updateStatus = (metadata) => {
+      if ((Object.keys(metadata).length !== 0)
+      && (this.status.playing)) {
+        this.status = {
+          playing: {
+            metadata
+          }
+        };
+      }
+    }
     let log = readFileSync("raw.log","utf8");
+    let path = "";
     let metadata = {};
     log.split("\n").filter(e => e !== "").map(e => {
       if (e.indexOf("ANS_") == 0) {
-        e = e.split("=");
-        if (isNaN(parseFloat(e[1]))) {
-          e[1] = e[1].slice(1,-1);
-        }
-        if (e[1] != "") {
-          let key = e[0].split("ANS_")[1].toLowerCase();
-          key = (key.includes("meta_"))
-            ? key.split("meta_")[1]
-            : key
-          metadata[key] = e[1];
-        }
+        path = e.split("=")[1];
+      } else if (e.indexOf("Playing ") == 0) {
+        path = e.split("Playing ")[1].slice(0,-1);
       }
     });
-    /* parsed log example:
-{
-  filename: "04 - Mr. Barnum's Junior's Magnificent And Fabulous City.mp3",
-  length: '334.00',
-  meta_title: "Mr. Barnum's Junior's Magnific",
-  meta_artist: 'Alquin',
-  meta_album: 'Marks',
-  meta_year: '1972',
-  meta_track: '4',
-  meta_genre: 'Unknown'
-}
-  */
-    if (Object.keys(metadata).length !== 0) {
-      //~ this.sendLog(metadata);
-      this.status = {
-        playing: {
-          metadata
-        }
-      };
+    if ((this.status.playing.mode === "music") && (path)) {
+      // 1\ use https://github.com/Borewit/music-metadata to get metadata
+      // 1.1\if no metadata: try to deduce from file structure:
+      //      parent folder is likely album, its parent being artist
+      metadata = await this.metadata.getMetadata(path);
+      updateStatus(metadata);
+      // 2\ consolidate metadata using wikidata & discogs
+      metadata = await this.metadata.consolidate(metadata);
+      updateStatus(metadata);
+    } else {
+      this.metadata.resetPath();
+      //metadata query is only performed on path change so we reset path
+      //in case of mode switching
     }
+    updateStatus(metadata);
     return metadata;
   }
   sendLog() {
+    const prepareStatusToSend = (input, excludedKeys) => {
+      let output = {};
+      Object.keys(input).map(k => {
+        if (!excludedKeys.includes(k)) {
+          if (typeof input[k] === "object") {
+            if (typeof input[k].length === "undefined") {
+              output[k] = prepareStatusToSend(input[k],excludedKeys);
+            } else {
+              output[k] = [...input[k].map(e => {
+                if (typeof e === "object" && typeof e.length === "undefined") {
+                  return prepareStatusToSend(e,excludedKeys);
+                } else {
+                  return e;
+                }
+              })];
+            }
+          } else {
+            output[k] = input[k];
+          }
+        }
+      });
+      return output;
+    }
     if (typeof this.config.sockets !== "undefined") {
+      let status = JSON.stringify(prepareStatusToSend(this.status, ["artistDetails", "albumDetails", "picture"]));
       this.config.sockets.map(socket => {
         try {
-          socket.text(JSON.stringify(this.status));
+          socket.text(status);
         } catch {
           console.warn("Problem writing to socket");
         }
