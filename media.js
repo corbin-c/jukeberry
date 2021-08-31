@@ -72,7 +72,9 @@ module.exports = class {
     }
   }
   stop() {
-    let audio = !Object.keys(this.parent.parseLog()).some(e => e == "video_file");
+    let audio = !(this.parent.status.ready
+      && this.parent.status.playing
+      && this.parent.status.playing.mode === "video")
     this.parent.status = {
       playing: false
     };
