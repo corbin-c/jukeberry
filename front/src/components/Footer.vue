@@ -62,7 +62,6 @@ export default {
       this.firstTouch.y = touch.y;
     },
     touchMove(e) {
-      e.preventDefault();
       if (!this.firstTouch.x || !this.firstTouch.y) {
         return;
       }
