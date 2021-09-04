@@ -1,4 +1,5 @@
-const rootUrl = "http://jukeberry/api";
+//~ const rootUrl = "http://"+window.location.host+"/api";
+const rootUrl = "http://localhost:5000/api";
 
 const requests = {
   /* requests handler */
@@ -146,6 +147,12 @@ const requests = {
   },
   halt: () => {
     requests.makeRequest("/media/halt");
+  },
+  getMetadata: async () => {
+    return await requests.makeRequest("/media/metadata");
+  },
+  fakeMetadata: async () => {
+    return await requests.makeRequest("/media/metadata/fake");
   }
 };
 export default requests;

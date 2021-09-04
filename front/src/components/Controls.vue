@@ -63,7 +63,7 @@ ul {
   list-style-type: none;
   justify-content: center;
   align-items: flex-end;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
 }
 
 ul > li {
