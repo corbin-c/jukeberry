@@ -56,8 +56,8 @@ export default {
     }
   },
   mounted() {
-    //~ const ws = new WebSocket("ws://"+window.location.host);
-    const ws = new WebSocket("ws://localhost:5000");
+    const ws = new WebSocket("ws://"+window.location.host);
+    //~ const ws = new WebSocket("ws://localhost:5000");
     ws.onmessage = (event) => {
       this.status = JSON.parse(event.data);
       console.log(JSON.parse(event.data));
