@@ -3,12 +3,16 @@ const Fetcher = require("./fetcher.js");
 
 class Metadata {
   constructor(parent) {
-   this.fetcher = new Fetcher(parent.config);
-   this.extract = extract;
-   this.lastPath = "";
-   this.lastResults = {};
+    this.fetcher = new Fetcher(parent.config);
+    this.extract = extract;
+    this.lastPath = "";
+    this.lastArtist = "";
+    this.lastAlbum = "";
+    this.lastResults = {};
   }
   resetPath() {
+    this.lastArtist = "";
+    this.lastAlbum = "";
     this.lastPath = "";
     this.lastResults = {};
   }
@@ -50,33 +54,36 @@ class Metadata {
     }
   }
   async consolidate(metadata) {
-    const path = metadata.path;
-    if (!path) {
+    const {
+      path,
+      album,
+      artist } = metadata;
+    if ((!path) || ((!album) && (!artist))) {
       return {};
     }
-    if (path === this.lastPath) {
+    if ((path === this.lastPath)
+    || ((album === this.lastAlbum) && (artist === this.lastArtist))) {
       return this.lastResults;
     }
+    metadata.album = album.replace(/\s*\((.|\s)*remaster(ed)*\s*\)$/i,"")
     this.lastPath = path;
     let allMetadata = await this.fetch(metadata);
     metadata = allMetadata.metadata;
-    
+
     //~ cover
-    if ((!metadata.picture)
-      && (allMetadata.albumDetails.discogs.images.length)) {
-      metadata.picture = allMetadata.albumDetails.discogs.images[0];
-    } else if (allMetadata.artistDetails.discogs.images.length) {
-      metadata.picture = allMetadata.artistDetails.discogs.images[0];
-    } else if (allMetadata.artistDetails.wiki.image) {
-      metadata.picture = allMetadata.artistDetails.wiki.image;
-    }else {
-      try {
-        metadata.picture = metadata.picture[0];
-      } catch {
+    if (!metadata.picture) {
+      if (allMetadata.albumDetails.discogs.images.length) {
+        metadata.picture = allMetadata.albumDetails.discogs.images[0];
+      } else if (allMetadata.artistDetails.discogs.images.length) {
+        metadata.picture = allMetadata.artistDetails.discogs.images[0];
+      } else if (allMetadata.artistDetails.wiki.image) {
+        metadata.picture = allMetadata.artistDetails.wiki.image;
+      } else {
         metadata.picture = false;
       }
+    } else {
+      metadata.picture = metadata.picture[0];
     }
-    
     //~ genres
     const genres = metadata.genre || [];
     metadata.genre = [...genres,

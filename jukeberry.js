@@ -92,8 +92,9 @@ class Jukeberry {
       metadata = await this.metadata.getMetadata(path);
       updateStatus(metadata);
       // 2\ consolidate metadata using wikidata & discogs
-      metadata = await this.metadata.consolidate(metadata);
-      updateStatus(metadata);
+      //~ metadata = await this.metadata.consolidate(metadata);
+      //~ this is now made on demand: see route /media/metadata
+      //~ updateStatus(metadata);
     } else {
       this.metadata.resetPath();
       //metadata query is only performed on path change so we reset path

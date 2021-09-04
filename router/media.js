@@ -1,8 +1,31 @@
 const { execSync, exec } = require("child_process");
 const { writeFileSync } = require("fs");
+const fakemetadata = require("./fake.json");
 
 module.exports = (parent) => {
   const mediaRoutes = [
+    {
+      path: "/media/metadata/fake",
+      hdl: async (req,res) => {
+        parent.server.json(fakemetadata)(req,res);
+      }
+    },
+    {
+      path: "/media/metadata",
+      hdl: async (req,res) => {
+        if (!parent.status.playing) {
+          parent.server.failure(res,500,"no media being played");
+          return;
+        }
+        try {
+          const metadata = await parent.metadata.consolidate(parent.status.playing.metadata);
+          parent.server.json(metadata)(req,res);
+        } catch (e) {
+          console.error(e);
+          parent.server.failure(res,500,"no metadata found");
+        }
+      }
+    },
     {
       path: "/media/play/playlist",
       hdl: async (req,res) => {
