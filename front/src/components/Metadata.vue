@@ -91,10 +91,10 @@
       <dd v-if="md.albumDetails && md.albumDetails.producer">
         {{ md.albumDetails.producer }}
       </dd>
-      <dt v-if="md.albumDetails && (md.albumDetails.wikiUrl || md.artistDetails.wikiUrl)">
+      <dt v-if="md.albumDetails && (md.albumDetails.wikiUrl.length || md.artistDetails.wikiUrl.length)">
         <MaterialIcon icon="auto_stories" /><!-- wiki -->
       </dt>
-      <dd v-if="md.albumDetails && (md.albumDetails.wikiUrl || md.artistDetails.wikiUrl)">
+      <dd v-if="md.albumDetails && (md.albumDetails.wikiUrl.length || md.artistDetails.wikiUrl.length)">
         <a
           v-for="(wiki,i) in [...(md.albumDetails.wikiUrl || []),...(md.artistDetails.wikiUrl || [])]"
           :key="i"
