@@ -125,7 +125,7 @@ class MetadataFetcher {
     if (showQuery) {
       console.log(query);
     }
-    let url = "https://query.wikidata.org/sparql?query="+encodeURI(query)+"&format=json";
+    let url = "https://query.wikidata.org/sparql?query="+encodeURIComponent(query)+"&format=json";
     url = await fetch(url, { headers: { "User-Agent": userAgent } });
     url = await url.json();
     if (type === "performer" || typeof performer === "undefined") {
