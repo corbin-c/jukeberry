@@ -7,6 +7,7 @@
     "music-metadata": "^7.11.4",
     "node-fetch": "^2.6.1",
     "onoff": "^6.0.3",
+    "rss-parser": "^3.12.0",
     "websocket-driver": "^0.7.3",
     "youtube-node": "^1.3.3",
     "ytdl": "^1.3.0"
