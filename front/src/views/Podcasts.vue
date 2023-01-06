@@ -89,6 +89,13 @@ export default {
       this.$root.showNotification("Le podcast a été supprimé");
     }
   },
+  watch: {
+    path: function () {
+      this.podcast && this.podcast.length
+      ? this.updatePodcast(atob(this.podcast))
+      : this.getPodcasts();
+    }
+  },
   mounted() {
     this.podcast && this.podcast.length
     ? this.updatePodcast(atob(this.podcast))
