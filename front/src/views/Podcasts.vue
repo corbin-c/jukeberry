@@ -26,7 +26,7 @@
     </ul>
   </section>
   <section v-else>
-    <router-link :to="'/podcasts/"><MaterialIcon icon="arrow_upward" /></router-link>
+    <router-link :to="/podcasts/"><MaterialIcon icon="arrow_upward" /></router-link>
     <h1>{{ details.name }}</h1>
     <div id="description" v-html="details.description"></div>
     <ul>
