@@ -15,7 +15,7 @@
         <MaterialIcon icon="podcasts" />
         {{ item.name }}
         <div class="actions">
-          <router-link :to="'/podcasts/'+btoa(item.url)">
+          <router-link :to="'/podcasts/'+item.hash">
             <MaterialIcon icon="toc" />
           </router-link>
           <button @click="remove(item.url)">
@@ -30,7 +30,7 @@
     <div>{{ description }}</div>
     <ul>
       <li v-for="(item) in details.episodes" :key="item.url">
-        {{ item.name }}
+        {{ item.title }}
         <div class="actions">
           <button @click="playPodcast(details.url, item.url)">
             <MaterialIcon icon="play_circle" />
