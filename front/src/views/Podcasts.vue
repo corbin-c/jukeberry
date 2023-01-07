@@ -56,7 +56,7 @@ export default {
         name: "",
         url: "",
         description: "",
-        episodes: ""
+        episodes: []
       }
     }
   },
@@ -66,7 +66,7 @@ export default {
   methods: {
     async getPodcasts() {
       const list = await requests.allPodcasts();
-      this.completeList = list.sort((a,b) => a.name.localeCompare(b.name));
+      this.list = list.sort((a,b) => a.name.localeCompare(b.name));
     },
     async addPodcast() {
       if (this.nrUrl == "" ){
@@ -85,7 +85,7 @@ export default {
     },
     async remove(podcastUrl) {
       const list = await requests.removePodcast(podcastUrl);
-      this.completeList = list.sort((a,b) => a.name.localeCompare(b.name));      
+      this.list = list.sort((a,b) => a.name.localeCompare(b.name));      
       this.$root.showNotification("Le podcast a été supprimé");
     }
   },
