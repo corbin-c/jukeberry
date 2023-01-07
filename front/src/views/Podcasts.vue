@@ -27,7 +27,7 @@
   </section>
   <section v-else>
     <h1>{{ details.name }}</h1>
-    <div>{{ description }}</div>
+    <div>{{ details.description }}</div>
     <ul>
       <li v-for="(item) in details.episodes" :key="item.url">
         {{ item.title }}
@@ -100,6 +100,16 @@ export default {
 }
 </script>
 <style scoped>
+h1 {
+  text-align: center;
+  line-height: 4rem;
+  font-size: 1.6rem;
+  min-height: 4rem;
+  background: var(--neutral2);
+}
+div {
+  min-height: 4rem;  
+}
 fieldset {
   grid-template-columns: 1fr 1fr 0fr;
 }
