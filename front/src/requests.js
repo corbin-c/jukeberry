@@ -141,6 +141,22 @@ const requests = {
   removeRadio: async (url) => {
     return await requests.makeRequest("/radio/delete", { url });
   },
+  /* podcasts */
+  allPodcasts: async () => {
+    return await requests.makeRequest("/podcast/list");
+  },
+  addPodcast: async (url) => {
+    return await requests.makeRequest("/podcast/create", { url });
+  },
+  updatePodcast: async (url) => {
+    return await requests.makeRequest("/podcast/update", { url });
+  },
+  playPodcast: (feedUrl, url) => {
+    requests.makeRequest("/podcast/play", { feedUrl, url });
+  },
+  removePodcast: async (url) => {
+    return await requests.makeRequest("/podcast/delete", { url });
+  },
   /* advanced */
   regenerate: () => {
     requests.makeRequest("/files/regenerate");    
