@@ -91,19 +91,30 @@ export default {
       const list = await requests.removePodcast(podcastUrl);
       this.list = list.sort((a,b) => a.name.localeCompare(b.name));      
       this.$root.showNotification("Le podcast a été supprimé");
+    },
+    async init() {
+      this.details = {
+        name: "",
+        url: "",
+        description: "",
+        episodes: []
+      }
+      if (this.podcast && this.podcast.length) {
+        const url = atob(this.podcast);
+        await this.viewPodcast(url);
+        await this.updatePodcast(url);
+        return;
+      }
+      this.getPodcasts();
     }
   },
   watch: {
     podcast: function () {
-      this.podcast && this.podcast.length
-      ? this.updatePodcast(atob(this.podcast))
-      : this.getPodcasts();
+      this.init();
     }
   },
   mounted() {
-    this.podcast && this.podcast.length
-    ? this.updatePodcast(atob(this.podcast))
-    : this.getPodcasts();
+    this.init();
   },
   props: {
     podcast: String
