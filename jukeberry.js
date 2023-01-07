@@ -6,6 +6,7 @@ const FilesHandler = require("./files.js");
 const MediaPlayer = require("./media.js");
 const PlayListManager = require("./playlist.js");
 const RadioManager = require("./radios.js");
+const PodcastManager = require("./podcasts.js");
 const GpioControls = require("./gpio/gpio.js");
 const Metadata = require("./metadata/metadata.js");
 const server = require("./server.js");
@@ -25,6 +26,7 @@ class Jukeberry {
     this.media = new MediaPlayer(this);
     this.playlist = new PlayListManager(this);
     this.radios = new RadioManager(this);
+    this.podcasts = new PodcastManager(this);
     this.metadata = new Metadata(this);
     this.server = server;
     const routes = require("./router/router.js")(this);
