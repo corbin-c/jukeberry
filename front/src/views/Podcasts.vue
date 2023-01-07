@@ -91,8 +91,8 @@ export default {
   },
   mounted() {
     this.podcast && this.podcast.length
-    ? this.getPodcasts()
-    : this.updatePodcast(atob(this.podcast));
+    ? this.updatePodcast(atob(this.podcast))
+    : this.getPodcasts();
   },
   props: {
     podcast: String
