@@ -95,7 +95,7 @@ export default {
       }
       switch (this.status.playing.mode) {
         case "podcast":
-          return "podcast";
+          return "podcasts";
         case "radio":
           return "radio";
         case "music":
