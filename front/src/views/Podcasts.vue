@@ -126,7 +126,7 @@ section > a:first-child {
   min-height: 4rem;
   display: flex;
   justify-content: center;
-  align-content: center;
+  align-items: center;
 }
 h1 {
   text-align: center;
