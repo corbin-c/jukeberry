@@ -32,6 +32,16 @@ const routes = [
     component: () => import(/* webpackChunkName: "list" */ '../views/Radio.vue'),
   },
   {
+    path: '/podcasts/:podcast*',
+    name: 'Podcasts',
+    component: () => import(/* webpackChunkName: "list" */ '../views/Podcasts.vue'),
+    props: (route) => {
+      return {
+        podcast: route.params.podcast
+      }
+    }
+  },
+  {
     path: '/search/:context',
     name: 'Search Form',
     component: () => import(/* webpackChunkName: "list" */ '../views/Search.vue'),
