@@ -110,6 +110,8 @@ h1 {
 h1 + div {
   min-height: 4rem;  
   padding: 2rem;
+  font-size: .85em;
+  opacity: .85;
 }
 fieldset {
   grid-template-columns: 1fr 1fr 0fr;
