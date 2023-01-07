@@ -19,6 +19,17 @@ module.exports = (parent) => {
       }
     },
     {
+      path: "/podcast/view",
+      hdl: async (req,res) => {
+        const options = await parent.server.getRequestBody(req);
+        if (typeof options.url === "undefined") {
+          parent.server.failure(res,500,"no podcast url provided");
+          return;
+        }
+        parent.server.json(parent.podcasts.list.find(e => e.url === options.url))(req,res);
+      }
+    },
+    {
       path: "/podcast/update",
       hdl: async (req,res) => {
         const options = await parent.server.getRequestBody(req);
