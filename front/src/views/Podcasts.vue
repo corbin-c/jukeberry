@@ -26,7 +26,7 @@
     </ul>
   </section>
   <section v-else>
-    <router-link :to="/podcasts/"><MaterialIcon icon="arrow_upward" /></router-link>
+    <router-link to="/podcasts/"><MaterialIcon icon="arrow_upward" /></router-link>
     <h1>{{ details.name }}</h1>
     <div id="description" v-html="details.description"></div>
     <ul>
@@ -78,6 +78,9 @@ export default {
       this.$root.showNotification("Le podcast a été ajouté");
       this.nrUrl = ""; 
     },
+    async viewPodcast(url) {
+      this.details = await requests.viewPodcast(url);
+    },
     async updatePodcast(url) {
       this.details = await requests.updatePodcast(url);
     },
@@ -91,7 +94,7 @@ export default {
     }
   },
   watch: {
-    path: function () {
+    podcast: function () {
       this.podcast && this.podcast.length
       ? this.updatePodcast(atob(this.podcast))
       : this.getPodcasts();
@@ -108,6 +111,12 @@ export default {
 }
 </script>
 <style scoped>
+section > a:first-child {
+  min-height: 4rem;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
 h1 {
   text-align: center;
   line-height: 4rem;

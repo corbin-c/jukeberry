@@ -151,6 +151,9 @@ const requests = {
   updatePodcast: async (url) => {
     return await requests.makeRequest("/podcast/update", { url });
   },
+  viewPodcast: async (url) => {
+    return await requests.makeRequest("/podcast/view", { url });
+  },
   playPodcast: (feedUrl, url) => {
     requests.makeRequest("/podcast/play", { feedUrl, url });
   },
