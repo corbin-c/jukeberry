@@ -69,7 +69,7 @@ module.exports = (parent) => {
           .find(e => e.url === options.feedUrl)
           .episodes.find(e => e.url === options.url);
         if (typeof podcast !== "undefined") {
-          parent.media.playRadio(podcast.name, options.url);
+          parent.media.playPodcast(podcast.title, options.url, podcast.description);
           res.writeHead(200);
           res.end();
         } else {
