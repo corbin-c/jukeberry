@@ -17,6 +17,7 @@ module.exports = class {
   async create(url) {
     const podcast = (await this.updateFeed({
       url: url,
+      hash: Buffer.from(url).toString("base64"))
       name: "",
       description: "",
       episodes: []

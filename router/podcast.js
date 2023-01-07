@@ -3,7 +3,7 @@ module.exports = (parent) => {
     {
       path: "/podcast/list",
       hdl: (req,res) => {
-        parent.server.json(parent.podcasts.list.map(e => ({ url: e.url, name: e.name })))(req,res);
+        parent.server.json(parent.podcasts.list.map(e => ({ url: e.url, hash: e.hash, name: e.name })))(req,res);
       }
     },
     {
@@ -15,7 +15,7 @@ module.exports = (parent) => {
           return;
         }
         await parent.podcasts.create(options.url);
-        parent.server.json(parent.podcasts.list.map(e => ({ url: e.url, name: e.name })))(req,res);
+        parent.server.json(parent.podcasts.list.map(e => ({ url: e.url, hash: e.hash, name: e.name })))(req,res);
       }
     },
     {
@@ -39,7 +39,7 @@ module.exports = (parent) => {
           return;
         }
         parent.podcasts.removeRadio(options.url);
-        parent.server.json(parent.podcasts.list.map(e => ({ url: e.url, name: e.name })))(req,res);
+        parent.server.json(parent.podcasts.list.map(e => ({ url: e.url, hash: e.hash, name: e.name })))(req,res);
       }
     },
     {
