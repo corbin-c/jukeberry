@@ -92,7 +92,7 @@ export default {
   mounted() {
     this.podcast && this.podcast.length
     ? this.getPodcasts()
-    : this.updatePodcast(this.podcast);
+    : this.updatePodcast(atob(this.podcast));
   },
   props: {
     podcast: String
