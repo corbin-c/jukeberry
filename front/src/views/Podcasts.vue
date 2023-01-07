@@ -27,7 +27,7 @@
   </section>
   <section v-else>
     <h1>{{ details.name }}</h1>
-    <div v-html="details.description"></div>
+    <div id="description" v-html="details.description"></div>
     <ul>
       <li v-for="(item) in details.episodes" :key="item.url">
         {{ item.title }}
@@ -107,12 +107,12 @@ h1 {
   min-height: 4rem;
   background: var(--neutral2);
 }
-h1 + div {
+#description {
   min-height: 4rem;  
   padding: 2rem;
   opacity: .85;
 }
-h1 + div, h1 + div *, h1 + div p, h1 + div p * {
+h1 + *, #description, #description *, #description p, #description p * {
   font-size: .9rem !important;  
 }
 fieldset {
