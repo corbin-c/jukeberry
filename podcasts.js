@@ -1,30 +1,67 @@
+const Parser = new (require("rss-parser"))();
 const { writeFileSync } = require("fs");
 
 module.exports = class {
   constructor(parent) {
     this.parent = parent;
     try {
-      this._list = require("./podcasts.json");
+      this.list = require("./podcasts.json");
     } catch {
       console.warn("File './podcasts.json' couldn't be found... will create");
-      this._list = [];
+      this.list = [];
     }
   }
-  get list() {
-    return this._list;
+  save() {
+    writeFileSync("./podcasts.json",JSON.stringify(this.list));
   }
-  set list(list) {
-    this._list = list;
-    writeFileSync("./podcasts.json",JSON.stringify(list));
+  async create(url) {
+    const podcast = (await this.updateFeed({
+      url: url,
+      name: "",
+      description: "",
+      episodes: []
+    })).feed;
+    this.list = [...this.list,  podcast];
+    this.save();
   }
-  create(name,url) {
-    const newList = [...this._list, {
-      name,
-      url,
-    }];
-    this.list = newList;
+  async update(url) {
+    const podcastIndex = this.list.findIndex(e => e.url === url);
+    const update = await this.updateFeed(this.list[podcastIndex]);
+    if (update.changed) {
+      this.list[podcastIndex] = update.feed;
+      this.save();
+    } else {
+      console.log("no changes");
+    }
   }
-  removeRadio(url) {
-    this.list = this._list.filter(e => e.url !== url);
+  async updateFeed(oldFeed) {
+    const feed = await Parser.parseURL(oldFeed.url);
+    let changed = false;
+    if (feed.title !== oldFeed.name) {
+      oldFeed.name = feed.title;
+      changed = true;
+    }
+    if (feed.description !== oldFeed.description) {
+      oldFeed.description = feed.description;
+      changed = true;
+    }
+    console.log(oldFeed.episodes.length)
+    if (feed.items
+      .some(item => !oldFeed.episodes
+        .find(e => e.url === item.enclosure?.url))) {
+      oldFeed.episodes = feed.items.map(item => {
+        return {
+          title: item.title,
+          date: item.isoDate || item.pubDate,
+          description: item.contentSnippet || item.content,
+          url: item.enclosure.url
+        }
+      });
+      changed = true;
+    }
+    return { changed, feed: oldFeed };
+  }
+  remove(url) {
+    this.list = this.list.filter(e => e.url !== url);
   }
 }
