@@ -3,3 +3,4 @@ musicDirectory_*
 videoDirectory_*
 playlist
 *.log
+node_modules
