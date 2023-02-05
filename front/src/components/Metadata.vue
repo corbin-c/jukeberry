@@ -3,6 +3,9 @@
     <figure>
       <img :src="currentPicture" @click="nextPicture" />
     </figure>
+    <button v-if="status.playing" @click="playlistAdd()">
+      <MaterialIcon icon="playlist_add" /> Ajouter à la playlist
+    </button>
     <dl>
       <dt v-if="md.album">
         <MaterialIcon icon="album" />
@@ -150,6 +153,9 @@ export default {
     this.getMetadata();
   },
   methods: {
+    playlistAdd() {
+      this.$root.showModal("playlist","CURRENT_MEDIA");
+    },
     preparePictures() {
       let allPictures = [];
       if (this.md.picture) {
@@ -237,5 +243,22 @@ dd {
 }
 dt .material-icons-outlined {
   font-size: 1.5rem !important;
+}
+button {
+  margin: auto;
+  min-width: 75%;
+  padding: .5rem 1rem;
+  display: block;
+  padding-top: 0;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  color: var(--neutral);
+  border: 1px solid var(--neutral);
+}
+button .material-icons-outlined {
+  font-size: 2.3rem;
+  color: inherit;
+  position: relative;
+  top: .6rem;
 }
 </style>

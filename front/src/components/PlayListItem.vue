@@ -62,6 +62,9 @@ export default {
     }
   },
   methods: {
+    playlistAdd() {
+      this.$root.showModal("playlist","CURRENT_MEDIA");
+    },
     dragover(e) {
       if (e.preventDefault) {
         e.preventDefault();

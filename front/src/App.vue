@@ -67,6 +67,7 @@ export default {
       this.navShown = !this.navShown;
     },
     initWS() {
+      console.log("reset websockets");
       this.ws = new WebSocket("ws://"+window.location.host);
       this.ws.onmessage = (event) => {
         this.status = JSON.parse(event.data);
@@ -82,7 +83,7 @@ export default {
   },
   mounted() {
     this.checkWS();
-    if (this.ws === false) {
+    if (!this.ws) {
       this.initWS();
     }
   },
