@@ -38,7 +38,7 @@ module.exports = class {
   }
   add(id, path) {
     if (path === "CURRENT_MEDIA") {
-      path = this.parent.status?.metadata?.path;
+      path = this.parent.status?.playing?.metadata?.path;
       if (!path?.length) {
         return;
       }
