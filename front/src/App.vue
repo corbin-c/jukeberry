@@ -48,7 +48,7 @@ export default {
     return {
       status: {},
       navShown: false,
-      ws: false
+      ws: false,
       wsInterval: false
     }
   },
