@@ -49,11 +49,15 @@ export default {
       status: {},
       navShown: false,
       ws: false
+      wsInterval: false
     }
   },
   methods: {
-    checkWS(){  
-      setInterval(() => {
+    checkWS(){ 
+      if (this.wsInterval) {
+        return;
+      }
+      this.wsInterval = setInterval(() => {
         if (!this.ws || this.ws.readyState !== 1) {
           this.initWS();
         }
