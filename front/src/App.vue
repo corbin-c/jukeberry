@@ -52,9 +52,16 @@ export default {
     }
   },
   methods: {
+    checkWS(){  
+      setInterval(() => {
+        if (!this.ws || this.ws.readyState !== 1) {
+          this.initWS();
+        }
+      }, 10000);
+    },
     showNav() {
       this.navShown = !this.navShown;
-    }
+    },
     initWS() {
       this.ws = new WebSocket("ws://"+window.location.host);
       this.ws.onmessage = (event) => {
@@ -70,6 +77,7 @@ export default {
     }
   },
   mounted() {
+    this.checkWS();
     if (this.ws === false) {
       this.initWS();
     }
