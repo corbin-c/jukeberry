@@ -70,7 +70,6 @@ export default {
         x: this.firstTouch.x - touch.x,
         y: this.firstTouch.y - touch.y
       }
-      console.log(this.firstTouch.y, touch.y);
       if (Math.abs(diff.x) < Math.abs(diff.y)) {
         //y swipe
         if (diff.y > 0) {
