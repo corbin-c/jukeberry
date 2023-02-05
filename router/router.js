@@ -4,6 +4,7 @@ const subRoutes = [
   "./search.js",
   "./playlist.js",
   "./radio.js",
+  "./podcast.js",
   "./media.js"
 ];
 

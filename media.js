@@ -155,6 +155,22 @@ module.exports = class {
       }
     };
   }
+  async playPodcast(name, url, description) {
+    await this.stop();
+    await this.parent.utils.wait(1000);
+    this.parent.utils.spawnAndDetach("mplayer -slave -input file=./mplayer_master -msglevel all=4 "+url);
+    this.parent.status = {
+      playing: {
+        mode: "podcast",
+        metadata: {
+          title: name,
+          description,
+          url
+        },
+        paused: false
+      }
+    };
+  }
   async generatePlaylist(path) { 
     try {
       let tree = await this.parent.files.getTree("music");

@@ -20,6 +20,12 @@
         </router-link>
       </li>
       <li>
+          <MaterialIcon icon="podcasts" />
+        <router-link to="/podcasts">
+          Podcasts
+        </router-link>
+      </li>
+      <li>
           <MaterialIcon icon="playlist_play" />
         <router-link to="/playlist">
           Playlist
