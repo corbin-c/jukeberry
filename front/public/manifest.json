@@ -1,7 +1,7 @@
 {
   "background_color": "#B64639",
   "description": "Raspberry Pi Media Player",
-  "display": "fullscreen",
+  "display": "standalone",
   "icons": [
     {
       "src": "/logo.png",
