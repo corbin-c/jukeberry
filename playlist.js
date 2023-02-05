@@ -37,6 +37,12 @@ module.exports = class {
     this.list = this._list.filter(e => e.id !== id);
   }
   add(id, path) {
+    if (path === "CURRENT_MEDIA") {
+      path = this.parent.status?.metadata?.path;
+      if (!path?.length) {
+        return;
+      }
+    }
     const targetPlaylist = this._list.find(e => e.id === id);
     if (targetPlaylist.list.includes(path)) {
       throw new Error("Cette chanson a déjà été ajoutée à la playlist");

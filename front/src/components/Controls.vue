@@ -31,6 +31,11 @@
         <MaterialIcon icon="stop_circle" />
       </button>
     </li>
+    <li v-if="status.playing">
+      <button @click="playlistAdd()">
+        <MaterialIcon icon="playlist_add" />
+      </button>
+    </li>
   </ul>
   <ul v-else></ul>
 </template>
@@ -53,7 +58,10 @@ export default {
     },
     command(keyword) {
       requests.sendCommand(keyword);
-    }
+    },
+    playlistAdd() {
+      this.$root.showModal("playlist","CURRENT_MEDIA");
+    },
   }
 }
 </script>
