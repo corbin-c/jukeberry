@@ -47,20 +47,31 @@ export default {
   data() {
     return {
       status: {},
-      navShown: false
+      navShown: false,
+      ws: false
     }
   },
   methods: {
     showNav() {
       this.navShown = !this.navShown;
     }
+    initWS() {
+      this.ws = new WebSocket("ws://"+window.location.host);
+      this.ws.onmessage = (event) => {
+        this.status = JSON.parse(event.data);
+        console.log(JSON.parse(event.data));
+      }
+      this.ws.onclose = () => {
+        this.initWS();
+      }
+      this.ws.onerror = () => {
+        this.initWS();
+      }
+    }
   },
   mounted() {
-    const ws = new WebSocket("ws://"+window.location.host);
-    //~ const ws = new WebSocket("ws://localhost:5000");
-    ws.onmessage = (event) => {
-      this.status = JSON.parse(event.data);
-      console.log(JSON.parse(event.data));
+    if (this.ws === false) {
+      this.initWS();
     }
   },
   components: {
