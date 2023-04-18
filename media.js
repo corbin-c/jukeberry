@@ -4,6 +4,7 @@ const { writeFileSync } = require("fs");
 module.exports = class {
   constructor(parent) {
     this.parent = parent;
+    this._output = "default";
     this.parent.gpio["btn-push-yellow"].onPush(() => {
       if (this.parent.status.playing) {
         this.master({
@@ -54,6 +55,13 @@ module.exports = class {
       const radio = this.parent.radios.list.filter((e) => e.favorite)[0];
       this.playRadio(radio.name, radio.url);
     });
+  }
+  get output() {
+    return this._output;
+  }
+  set output(value) {
+    //do things
+    this._output = value;
   }
   changeRadio(n) {
     if (

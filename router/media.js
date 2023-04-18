@@ -6,88 +6,117 @@ module.exports = (parent) => {
   const mediaRoutes = [
     {
       path: "/media/metadata/fake",
-      hdl: async (req,res) => {
-        parent.server.json(fakemetadata)(req,res);
-      }
+      hdl: async (req, res) => {
+        parent.server.json(fakemetadata)(req, res);
+      },
+    },
+    {
+      path: "/media/output",
+      hdl: async (req, res) => {
+        const options = await parent.server.getRequestBody(req);
+        if (options?.output) {
+          parent.media.stop();
+          parent.media.output = options.output;
+        }
+        parent.server.json(parent.media.output)(req, res);
+      },
     },
     {
       path: "/media/metadata",
-      hdl: async (req,res) => {
+      hdl: async (req, res) => {
         if (!parent.status.playing) {
-          parent.server.failure(res,500,"no media being played");
+          parent.server.failure(res, 500, "no media being played");
           return;
         }
         try {
-          const metadata = await parent.metadata.consolidate(parent.status.playing.metadata);
-          parent.server.json(metadata)(req,res);
+          const metadata = await parent.metadata.consolidate(
+            parent.status.playing.metadata
+          );
+          parent.server.json(metadata)(req, res);
         } catch (e) {
           console.error(e);
-          parent.server.failure(res,500,"no metadata found");
+          parent.server.failure(res, 500, "no metadata found");
         }
-      }
+      },
     },
     {
       path: "/media/play/playlist",
-      hdl: async (req,res) => {
+      hdl: async (req, res) => {
         const options = await parent.server.getRequestBody(req);
         if (typeof options.id === "undefined") {
-          parent.server.failure(res,500,"no playlist ID provided");
+          parent.server.failure(res, 500, "no playlist ID provided");
           return;
         }
         const random = options.random || false;
         const from = options.from || 0;
-        const playlist = parent.playlist.getPlaylist(options.id)
-          .map(e => e.replace("./",parent.config.directories["musicDirectory"]))
+        const playlist = parent.playlist
+          .getPlaylist(options.id)
+          .map((e) =>
+            e.replace("./", parent.config.directories["musicDirectory"])
+          )
           .slice(from)
           .join("\n");
-        writeFileSync("./playlist",playlist);
-        parent.media.play("./playlist",random);
+        writeFileSync("./playlist", playlist);
+        parent.media.play("./playlist", random);
         res.writeHead(200);
         res.end();
-      }
+      },
     },
     {
       path: "/media/play/music",
-      hdl: async (req,res) => {
+      hdl: async (req, res) => {
         try {
           const options = await parent.server.getRequestBody(req);
-          const playlistPath = options.path ? "./playlist" : "./musicDirectory_list";
+          const playlistPath = options.path
+            ? "./playlist"
+            : "./musicDirectory_list";
           const random = options.random || false;
           if (options.recursive) {
-            const path = options.path
-              .replace("./",parent.config.directories["musicDirectory"]);
+            const path = options.path.replace(
+              "./",
+              parent.config.directories["musicDirectory"]
+            );
             const playlist = parent.globalList.musicDirectory_list
-              .filter(e => e.indexOf(path) == 0)
+              .filter((e) => e.indexOf(path) == 0)
               .join("\n");
-            writeFileSync("playlist",playlist);
+            writeFileSync("playlist", playlist);
           } else if (options.path) {
             await parent.media.generatePlaylist(options.path);
           }
-          parent.media.play(playlistPath,random);
+          parent.media.play(playlistPath, random);
           res.writeHead(200);
           res.end();
         } catch (e) {
-          parent.server.failure(res,500,"Something went wrong while generating playlist\n"+e);
+          parent.server.failure(
+            res,
+            500,
+            "Something went wrong while generating playlist\n" + e
+          );
         }
-      }
+      },
     },
     {
       path: "/media/play/video",
-      hdl: (req,res) => { /* should be moved outside routes, inside media module */
+      hdl: (req, res) => {
+        /* should be moved outside routes, inside media module */
         let path = req.page.searchParams.get("options");
-        path = path.replace("./",parent.config.directories["videoDirectory"]);
+        path = path.replace("./", parent.config.directories["videoDirectory"]);
         let subs = parent.globalList.videoDirectory_list
-          .filter(e => e.indexOf(path.split(".").slice(0,-1).join(".")) >= 0)
-          .filter(e => ["srt","sub"].includes(e.split(".").reverse()[0]));
+          .filter((e) => e.indexOf(path.split(".").slice(0, -1).join(".")) >= 0)
+          .filter((e) => ["srt", "sub"].includes(e.split(".").reverse()[0]));
         if (subs.length === 0) {
           subs = parent.globalList.videoDirectory_list
-            .filter(e => e.indexOf(path.split("/").slice(0,-1).join("/")) >= 0)
-            .filter(e => ["srt","sub"].includes(e.split(".").reverse()[0]));
+            .filter(
+              (e) => e.indexOf(path.split("/").slice(0, -1).join("/")) >= 0
+            )
+            .filter((e) => ["srt", "sub"].includes(e.split(".").reverse()[0]));
         }
         if (subs.length > 1) {
-          let subs_en = subs.find(e =>
-            (e.toLowerCase().indexOf("english") > 0)
-            || (e.toLowerCase().indexOf("_en") > 0));
+          let subs_en = subs.find(
+            (e) =>
+              e.toLowerCase().indexOf("english") > 0 ||
+              e.toLowerCase().indexOf("_en") > 0
+          );
           if (typeof subs_en !== "undefined") {
             subs = subs_en;
           } else {
@@ -95,32 +124,36 @@ module.exports = (parent) => {
           }
         }
         if (typeof subs !== "undefined") {
-          subs = "--subtitles \""+subs+"\" ";
+          subs = '--subtitles "' + subs + '" ';
         } else {
           subs = "";
         }
         parent.media.master("stop");
-        exec("omxplayer --no-ghost-box "+subs+"\""+path+"\"",
-          (error,stdout,stderr) => {});
+        exec(
+          "omxplayer --no-ghost-box " + subs + '"' + path + '"',
+          (error, stdout, stderr) => {}
+        );
         parent.status = {
           playing: {
             mode: "video",
             paused: false,
-            metadata: {}
-          }
-        }
-        writeFileSync("raw.log","ANS_VIDEO_FILE="+path);
+            metadata: {},
+          },
+        };
+        writeFileSync("raw.log", "ANS_VIDEO_FILE=" + path);
         res.writeHead(200);
         res.end();
-      }
+      },
     },
     {
       path: "/media/command",
-      hdl: async (req,res) => {
+      hdl: async (req, res) => {
         const options = await parent.server.getRequestBody(req);
         let paused = false;
-        if ((typeof parent.status.playing !== "boolean")
-        && (typeof parent.status.playing.paused !== "undefined")) {
+        if (
+          typeof parent.status.playing !== "boolean" &&
+          typeof parent.status.playing.paused !== "undefined"
+        ) {
           paused = !parent.status.playing.paused;
         }
         let command = [
@@ -130,48 +163,48 @@ module.exports = (parent) => {
             video: "pause",
             status: {
               playing: {
-                paused
-              }
-            }
+                paused,
+              },
+            },
           },
           {
             name: "forward",
-            cmd: "seek 10"
+            cmd: "seek 10",
           },
           {
             name: "rewind",
-            cmd: "seek -10"
+            cmd: "seek -10",
           },
           {
             name: "next",
             audio: "key_down_event 62",
-            video: "togglesubtitles"
+            video: "togglesubtitles",
           },
           {
             name: "prev",
-            cmd: "key_down_event 60"
-          }
-        ].find(e => e.name == options.command);
+            cmd: "key_down_event 60",
+          },
+        ].find((e) => e.name == options.command);
         if (typeof command === "undefined") {
-          parent.server.failure(res,404,"media player command not found");
+          parent.server.failure(res, 404, "media player command not found");
         } else {
           parent.media.master(command);
           res.writeHead(200);
           res.end();
         }
-      }
+      },
     },
     {
       path: "/media/stop",
-      hdl: (req,res) => {
+      hdl: (req, res) => {
         parent.media.stop();
         res.writeHead(200);
         res.end();
-      }
+      },
     },
     {
       path: "/media/halt",
-      hdl: async (req,res) => {
+      hdl: async (req, res) => {
         res.writeHead(200);
         res.end("Goodbye");
         await parent.media.stop();
@@ -179,7 +212,7 @@ module.exports = (parent) => {
         console.warn("shutdown triggered");
         await parent.utils.wait(1000);
         execSync("sudo shutdown -h now");
-      }
+      },
     },
   ];
   return mediaRoutes;
