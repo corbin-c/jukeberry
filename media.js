@@ -1,4 +1,5 @@
 const { execSync, exec } = require("child_process");
+const { config } = require("./config.json");
 const { writeFileSync } = require("fs");
 
 module.exports = class {
@@ -56,11 +57,25 @@ module.exports = class {
       this.playRadio(radio.name, radio.url);
     });
   }
+  get outputOptions() {
+    if (this._output === "bluetooth") {
+      return " -ao alsa:device=bluealsa ";
+    }
+    return "";
+  }
   get output() {
     return this._output;
   }
   set output(value) {
     //do things
+    this.stop();
+    if (value === "bluetooth" && config.bluetoothInit?.length) {
+      try {
+        exec(config.bluetoothInit);
+      } catch {
+        // no op
+      }
+    }
     this._output = value;
   }
   changeRadio(n) {
@@ -155,6 +170,7 @@ module.exports = class {
     this.parent.utils.spawnAndDetach(
       "mplayer -slave -input file=./mplayer_master -msglevel all=4 " +
         random +
+        +this.outputOptions +
         "-playlist " +
         path
     );
@@ -170,7 +186,9 @@ module.exports = class {
     await this.stop();
     await this.parent.utils.wait(1000);
     this.parent.utils.spawnAndDetach(
-      "mplayer -slave -input file=./mplayer_master -msglevel all=4 " + url
+      "mplayer -slave -input file=./mplayer_master -msglevel all=4 " +
+        this.outputOptions +
+        url
     );
     this.parent.status = {
       playing: {
@@ -187,7 +205,9 @@ module.exports = class {
     await this.stop();
     await this.parent.utils.wait(1000);
     this.parent.utils.spawnAndDetach(
-      "mplayer -slave -input file=./mplayer_master -msglevel all=4 " + url
+      "mplayer -slave -input file=./mplayer_master -msglevel all=4 " +
+        this.outputOptions +
+        url
     );
     this.parent.status = {
       playing: {
