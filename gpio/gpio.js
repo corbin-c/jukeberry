@@ -171,10 +171,10 @@ const GPIO = class {
   }
   async niceBlink() {
     await this.allLedsOff();
-    const t = 250;
+    const t = 100;
     for (let led of this.config.leds) {
-      this["led-" + led.name].blink(t);
-      await this.wait(t / this.config.leds.length);
+      this["led-" + led.name].blink(t * this.config.leds.length);
+      await this.wait(t);
     }
   }
   stop() {
