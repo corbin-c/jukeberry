@@ -170,7 +170,7 @@ module.exports = class {
     this.parent.utils.spawnAndDetach(
       "mplayer -slave -input file=./mplayer_master -msglevel all=4 " +
         random +
-        +this.outputOptions +
+        this.outputOptions +
         "-playlist " +
         path
     );
