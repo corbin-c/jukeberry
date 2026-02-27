@@ -10,6 +10,7 @@
     "rss-parser": "^3.12.0",
     "websocket-driver": "^0.7.3",
     "youtube-node": "^1.3.3",
-    "ytdl": "^1.3.0"
+    "ytdl": "^1.3.0",
+    "bleno": "^0.5.0"
   }
 }

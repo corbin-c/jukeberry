@@ -11,6 +11,7 @@ const GpioControls = require("./gpio/gpio.js");
 const Metadata = require("./metadata/metadata.js");
 const server = require("./server.js");
 const CONFIG = require("./config.js");
+const { startBle, musicService } = require("./ble/bleServer.js");
 
 class Jukeberry {
   constructor(config) {
@@ -46,6 +47,11 @@ class Jukeberry {
       this.setSocket(driver);
     });
     this.init();
+    try {
+      startBle();
+    } catch (e) {
+      console.error("[BLE] Failed to start BLE service:", e.message);
+    }
     this.gpio.combinations.push({
       buttons: ["switch-t-green", "switch-t-yellow", "switch-t-red"],
       callback: async () => {
@@ -233,6 +239,9 @@ class Jukeberry {
       }
     }
     this.sendLog();
+    if (musicService) {
+      musicService.notifyStatus(this.status);
+    }
   }
   get status() {
     return this._status;
